@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboLogic Student Login</title>
+  <link rel="stylesheet" href="css/auth.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/game-auth.js"></script>
+</head>
+<body>
+  <main class="auth-card">
+    <section id="loginPanel">
+      <div class="brand">⚙ ROBOLOGIC STEM LAB</div>
+      <h1 id="authTitle">Welcome back</h1>
+      <p id="authDescription">Log in to continue your learning journey.</p>
+      <form id="authForm" class="auth-form">
+        <label for="loginEmail">Email address</label>
+        <input id="loginEmail" type="email" placeholder="Student email" autocomplete="email">
+        <label for="loginPassword">Password</label>
+        <div class="password-wrap">
+          <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+          <button id="togglePassword" type="button">Show</button>
+        </div>
+        <p id="passwordRules" class="password-rules" hidden>Use at least 6 characters.</p>
+        <div id="confirmRow" hidden>
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" placeholder="Repeat password" autocomplete="new-password">
+        </div>
+        <button id="authSubmit" type="submit">Log in</button>
+        <p id="loginMessage" class="auth-message" aria-live="polite"></p>
+        <button id="modeToggle" type="button" class="secondary">Need an account? Create one</button>
+      </form>
+    </section>
+    <section id="gameChoices" hidden>
+      <h1>Choose your game</h1>
+      <p>Signed in as <strong id="studentName"></strong></p>
+      <div class="game-choices">
+        <button id="physicsChoice" class="game-choice">🎯 Physics Kinematics Lab</button>
+        <button id="mazeChoice" class="game-choice">🤖 RoboLogic Maze</button>
+      </div>
+      <button id="logoutButton" class="secondary" style="max-width:180px;margin-top:20px;">Log out</button>
+    </section>
+  </main>
+  <script>window.addEventListener("load", () => StemGameAuth.initLoginPage());</script>
+</body>
+</html>

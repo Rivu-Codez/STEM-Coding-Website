@@ -41,4 +41,4 @@ progress, enforce sequential unlocks, and gate bonus submissions after level
 - Confirm unauthenticated requests cannot read any protected table.
 
 Frontend login, progress wiring, AI tutoring, and the bonus-level UI are
-intentionally deferred to the next phase.
+implemented in later phases.

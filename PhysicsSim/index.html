@@ -222,6 +222,9 @@
       cursor: pointer;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-auth.js"></script>
 </head>
 <body>
 
@@ -634,6 +637,7 @@
     // --- E. KINEMATIC SIMULATION ENGINE ---
     function fireCannon() {
       if (isFlying) return;
+      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isFlying = true;
       document.getElementById('btnFire').disabled = true;
       triggerMessage("Ball in flight...", "");
@@ -742,6 +746,11 @@
       document.getElementById('btnFire').disabled = false;
       previousTrail = [...currentBall.trail]; // save ghost trail
       drawScene();
+      if (!isWin && window.StemGameAuth) {
+        StemGameAuth.recordAttempt(currentLevelIndex + 1, "miss", "trajectory_miss", {
+          distance: document.getElementById('lastShotDistanceText').textContent
+        });
+      }
     }
 
     function resetShot() {
@@ -761,6 +770,11 @@
 
     function showVictoryModal(dist, ring) {
       const modal = document.getElementById('victoryModal');
+      if (window.StemGameAuth) {
+        StemGameAuth.recordAttempt(currentLevelIndex + 1, "success", null, {
+          distance: dist, stars: ring.stars
+        });
+      }
       document.getElementById('modalTitle').textContent = `${LEVELS[currentLevelIndex].title} Passed!`;
       document.getElementById('modalDesc').innerHTML = `${"⭐".repeat(ring.stars)}<br><strong>${ring.msg}</strong> Landed at <strong>${dist.toFixed(1)} meters</strong>! You discovered the exact kinematic relationship required for this target.`;
       modal.style.display = 'flex';
@@ -778,6 +792,10 @@
     }
 
     function changeLevel(idx) {
+      if (window.StemGameAuth && !StemGameAuth.allowLevel(parseInt(idx) + 1)) {
+        document.getElementById('levelPicker').value = currentLevelIndex;
+        return;
+      }
       currentLevelIndex = parseInt(idx);
       const lvl = LEVELS[currentLevelIndex];
       document.getElementById('levelTitle').textContent = lvl.title;
@@ -789,7 +807,11 @@
 
     // Initialize on window load
     window.onload = () => {
-      changeLevel(0);
+      if (window.StemGameAuth) {
+        StemGameAuth.init("physics", { requireSession: true }).then(() => changeLevel(0));
+      } else {
+        changeLevel(0);
+      }
     };
   </script>
 </body>

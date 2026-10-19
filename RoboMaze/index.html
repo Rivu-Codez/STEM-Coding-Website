@@ -294,6 +294,9 @@
       cursor: pointer;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-auth.js"></script>
 </head>
 <body>
 
@@ -667,6 +670,11 @@
         // Check Wall Collision
         if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE || grid[nextY][nextX] === 1) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
+          if (window.StemGameAuth) {
+            StemGameAuth.recordAttempt(currentLevelIndex + 1, "collision", "wall_collision", {
+              command: stepObj.action
+            });
+          }
           return false; // Collision halt
         }
         robot.x = nextX;
@@ -694,6 +702,7 @@
     // Run Full Program Automatically
     async function runProgram() {
       if (studentProgram.length === 0 || isExecuting) return;
+      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isExecuting = true;
       document.getElementById('btnRun').disabled = true;
       triggerMessage("Robot executing program...", "");
@@ -715,6 +724,11 @@
 
       // If program ended without reaching star
       triggerMessage("Program ended, but robot didn't reach the star. Try again!", "");
+      if (window.StemGameAuth) {
+        StemGameAuth.recordAttempt(currentLevelIndex + 1, "miss", "goal_not_reached", {
+          steps: steps.length
+        });
+      }
       clearHighlights();
       isExecuting = false;
       enableControls();
@@ -723,6 +737,7 @@
     // Step Button (Single Step Execution for Code.org-Style Debugging)
     function stepSingleCommand() {
       if (studentProgram.length === 0) return;
+      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       const steps = expandProgramToSteps(studentProgram);
       if (currentStepIndex >= steps.length) {
         triggerMessage("Program ended. Tap 'Reset' to step again.", "");
@@ -759,6 +774,11 @@
     // Victory Modal Handlers
     function showVictoryModal() {
       const modal = document.getElementById('victoryModal');
+      if (window.StemGameAuth) {
+        StemGameAuth.recordAttempt(currentLevelIndex + 1, "success", null, {
+          steps: currentStepIndex
+        });
+      }
       document.getElementById('modalTitle').textContent = `${LEVELS[currentLevelIndex].title} Passed!`;
       modal.style.display = 'flex';
     }
@@ -786,6 +806,10 @@
     }
 
     function changeLevel(idx) {
+      if (window.StemGameAuth && !StemGameAuth.allowLevel(parseInt(idx) + 1)) {
+        document.getElementById('levelPicker').value = currentLevelIndex;
+        return;
+      }
       currentLevelIndex = parseInt(idx);
       studentProgram = [];
       renderProgramWorkspace();
@@ -798,7 +822,11 @@
 
     // Start on window load
     window.onload = () => {
-      resetLevel();
+      if (window.StemGameAuth) {
+        StemGameAuth.init("robo_maze", { requireSession: true }).then(() => resetLevel());
+      } else {
+        resetLevel();
+      }
     };
   </script>
 </body>
