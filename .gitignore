@@ -1,0 +1,21 @@
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated output
+node_modules/
+dist/
+build/
+coverage/
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Supabase local data and temporary files
+.supabase/
+tmp/
+work/
