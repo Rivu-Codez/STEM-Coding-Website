@@ -225,6 +225,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/tutor-hints.js"></script>
 </head>
 <body>
 
@@ -678,6 +679,19 @@
           const wallTopY = GROUND_Y - lvl.wall.height * SCALE;
           if (Math.abs(currentBall.x - wallPx) < 7 && currentBall.y >= wallTopY) {
             triggerMessage("💥 Boom! Smashed into the wall obstacle. Try an angle >60° to arc over it!", "error");
+            if (window.StemGameAuth) {
+              StemGameAuth.recordMistake(currentLevelIndex + 1, "wall_collision", {
+                angle: angleDeg, speed: speedMps, wall: lvl.wall
+              });
+            }
+            if (window.StemTutor) StemTutor.show("physics", "wall_collision");
+            if (window.StemGameAuth) {
+              StemGameAuth.analyzeMistake(currentLevelIndex + 1, "wall_collision", {
+                angle: angleDeg, speed: speedMps, wall: lvl.wall
+              }).then(insight => {
+                if (insight && window.StemTutor) StemTutor.show("physics", "wall_collision", insight);
+              });
+            }
             endShot(false);
             return;
           }
@@ -703,6 +717,19 @@
             settleOnGreen(captured, () => { showVictoryModal(finalMeters, ring); endShot(true); });
           } else {
             const shortOrLong = finalMeters < targetDist ? "short" : "long";
+            if (window.StemGameAuth) {
+              StemGameAuth.recordMistake(currentLevelIndex + 1, "shot_missed", {
+                distance: finalMeters, target: targetDist, angle: angleDeg, speed: speedMps
+              });
+            }
+            if (window.StemTutor) StemTutor.show("physics", "shot_missed");
+            if (window.StemGameAuth) {
+              StemGameAuth.analyzeMistake(currentLevelIndex + 1, "shot_missed", {
+                distance: finalMeters, target: targetDist, angle: angleDeg, speed: speedMps
+              }).then(insight => {
+                if (insight && window.StemTutor) StemTutor.show("physics", "shot_missed", insight);
+              });
+            }
             triggerMessage(`Missed! Landed ${Math.abs(targetDist - finalMeters).toFixed(1)}m ${shortOrLong}. Adjust and try again!`, "error");
             endShot(false);
           }

@@ -197,6 +197,27 @@
       });
       if (response.error) return console.error("Progress update failed:", response.error.message);
       await loadProgress();
+    },
+    async recordMistake(levelNumber, category, details) {
+      if (!state.client || !state.session) return;
+      const response = await state.client.rpc("record_mistake_event", {
+        p_game_id: state.gameId,
+        p_level_number: levelNumber,
+        p_category: category,
+        p_details: details || {}
+      });
+      if (response.error) console.error("Mistake event failed:", response.error.message);
+    },
+    async analyzeMistake(levelNumber, category, details) {
+      if (!state.client || !state.session) return null;
+      const response = await state.client.functions.invoke("analyze-mistake", {
+        body: { gameId: state.gameId, levelNumber, category, details }
+      });
+      if (response.error) {
+        console.info("AI tutor fallback:", response.error.message);
+        return null;
+      }
+      return response.data?.insight || null;
     }
   };
 

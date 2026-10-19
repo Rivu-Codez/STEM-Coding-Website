@@ -297,6 +297,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/tutor-hints.js"></script>
 </head>
 <body>
 
@@ -671,6 +672,15 @@
         if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE || grid[nextY][nextX] === 1) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
+            StemGameAuth.recordMistake(currentLevelIndex + 1, "wall_collision", {
+              command: stepObj.action, position: { x: robot.x, y: robot.y }
+            });
+            if (window.StemTutor) StemTutor.show("robo_maze", "wall_collision");
+            StemGameAuth.analyzeMistake(currentLevelIndex + 1, "wall_collision", {
+              command: stepObj.action, position: { x: robot.x, y: robot.y }
+            }).then(insight => {
+              if (insight && window.StemTutor) StemTutor.show("robo_maze", "wall_collision", insight);
+            });
             StemGameAuth.recordAttempt(currentLevelIndex + 1, "collision", "wall_collision", {
               command: stepObj.action
             });
@@ -725,6 +735,15 @@
       // If program ended without reaching star
       triggerMessage("Program ended, but robot didn't reach the star. Try again!", "");
       if (window.StemGameAuth) {
+        StemGameAuth.recordMistake(currentLevelIndex + 1, "program_incomplete", {
+          steps: steps.length
+        });
+        if (window.StemTutor) StemTutor.show("robo_maze", "program_incomplete");
+        StemGameAuth.analyzeMistake(currentLevelIndex + 1, "program_incomplete", {
+          steps: steps.length, program: studentProgram
+        }).then(insight => {
+          if (insight && window.StemTutor) StemTutor.show("robo_maze", "program_incomplete", insight);
+        });
         StemGameAuth.recordAttempt(currentLevelIndex + 1, "miss", "goal_not_reached", {
           steps: steps.length
         });
