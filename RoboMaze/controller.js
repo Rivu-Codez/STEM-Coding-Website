@@ -1,5 +1,6 @@
 import { LEVELS } from './levels.js';
 import { RoboMazeSimulation } from './simulation.js';
+import { createRoboMazeRenderer } from './renderer.js';
 import { createGamePersistence } from '../js/game-persistence.js';
 
 // --- B. GAME STATE VARIABLES ---
@@ -58,70 +59,12 @@ import { createGamePersistence } from '../js/game-persistence.js';
     window.RoboMazeLearningGateInstance = learningGate;
 
     const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const GRID_SIZE = 8;
-    const TILE_SIZE = 45; // 8x8 grid on 360x360 canvas
-
-    // --- C. RENDER 2D GRID & ROBOT SPRITE ---
-    function drawGame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const grid = LEVELS[currentLevelIndex].grid;
-
-      // 1. Draw Grid Tiles
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-          const type = grid[r][c];
-          if (type === 1) {
-            ctx.fillStyle = "#1e293b"; // Wall Obstacle
-            ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = "#334155";
-            ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-          } else {
-            ctx.fillStyle = "#0f172a"; // Walkable Path
-            ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = "#1e293b";
-            ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-          }
-
-          // Draw Target Star Goal
-          if (type === 2) {
-            ctx.font = "30px sans-serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText("⭐", c * TILE_SIZE + TILE_SIZE / 2, r * TILE_SIZE + TILE_SIZE / 2);
-          }
-        }
-      }
-
-      // 2. Draw Robot Sprite (Circular body with eyes and direction pointer)
-      const rx = robot.x * TILE_SIZE + TILE_SIZE / 2;
-      const ry = robot.y * TILE_SIZE + TILE_SIZE / 2;
-
-      // Robot Body Glow & Circle
-      ctx.beginPath();
-      ctx.arc(rx, ry, 21, 0, Math.PI * 2);
-      ctx.fillStyle = "#38bdf8";
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "#ffffff";
-      ctx.stroke();
-
-      // Robot Direction Pointer
-      const angles = [-Math.PI / 2, 0, Math.PI / 2, Math.PI]; // UP, RIGHT, DOWN, LEFT
-      const angle = angles[robot.dir];
-      ctx.beginPath();
-      ctx.moveTo(rx, ry);
-      ctx.lineTo(rx + Math.cos(angle) * 16, ry + Math.sin(angle) * 16);
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#090d16";
-      ctx.stroke();
-
-      // Robot Eye Indicator
-      ctx.beginPath();
-      ctx.arc(rx + Math.cos(angle) * 6, ry + Math.sin(angle) * 6, 4, 0, Math.PI * 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-    }
+    const drawGame = createRoboMazeRenderer({
+      canvas,
+      levels: LEVELS,
+      getLevelIndex: () => currentLevelIndex,
+      getRobot: () => robot,
+    });
     window.drawGame = drawGame;
     drawGame();
 
