@@ -34,7 +34,7 @@ test('authoritative progression migrations expose server-owned procedures', () =
 
 test('tutor reliability contract includes retry states and quota refund', () => {
   const functionSource = fs.readFileSync(
-    path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'index.ts'),
+    path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'handler.ts'),
     'utf8',
   );
   const quotaMigration = fs.readFileSync(
