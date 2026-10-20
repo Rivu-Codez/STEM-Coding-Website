@@ -43,6 +43,20 @@ test('legacy client-trusted RPCs are revoked after authoritative migration', () 
   assert.match(source, /from public, authenticated, anon/);
 });
 
+test('attempt idempotency wrappers protect authoritative validators', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '012_attempt_idempotency.sql'),
+    'utf8',
+  );
+  assert.match(source, /create table public\.attempt_receipts/);
+  assert.match(source, /submit_robo_maze_attempt_idempotent/);
+  assert.match(source, /submit_physics_attempt_idempotent/);
+  assert.match(source, /on conflict \(user_id, game_id, attempt_id\) do nothing/);
+  assert.match(source, /submit_robo_maze_attempt\(p_level_number, p_program\)/);
+  assert.match(source, /submit_physics_attempt\(p_level_number, p_attempt_data\)/);
+  assert.match(source, /already deployed frontend does not break/);
+});
+
 test('tutor reliability contract includes retry states and quota refund', () => {
   const functionSource = fs.readFileSync(
     path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'handler.ts'),

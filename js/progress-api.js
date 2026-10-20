@@ -2,6 +2,9 @@
   function platform() { return window.StemGamePlatform; }
   function client() { return platform().getClient(); }
   function session() { return platform().getSession(); }
+  function createAttemptId() {
+    return window.crypto?.randomUUID?.() || null;
+  }
 
   async function load(gameId) {
     platform().setUnlocked([1]);
@@ -61,12 +64,17 @@
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };
       }
+      const attemptId = createAttemptId();
+      if (!attemptId) {
+        platform().showStatus("Your browser cannot create a safe attempt ID. Please refresh and retry.");
+        return { ok: false, error: "Attempt ID unavailable" };
+      }
       const response = isRoboMaze
-        ? await client().rpc("submit_robo_maze_attempt", {
-          p_level_number: levelNumber, p_program: attemptData.program
+        ? await client().rpc("submit_robo_maze_attempt_idempotent", {
+          p_attempt_id: attemptId, p_level_number: levelNumber, p_program: attemptData.program
         })
-        : await client().rpc("submit_physics_attempt", {
-          p_level_number: levelNumber, p_attempt_data: attemptData
+        : await client().rpc("submit_physics_attempt_idempotent", {
+          p_attempt_id: attemptId, p_level_number: levelNumber, p_attempt_data: attemptData
         });
       if (response.error) {
         platform().showStatus("Progress could not be saved. Please retry this attempt.");

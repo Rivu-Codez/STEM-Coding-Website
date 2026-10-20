@@ -32,6 +32,7 @@ function createHarness({ session = null, rpcResponse = { data: {}, error: null }
     console,
     STEM_SUPABASE_CONFIG: { url: 'https://example.supabase.co', anonKey: 'test-key' },
     supabase: { createClient() { return client; } },
+    crypto: { randomUUID: () => 'attempt-1' },
     setTimeout,
   };
   context.window = context;
