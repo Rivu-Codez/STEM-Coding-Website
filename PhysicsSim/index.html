@@ -264,6 +264,7 @@
   <script src="../js/mistake-api.js"></script>
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/game-module.js"></script>
   <script src="../js/tutor-hints.js"></script>
   <script src="levels.js"></script>
   <script src="simulation.js"></script>
@@ -824,12 +825,36 @@
       }
     }
 
+    const PhysicsModule = StemGameModule.create({
+      gameId: 'physics',
+      levels: LEVELS,
+      loadLevel(levelNumber) {
+        changeLevel(levelNumber - 1);
+      },
+      reset() {
+        resetShot();
+      },
+      getAttemptPayload() {
+        return {
+          angle: angleDeg,
+          speed: speedMps,
+          drag: airResistance,
+          distance: currentBall ? (currentBall.x - ORIGIN_X) / SCALE : null,
+          flightTime: currentBall?.elapsedTime || 0,
+          apex: currentBall ? (GROUND_Y - currentBall.maxY) / SCALE : 0,
+        };
+      },
+      renderFeedback(feedback) {
+        if (feedback?.message) triggerMessage(feedback.message, feedback.statusClass || '');
+      },
+    });
+
     // Initialize on window load
     window.onload = () => {
       if (window.StemGameAuth) {
-        StemGameAuth.init("physics", { requireSession: true }).then(() => changeLevel(0));
+        StemGameAuth.init("physics", { requireSession: true }).then(() => PhysicsModule.loadLevel(1));
       } else {
-        changeLevel(0);
+        PhysicsModule.loadLevel(1);
       }
     };
   </script>
