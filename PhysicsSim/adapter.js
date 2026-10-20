@@ -5,11 +5,15 @@ const PhysicsAdapter = {
   },
 
   isLevelUnlocked(levelIndex) {
-    return !window.StemGameAuth || StemGameAuth.allowLevel(this.levelNumber(levelIndex));
+    if (!window.StemGameAuth || typeof StemGameAuth.allowLevel !== "function") {
+      window.StemGamePlatform?.showStatus?.("Authentication is unavailable. Refresh and log in again.");
+      return false;
+    }
+    return StemGameAuth.allowLevel(this.levelNumber(levelIndex));
   },
 
   async restoreCheckpoint(levelIndex) {
-    if (!window.StemGameAuth) return null;
+    if (!window.StemGameAuth || typeof StemGameAuth.getLearningState !== "function") return null;
     return StemGameAuth.getLearningState(this.levelNumber(levelIndex));
   },
 };
