@@ -2,6 +2,10 @@
   "name": "stem-website",
   "private": true,
   "description": "STEM learning platform infrastructure tools",
+  "scripts": {
+    "test": "node --test tests/repository-contract.test.mjs",
+    "check": "node scripts/verify-repo.mjs"
+  },
   "engines": {
     "node": ">=20"
   },

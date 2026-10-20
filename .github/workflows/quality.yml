@@ -25,6 +25,12 @@ jobs:
         run: |
           find js -name '*.js' -print0 | xargs -0 -n1 node --check
 
+      - name: Run repository checks
+        run: npm run check
+
+      - name: Run automated tests
+        run: npm test
+
       - name: Check required files
         shell: bash
         run: |
