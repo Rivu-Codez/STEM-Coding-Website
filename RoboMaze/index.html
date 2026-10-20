@@ -326,6 +326,10 @@
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
   <script src="../js/tutor-hints.js"></script>
+  <script src="levels.js"></script>
+  <script src="simulation.js"></script>
+  <script src="adapter.js"></script>
+  <script src="ui.js"></script>
 </head>
 <body>
 
@@ -335,7 +339,6 @@
   <header>
     <div class="brand">🤖 <span>RoboLogic</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">| STEM Coding Maze</span></div>
     <div class="nav-links">
-      <a href="index1.html" class="btn-nav">🚀 Open Physics Lab ➔</a>
       <div class="stats-bar">
         <div class="stat-pill"><span class="stat-xp">⭐</span> <span id="xpCount">100 XP</span></div>
         <div class="stat-pill"><span class="stat-streak">🔥</span> <span id="streakCount">3 Days</span></div>
@@ -457,41 +460,6 @@
        3. JAVASCRIPT GAME ENGINE (Conditionals, Code Generator & Stepper)
        ========================================================================== -->
   <script>
-    // --- A. LEVEL DEFINITIONS (8x8: # = wall, . = path, G = goal) ---
-    const gridFromRows = rows => rows.map(row => [...row].map(cell => cell === '#' ? 1 : cell === 'G' ? 2 : 0));
-    const LEVELS = [
-      { title: "Level 1: Sequence Steps", instruction: "🎯 <strong>Concept:</strong> Use a simple sequence of forward commands.", grid: gridFromRows(["########", "#.....G#", "########", "########", "########", "########", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 2: Turning", instruction: "↪️ <strong>Concept:</strong> Turn at a corner to change direction.", grid: gridFromRows(["########", "#....###", "####..##", "#####G##", "########", "########", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 3: Repeat Loops", instruction: "🔁 <strong>Concept:</strong> Replace repeated movement with a loop.", requiredBlock: "REPEAT_FORWARD", grid: gridFromRows(["########", "#..#####", "#..#####", "#..#####", "#.....G#", "########", "########", "########"]), start: { x: 1, y: 1, dir: 2 } },
-      { title: "Level 4: Choosing a Turn", instruction: "🧭 <strong>Concept:</strong> Choose the correct turn at each corner.", grid: gridFromRows(["########", "#......#", "######.#", "######.#", "#G.....#", "########", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 5: Wall Detection", instruction: "❓ <strong>Concept:</strong> Detect a wall before moving forward.", grid: gridFromRows(["########", "#..#####", "##.#####", "##G#####", "########", "########", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 6: Conditional Movement", instruction: "✅ <strong>Concept:</strong> Use a conditional at a decision point instead of guessing the route.", grid: gridFromRows(["########", "#.....G#", "#####..#", "#......#", "#.######", "#......#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 7: Loop + Turn", instruction: "⚡ <strong>Concept:</strong> Combine a repeat loop with a turn.", requiredBlock: "REPEAT_FORWARD", grid: gridFromRows(["########", "#....###", "####..##", "####..##", "####..##", "####G.##", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 8: Shortest Path", instruction: "📏 <strong>Concept:</strong> Plan the shortest route through an open maze.", grid: gridFromRows(["########", "#......#", "#.####.#", "#....#.#", "####.#.#", "#....G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 9: Avoid the Dead End", instruction: "🚧 <strong>Concept:</strong> Recognize and avoid a tempting dead-end branch.", grid: gridFromRows(["########", "#......#", "#####..#", "#....#.#", "#.##.#.#", "#....G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 10: Misleading Junction", instruction: "🧭 <strong>Concept:</strong> Compare branches and choose a route deliberately instead of always turning the same way.", maxBlocks: 12, grid: gridFromRows(["########", "#..#####", "#..#####", "#....###", "####..##", "####..##", "####G.##", "########"]), start: { x: 1, y: 1, dir: 2 } },
-      { title: "Level 11: Orientation Repair", instruction: "🛠️ <strong>Concept:</strong> Debug a route by tracking which direction the robot is facing after each turn.", maxBlocks: 12, grid: gridFromRows(["########", "#####..#", "#####..#", "###....#", "##..####", "##..####", "#G..####", "########"]), start: { x: 5, y: 1, dir: 2 } },
-      { title: "Level 12: Multi-Corner Route", instruction: "🔄 <strong>Concept:</strong> Chain several turns without losing track of direction.", grid: gridFromRows(["########", "#......#", "######.#", "#......#", "#.######", "#......#", "#####G##", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 13: Efficient Navigation", instruction: "🏃 <strong>Concept:</strong> Solve the maze with a compact program using the required loop.", requiredBlock: "REPEAT_FORWARD", maxBlocks: 8, grid: gridFromRows(["########", "#......#", "#.####.#", "#.#..#.#", "#.#..#.#", "#....G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 14: Advanced Maze", instruction: "🧠 <strong>Concept:</strong> Combine loops, turns, and wall conditionals.", grid: gridFromRows(["########", "#..#...#", "#..#.#.#", "#....#.#", "###.##.#", "#...#..#", "#G..#..#", "########"]), start: { x: 1, y: 1, dir: 2 } },
-      { title: "Level 15: Final Logic Maze", instruction: "🏆 <strong>Final Challenge:</strong> Combine sequence, loops, turns, and conditionals to reach the goal.", grid: gridFromRows(["########", "#......#", "#.####.#", "#.#....#", "#.#.####", "#...#..#", "###G#..#", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 16: Loop Debugging", instruction: "🛠️ <strong>Concept:</strong> Diagnose where a repeated movement belongs, then use a loop to simplify the route.", requiredBlock: "REPEAT_FORWARD", maxBlocks: 8, grid: gridFromRows(["########", "#...####", "###.####", "###.####", "###...##", "#####.##", "#####G##", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 17: Conditional Right Turns", instruction: "❓ <strong>Concept:</strong> Turn right whenever a wall blocks the path ahead.", grid: gridFromRows(["########", "#..#####", "##.#####", "##.#####", "##...G##", "########", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 18: Conditional Left Turns", instruction: "❓ <strong>Concept:</strong> Use left turns and wall detection to change direction safely.", grid: gridFromRows(["########", "#.....##", "##.#####", "##.#####", "##...G##", "########", "########", "########"]), start: { x: 5, y: 1, dir: 3 } },
-      { title: "Level 19: Loop with a Decision", instruction: "🔁 <strong>Concept:</strong> Use a loop for the corridor, then make a deliberate turn at the decision point.", requiredBlock: "REPEAT_FORWARD", maxBlocks: 8, grid: gridFromRows(["########", "#......#", "######.#", "######.#", "######.#", "#G.....#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 20: Alternating Turns", instruction: "🔄 <strong>Concept:</strong> Alternate turns while keeping the robot's orientation in mind.", grid: gridFromRows(["########", "#....###", "##...###", "##...###", "##.#####", "##.....#", "#####G##", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 21: Route Choice", instruction: "📏 <strong>Concept:</strong> Choose the shorter of two possible routes through an open section.", grid: gridFromRows(["########", "#......#", "#.####.#", "#......#", "####.###", "#...G..#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 22: Dead-End Avoidance", instruction: "🚧 <strong>Concept:</strong> Avoid a branch that looks promising but cannot reach the goal.", grid: gridFromRows(["########", "#....###", "#..#...#", "#..#.#.#", "#....#.#", "###..G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 23: Loop + Conditionals", instruction: "⚡ <strong>Concept:</strong> Combine a required loop with wall-based conditional turns.", requiredBlock: "REPEAT_FORWARD", maxBlocks: 10, grid: gridFromRows(["########", "#...####", "###.####", "#...####", "#.######", "#....G##", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 24: Debug the Route", instruction: "🛠️ <strong>Concept:</strong> Inspect and repair a route that fails at a repeated decision point.", maxBlocks: 10, grid: gridFromRows(["########", "#..#####", "#..#####", "#....###", "####.###", "####.###", "####G###", "########"]), start: { x: 1, y: 1, dir: 2 } },
-      { title: "Level 25: Symmetry and Orientation", instruction: "🪞 <strong>Concept:</strong> Use symmetry to predict the route, then preserve orientation through each turn.", maxBlocks: 10, grid: gridFromRows(["########", "#####..#", "#####..#", "###....#", "###.####", "###.####", "#G..####", "########"]), start: { x: 6, y: 1, dir: 3 } },
-      { title: "Level 26: Symmetrical Maze", instruction: "🪞 <strong>Concept:</strong> Read a symmetrical layout and choose the correct mirrored route.", grid: gridFromRows(["########", "#......#", "#.####.#", "#.#..#.#", "#.#..#.#", "#....G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 27: Multi-Corner Route", instruction: "🔄 <strong>Concept:</strong> Chain several turns and conditional checks in sequence.", grid: gridFromRows(["########", "#..#####", "##.#####", "##...###", "####.###", "####.###", "####G###", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 28: Compact Program", instruction: "🏃 <strong>Concept:</strong> Find a compact program using a loop and no more than eight blocks.", requiredBlock: "REPEAT_FORWARD", maxBlocks: 8, grid: gridFromRows(["########", "#.....##", "#####..#", "#....#.#", "#.##...#", "#....G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 29: Advanced Conditionals", instruction: "🧠 <strong>Concept:</strong> Use conditionals at multiple decision points without losing direction.", grid: gridFromRows(["########", "#..#...#", "#..#.#.#", "#....#.#", "#.##...#", "#...#G.#", "########", "########"]), start: { x: 1, y: 1, dir: 1 } },
-      { title: "Level 30: Final Logic Maze", instruction: "🏆 <strong>Final Challenge:</strong> Combine sequence, loops, turns, and conditionals to solve the full 8x8 maze.", grid: gridFromRows(["########", "#....###", "###..###", "#...#.##", "#.#...##", "#...#..#", "#G..#..#", "########"]), start: { x: 1, y: 1, dir: 1 } }
-    ];
-
     // --- B. GAME STATE VARIABLES ---
     let currentLevelIndex = 0;
     let robot = { x: 1, y: 1, dir: 1 };
@@ -573,256 +541,20 @@
       ctx.fill();
     }
 
-    // --- D. BLOCK WORKSPACE MANAGEMENT & PYTHON GENERATOR ---
-    function addCommand(type, count = 1) {
-      if (isExecuting || learningLocked || currentLevelIndex >= 19) return;
-      studentProgram.push({ type, count });
-      renderProgramWorkspace();
-      updatePythonCode();
-    }
-
-    function addLoopPrompt() {
-      if (isExecuting || learningLocked || currentLevelIndex >= 19) return;
-      const times = prompt("How many times should the robot repeat moving forward? (2 to 5)", "3");
-      const n = parseInt(times);
-      if (n >= 2 && n <= 5) {
-        studentProgram.push({ type: 'REPEAT_FORWARD', count: n });
-        renderProgramWorkspace();
-        updatePythonCode();
-      }
-    }
-
-    function removeCommand(index) {
-      if (isExecuting || learningLocked || currentLevelIndex >= 19) return;
-      studentProgram.splice(index, 1);
-      renderProgramWorkspace();
-      updatePythonCode();
-    }
-
-    function switchView(view) {
-      if (currentLevelIndex >= 19) view = 'python';
-      activeView = view;
-      document.getElementById('tabBlocks').className = "tab-btn " + (view === 'blocks' ? 'active' : '');
-      document.getElementById('tabPython').className = "tab-btn " + (view === 'python' ? 'active' : '');
-
-      document.getElementById('programArea').style.display = view === 'blocks' ? 'flex' : 'none';
-      document.getElementById('pythonArea').style.display = view === 'python' ? 'flex' : 'none';
-    }
-
-    function updateProgrammingMode() {
-      const textMode = currentLevelIndex >= 19;
-      document.querySelectorAll('.toolbox .btn-block').forEach(button => { button.disabled = textMode || learningLocked; });
-      document.getElementById('pythonEditor').style.display = textMode ? 'block' : 'none';
-      document.getElementById('pythonEditor').disabled = learningLocked;
-      document.getElementById('pythonCodeBox').style.display = textMode ? 'none' : 'block';
-      if (textMode) switchView('python');
-    }
-
-    function setLearningLocked(locked) {
-      learningLocked = locked;
-      document.getElementById('btnRun').disabled = locked;
-      document.getElementById('btnStep').disabled = locked;
-      updateProgrammingMode();
-    }
-
-    function renderProgramWorkspace() {
-      const area = document.getElementById('programArea');
-      if (studentProgram.length === 0) {
-        area.innerHTML = `<div class="program-empty">Your program is empty.<br>Click blocks above to add commands!</div>`;
-        return;
-      }
-
-      area.innerHTML = studentProgram.map((cmd, idx) => {
-        let label = "";
-        let extraClass = "";
-        if (cmd.type === 'FORWARD') label = "⬆️ Move Forward";
-        else if (cmd.type === 'TURN_LEFT') label = "↺ Turn Left";
-        else if (cmd.type === 'TURN_RIGHT') label = "↻ Turn Right";
-        else if (cmd.type === 'REPEAT_FORWARD') { label = `🔁 Repeat ${cmd.count}x: [ Move Forward ]`; extraClass = "loop-item"; }
-        else if (cmd.type === 'IF_WALL_RIGHT') { label = `❓ If Wall Ahead ➔ Turn Right`; extraClass = "cond-item"; }
-        else if (cmd.type === 'IF_WALL_LEFT') { label = `❓ If Wall Ahead ➔ Turn Left`; extraClass = "cond-item"; }
-        else if (cmd.type === 'IF_PATH_CLEAR') { label = `✅ If Path Clear ➔ Move Forward`; extraClass = "cond-item"; }
-
-        return `
-          <div class="command-item ${extraClass}" id="cmd-${idx}">
-            <span>${idx + 1}. ${label}</span>
-            <span class="cmd-del" onclick="removeCommand(${idx})">✖</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // 1.2 Dual-View Live Python Code Generator
-    function updatePythonCode() {
-      if (currentLevelIndex >= 19) return;
-      const box = document.getElementById('pythonCodeBox');
-      if (studentProgram.length === 0) {
-        box.innerHTML = '<span class="py-comment"># Your program is empty.\n# Click blocks above to generate live Python code!</span>';
-        return;
-      }
-
-      let lines = ['<span class="py-comment"># RoboLogic STEM Autonomous Program</span>'];
-      studentProgram.forEach((cmd) => {
-        if (cmd.type === 'FORWARD') {
-          lines.push('<span class="py-func">robot</span>.<span class="py-method">move_forward</span>()');
-        } else if (cmd.type === 'TURN_LEFT') {
-          lines.push('<span class="py-func">robot</span>.<span class="py-method">turn_left</span>()');
-        } else if (cmd.type === 'TURN_RIGHT') {
-          lines.push('<span class="py-func">robot</span>.<span class="py-method">turn_right</span>()');
-        } else if (cmd.type === 'REPEAT_FORWARD') {
-          lines.push(`<span class="py-kwd">for</span> _ <span class="py-kwd">in</span> <span class="py-kwd">range</span>(${cmd.count}):`);
-          lines.push('    <span class="py-func">robot</span>.<span class="py-method">move_forward</span>()');
-        } else if (cmd.type === 'IF_WALL_RIGHT') {
-          lines.push('<span class="py-kwd">if</span> <span class="py-func">robot</span>.<span class="py-method">is_wall_ahead</span>():');
-          lines.push('    <span class="py-func">robot</span>.<span class="py-method">turn_right</span>()');
-        } else if (cmd.type === 'IF_WALL_LEFT') {
-          lines.push('<span class="py-kwd">if</span> <span class="py-func">robot</span>.<span class="py-method">is_wall_ahead</span>():');
-          lines.push('    <span class="py-func">robot</span>.<span class="py-method">turn_left</span>()');
-        } else if (cmd.type === 'IF_PATH_CLEAR') {
-          lines.push('<span class="py-kwd">if</span> <span class="py-func">robot</span>.<span class="py-method">is_path_clear</span>():');
-          lines.push('    <span class="py-func">robot</span>.<span class="py-method">move_forward</span>()');
-        }
-      });
-
-      box.innerHTML = lines.map((line, idx) => `
-        <div class="py-line" id="py-line-${idx}">
-          <span class="py-num">${(idx + 1).toString().padStart(2, ' ')}</span> ${line}
-        </div>
-      `).join('');
-    }
-
-    function loadPythonProgram() {
-      if (currentLevelIndex < 19) return true;
-      const lines = document.getElementById('pythonEditor').value.split('\n');
-      const program = [];
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line || line.startsWith('#')) continue;
-        if (line === 'robot.move_forward()') program.push({ type: 'FORWARD', count: 1 });
-        else if (line === 'robot.turn_left()') program.push({ type: 'TURN_LEFT', count: 1 });
-        else if (line === 'robot.turn_right()') program.push({ type: 'TURN_RIGHT', count: 1 });
-        else {
-          const loop = line.match(/^for _ in range\(([2-5])\):$/);
-          const condition = line.match(/^if robot\.(is_wall_ahead|is_path_clear)\(\):$/);
-          if (!loop && !condition) {
-            triggerMessage('Use the supported robot commands shown in the Python panel.', 'error');
-            return false;
-          }
-          const next = lines[++i].trim();
-          if (loop && next === 'robot.move_forward()') program.push({ type: 'REPEAT_FORWARD', count: Number(loop[1]) });
-          else if (condition?.[1] === 'is_wall_ahead' && next === 'robot.turn_right()') program.push({ type: 'IF_WALL_RIGHT', count: 1 });
-          else if (condition?.[1] === 'is_wall_ahead' && next === 'robot.turn_left()') program.push({ type: 'IF_WALL_LEFT', count: 1 });
-          else if (condition?.[1] === 'is_path_clear' && next === 'robot.move_forward()') program.push({ type: 'IF_PATH_CLEAR', count: 1 });
-          else {
-            triggerMessage('Each loop or condition needs one indented command.', 'error');
-            return false;
-          }
-        }
-      }
-      if (!program.length) {
-        triggerMessage('Type at least one Python command before running.', 'error');
-        return false;
-      }
-      studentProgram = program;
-      return true;
-    }
-
-    function validateProgramRules() {
-      const level = LEVELS[currentLevelIndex];
-      const maxBlocks = level.maxBlocks || (currentLevelIndex >= 10 ? 12 : Infinity);
-      if (studentProgram.length > maxBlocks) {
-        triggerMessage(`This level allows at most ${maxBlocks} blocks. Simplify your program.`, 'error');
-        return false;
-      }
-      return true;
-    }
-
-    function conceptRequirementMet() {
-      const required = LEVELS[currentLevelIndex].requiredBlock;
-      return !required || studentProgram.some(command => command.type === required);
-    }
-
-    function showLearningGate(category) {
-      const question = category === 'wall_collision'
-        ? 'The robot hit a wall. What should you inspect before trying again?'
-        : category === 'concept_not_applied'
-          ? 'The robot reached the goal, but the level concept was not used. What should you change?'
-        : 'The program ended without reaching the goal. What should you do next?';
-      const correct = category === 'wall_collision' ? 'inspect_direction' : category === 'concept_not_applied' ? 'use_required_concept' : 'inspect_route';
-      const options = category === 'wall_collision'
-        ? [['inspect_direction', 'Inspect the next movement and the robot\'s orientation.'], ['add_random', 'Add random commands until it works.'], ['ignore_wall', 'Keep the same movement and ignore the wall.']]
-        : category === 'concept_not_applied'
-          ? [['use_required_concept', 'Revise the program to use the required concept.'], ['keep_program', 'Keep the same program because it reached the goal.'], ['add_random', 'Add unrelated blocks without checking the concept.']]
-        : [['inspect_route', 'Inspect the route and choose the needed loop or condition.'], ['repeat_same', 'Run the unchanged program again.'], ['remove_all', 'Delete the whole program without inspecting it.']];
-      document.getElementById('mazeQuestion').textContent = question;
-      document.getElementById('mazeOptions').innerHTML = options.map(([value, label]) =>
-        `<button class="learning-option" onclick="checkMazePrediction('${value}', '${correct}')">${label}</button>`
-      ).join('');
-      document.getElementById('mazeFeedback').textContent = '';
-      document.getElementById('learningGate').style.display = 'block';
-      setLearningLocked(true);
-      triggerMessage('Three failed runs. Review the program before continuing.', 'error');
-    }
-
-    function checkMazePrediction(selected, correct) {
-      const feedback = document.getElementById('mazeFeedback');
-      if (selected !== correct) {
-        feedback.textContent = 'Use the failure message to decide what part of the program needs inspection.';
-        return;
-      }
-      feedback.textContent = 'Good reasoning. Inspect the route, then edit and run deliberately.';
-      document.querySelectorAll('#mazeOptions .learning-option').forEach(button => { button.disabled = true; });
-      learningFailures = 0;
-      document.getElementById('learningGate').style.display = 'none';
-      setLearningLocked(false);
-      if (window.StemGameAuth) {
-        StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { selected });
-      }
-    }
-
-    function registerLearningFailure(category, details) {
-      learningFailures += 1;
-      failedAttempts += 1;
-      if (learningFailures >= 3) showLearningGate(category, details);
-    }
-
-    async function restoreLearningCheckpoint() {
-      if (!window.StemGameAuth) return;
-      const state = await StemGameAuth.getLearningState(currentLevelIndex + 1);
-      if (state.failures.length < 3) return;
-      learningFailures = 3;
-      showLearningGate(state.failures[state.failures.length - 1].category);
-    }
-
     // --- E. EXECUTION ENGINE (Conditionals, Step & Run) ---
-    function expandProgramToSteps(program) {
-      let steps = [];
-      program.forEach((cmd, originalIndex) => {
-        if (cmd.type === 'REPEAT_FORWARD') {
-          for (let i = 0; i < cmd.count; i++) {
-            steps.push({ action: 'FORWARD', originalIndex });
-          }
-        } else {
-          steps.push({ action: cmd.type, originalIndex });
-        }
-      });
-      return steps;
-    }
+    const expandProgramToSteps = (program) => RoboMazeSimulation.expandProgramToSteps(program);
 
     function executeSingleStep(stepObj) {
       // Directions: 0=UP, 1=RIGHT, 2=DOWN, 3=LEFT
-      const dx = [0, 1, 0, -1];
-      const dy = [-1, 0, 1, 0];
       const grid = LEVELS[currentLevelIndex].grid;
 
       // 1.1 Conditional Evaluation
       if (stepObj.action === 'IF_PATH_CLEAR') {
-        const nextX = robot.x + dx[robot.dir];
-        const nextY = robot.y + dy[robot.dir];
-        const clear = nextX >= 0 && nextX < GRID_SIZE && nextY >= 0 && nextY < GRID_SIZE && grid[nextY][nextX] !== 1;
+        const next = RoboMazeSimulation.nextPosition(robot);
+        const clear = !RoboMazeSimulation.isBlocked(grid, next);
         if (clear) {
-          robot.x = nextX;
-          robot.y = nextY;
+          robot.x = next.x;
+          robot.y = next.y;
           triggerMessage('Condition TRUE: Path clear. Robot moved forward.', 'success');
         } else {
           triggerMessage('Condition FALSE: Wall detected. Robot stayed in place.', '');
@@ -845,9 +577,8 @@
       }
 
       if (stepObj.action === 'IF_WALL_RIGHT' || stepObj.action === 'IF_WALL_LEFT') {
-        const nextX = robot.x + dx[robot.dir];
-        const nextY = robot.y + dy[robot.dir];
-        const isWall = (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE || grid[nextY][nextX] === 1);
+        const next = RoboMazeSimulation.nextPosition(robot);
+        const isWall = RoboMazeSimulation.isBlocked(grid, next);
 
         if (isWall) {
           if (stepObj.action === 'IF_WALL_RIGHT') robot.dir = (robot.dir + 1) % 4;
@@ -861,11 +592,10 @@
       }
 
       if (stepObj.action === 'FORWARD') {
-        const nextX = robot.x + dx[robot.dir];
-        const nextY = robot.y + dy[robot.dir];
+        const next = RoboMazeSimulation.nextPosition(robot);
 
         // Check Wall Collision
-        if (nextX < 0 || nextX >= GRID_SIZE || nextY < 0 || nextY >= GRID_SIZE || grid[nextY][nextX] === 1) {
+        if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
             StemGameAuth.recordMistake(currentLevelIndex + 1, "wall_collision", {
@@ -884,8 +614,8 @@
           registerLearningFailure("wall_collision", { position: { x: robot.x, y: robot.y } });
           return false; // Collision halt
         }
-        robot.x = nextX;
-        robot.y = nextY;
+        robot.x = next.x;
+        robot.y = next.y;
       } else if (stepObj.action === 'TURN_LEFT') {
         robot.dir = (robot.dir + 3) % 4;
       } else if (stepObj.action === 'TURN_RIGHT') {
@@ -987,25 +717,6 @@
       }
     }
 
-    // UI Helper Functions
-    function highlightBlock(index) {
-      clearHighlights();
-      const el = document.getElementById(`cmd-${index}`);
-      if (el) el.classList.add('active-executing');
-    }
-    function clearHighlights() {
-      document.querySelectorAll('.command-item').forEach(el => el.classList.remove('active-executing'));
-    }
-    function triggerMessage(text, statusClass) {
-      const msg = document.getElementById('statusMessage');
-      msg.textContent = text;
-      msg.className = "status-toast " + (statusClass ? `toast-${statusClass}` : "");
-    }
-    function enableControls() {
-      document.getElementById('btnRun').disabled = learningLocked;
-      document.getElementById('btnStep').disabled = learningLocked;
-    }
-
     // Victory Modal Handlers
     async function showVictoryModal() {
       const modal = document.getElementById('victoryModal');
@@ -1047,41 +758,6 @@
         alert("🎉 Congratulations! You have completed all 30 levels in the RoboLogic Maze!");
         resetLevel();
       }
-    }
-
-    // --- F. LEVEL RESET & INITIALIZATION ---
-    function resetLevel() {
-      isExecuting = false;
-      currentStepIndex = 0;
-      clearHighlights();
-      enableControls();
-      const lvl = LEVELS[currentLevelIndex];
-      robot = { ...lvl.start };
-      drawGame();
-      triggerMessage("Robot reset to start tile. Ready to run!", "");
-    }
-
-    function changeLevel(idx) {
-      if (window.StemGameAuth && !StemGameAuth.allowLevel(parseInt(idx) + 1)) {
-        document.getElementById('levelPicker').value = currentLevelIndex;
-        return;
-      }
-      currentLevelIndex = parseInt(idx);
-      studentProgram = [];
-      learningFailures = 0;
-      failedAttempts = 0;
-      lastProgramSignature = '';
-      document.getElementById('learningGate').style.display = 'none';
-      setLearningLocked(false);
-      renderProgramWorkspace();
-      updatePythonCode();
-      document.getElementById('pythonEditor').value = '';
-      updateProgrammingMode();
-      const lvl = LEVELS[currentLevelIndex];
-      document.getElementById('levelTitle').textContent = lvl.title;
-      document.getElementById('levelInstruction').innerHTML = lvl.instruction;
-      resetLevel();
-      restoreLearningCheckpoint();
     }
 
     // Start on window load
