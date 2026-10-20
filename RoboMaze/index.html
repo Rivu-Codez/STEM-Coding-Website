@@ -241,6 +241,7 @@
     .py-func { color: #38bdf8; }
     .py-method { color: #fbbf24; }
     .py-comment { color: #64748b; font-style: italic; }
+    .python-editor { display: none; width: 100%; min-height: 210px; resize: vertical; box-sizing: border-box; background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; padding: 8px; font: 0.85rem/1.5 Consolas, "Courier New", monospace; }
 
     /* Controls Bar */
     .controls { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: auto; }
@@ -392,6 +393,7 @@
 
       <!-- Tab 2: Live Python Code View (Dual-View) -->
       <div class="program-area" id="pythonArea" style="display: none;">
+        <textarea class="python-editor" id="pythonEditor" spellcheck="false" placeholder="# Type commands here:\nrobot.move_forward()\nrobot.turn_right()"></textarea>
         <div class="python-code-box" id="pythonCodeBox">
           <span class="py-comment"># Click blocks above to see live Python code!</span>
         </div>
@@ -532,14 +534,14 @@
 
     // --- D. BLOCK WORKSPACE MANAGEMENT & PYTHON GENERATOR ---
     function addCommand(type, count = 1) {
-      if (isExecuting) return;
+      if (isExecuting || currentLevelIndex >= 19) return;
       studentProgram.push({ type, count });
       renderProgramWorkspace();
       updatePythonCode();
     }
 
     function addLoopPrompt() {
-      if (isExecuting) return;
+      if (isExecuting || currentLevelIndex >= 19) return;
       const times = prompt("How many times should the robot repeat moving forward? (2 to 5)", "3");
       const n = parseInt(times);
       if (n >= 2 && n <= 5) {
@@ -550,19 +552,28 @@
     }
 
     function removeCommand(index) {
-      if (isExecuting) return;
+      if (isExecuting || currentLevelIndex >= 19) return;
       studentProgram.splice(index, 1);
       renderProgramWorkspace();
       updatePythonCode();
     }
 
     function switchView(view) {
+      if (currentLevelIndex >= 19) view = 'python';
       activeView = view;
       document.getElementById('tabBlocks').className = "tab-btn " + (view === 'blocks' ? 'active' : '');
       document.getElementById('tabPython').className = "tab-btn " + (view === 'python' ? 'active' : '');
 
       document.getElementById('programArea').style.display = view === 'blocks' ? 'flex' : 'none';
       document.getElementById('pythonArea').style.display = view === 'python' ? 'flex' : 'none';
+    }
+
+    function updateProgrammingMode() {
+      const textMode = currentLevelIndex >= 19;
+      document.querySelectorAll('.toolbox .btn-block').forEach(button => { button.disabled = textMode; });
+      document.getElementById('pythonEditor').style.display = textMode ? 'block' : 'none';
+      document.getElementById('pythonCodeBox').style.display = textMode ? 'none' : 'block';
+      if (textMode) switchView('python');
     }
 
     function renderProgramWorkspace() {
@@ -593,6 +604,7 @@
 
     // 1.2 Dual-View Live Python Code Generator
     function updatePythonCode() {
+      if (currentLevelIndex >= 19) return;
       const box = document.getElementById('pythonCodeBox');
       if (studentProgram.length === 0) {
         box.innerHTML = '<span class="py-comment"># Your program is empty.\n# Click blocks above to generate live Python code!</span>';
@@ -624,6 +636,41 @@
           <span class="py-num">${(idx + 1).toString().padStart(2, ' ')}</span> ${line}
         </div>
       `).join('');
+    }
+
+    function loadPythonProgram() {
+      if (currentLevelIndex < 19) return true;
+      const lines = document.getElementById('pythonEditor').value.split('\n');
+      const program = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || line.startsWith('#')) continue;
+        if (line === 'robot.move_forward()') program.push({ type: 'FORWARD', count: 1 });
+        else if (line === 'robot.turn_left()') program.push({ type: 'TURN_LEFT', count: 1 });
+        else if (line === 'robot.turn_right()') program.push({ type: 'TURN_RIGHT', count: 1 });
+        else {
+          const loop = line.match(/^for _ in range\(([2-5])\):$/);
+          const condition = line.match(/^if robot\.is_wall_ahead\(\):$/);
+          if (!loop && !condition) {
+            triggerMessage('Use the supported robot commands shown in the Python panel.', 'error');
+            return false;
+          }
+          const next = lines[++i].trim();
+          if (loop && next === 'robot.move_forward()') program.push({ type: 'REPEAT_FORWARD', count: Number(loop[1]) });
+          else if (condition && next === 'robot.turn_right()') program.push({ type: 'IF_WALL_RIGHT', count: 1 });
+          else if (condition && next === 'robot.turn_left()') program.push({ type: 'IF_WALL_LEFT', count: 1 });
+          else {
+            triggerMessage('Each loop or condition needs one indented command.', 'error');
+            return false;
+          }
+        }
+      }
+      if (!program.length) {
+        triggerMessage('Type at least one Python command before running.', 'error');
+        return false;
+      }
+      studentProgram = program;
+      return true;
     }
 
     // --- E. EXECUTION ENGINE (Conditionals, Step & Run) ---
@@ -711,6 +758,7 @@
 
     // Run Full Program Automatically
     async function runProgram() {
+      if (!loadPythonProgram()) return;
       if (studentProgram.length === 0 || isExecuting) return;
       if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isExecuting = true;
@@ -755,6 +803,7 @@
 
     // Step Button (Single Step Execution for Code.org-Style Debugging)
     function stepSingleCommand() {
+      if (!loadPythonProgram()) return;
       if (studentProgram.length === 0) return;
       if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       const steps = expandProgramToSteps(studentProgram);
@@ -833,6 +882,8 @@
       studentProgram = [];
       renderProgramWorkspace();
       updatePythonCode();
+      document.getElementById('pythonEditor').value = '';
+      updateProgrammingMode();
       const lvl = LEVELS[currentLevelIndex];
       document.getElementById('levelTitle').textContent = lvl.title;
       document.getElementById('levelInstruction').innerHTML = lvl.instruction;

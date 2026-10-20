@@ -189,6 +189,22 @@
     .metric-card span { color: #94a3b8; display: block; font-size: 0.75rem; }
     .metric-card strong { color: #f8fafc; font-size: 0.9rem; }
 
+    .review-panel {
+      display: none;
+      background: #0f172a;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      padding: 12px;
+      gap: 8px;
+    }
+    .review-panel h3 { color: #fbbf24; font-size: 0.95rem; }
+    .review-panel p { color: #cbd5e1; font-size: 0.78rem; line-height: 1.35; }
+    .shot-history { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+    .shot-history th, .shot-history td { border-bottom: 1px solid #334155; padding: 4px; text-align: right; }
+    .shot-history th:first-child, .shot-history td:first-child { text-align: left; }
+    .review-hint { color: #e2e8f0; font-size: 0.82rem; line-height: 1.4; background: rgba(56, 189, 248, 0.1); border-left: 3px solid #38bdf8; border-radius: 5px; padding: 8px; }
+    .btn-review { background: #f59e0b; color: #111827; border: 0; border-radius: 6px; padding: 8px; font-weight: 700; cursor: pointer; }
+
     /* Victory Modal Popup */
     .modal-overlay {
       position: fixed;
@@ -337,6 +353,10 @@
           <strong id="targetDistanceText">40.8 meters</strong>
         </div>
         <div class="metric-card">
+          <span>Attempts Remaining:</span>
+          <strong id="attemptsRemainingText">3</strong>
+        </div>
+        <div class="metric-card">
           <span>Last Shot Distance:</span>
           <strong id="lastShotDistanceText">---</strong>
         </div>
@@ -348,6 +368,17 @@
           <span>Max Apex Height:</span>
           <strong id="apexHeightText">10.2 meters</strong>
         </div>
+      </div>
+
+      <div class="review-panel" id="reviewPanel">
+        <h3>📊 Data Review Required</h3>
+        <p>Three shots missed. Study the data and read the tutor's feedback before trying again.</p>
+        <table class="shot-history">
+          <thead><tr><th>Shot</th><th>Time</th><th>Apex</th><th>Distance</th></tr></thead>
+          <tbody id="shotHistoryBody"></tbody>
+        </table>
+        <div class="review-hint" id="reviewHint">Analyzing your three shots...</div>
+        <button class="btn-review" onclick="unlockAfterReview()">I understand - unlock controls</button>
       </div>
 
       <!-- Action Buttons -->
@@ -392,18 +423,18 @@
       { title: "Level 16: Range with Drag", instruction: "🌬️ <strong>Concept:</strong> Adjust the launch to recover range lost to optional air resistance.", targetDistance: 32.0, lockSpeed: false, lockDrag: false, fixedSpeed: 25, targetTolerance: 3.2, wall: null },
       { title: "Level 17: Drag & Distance", instruction: "🎯 <strong>Concept:</strong> Tune speed and angle for a target while drag is forced on.", targetDistance: 30.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 24, targetTolerance: 3.0, wall: null },
       { title: "Level 18: High-Wall Clearance", instruction: "🧱 <strong>Concept:</strong> Clear a taller wall by controlling the projectile's apex.", targetDistance: 46.0, lockSpeed: false, lockDrag: true, fixedSpeed: 30, targetTolerance: 3.0, wall: { x: 22.0, height: 14.0 } },
-      { title: "Level 19: Angle Choice with Drag", instruction: "🔀 <strong>Concept:</strong> Compare low and high launch angles while drag is active.", targetDistance: 26.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 25, targetTolerance: 2.8, wall: null },
+      { title: "Level 19: Repair the Angle", instruction: "🛠️ <strong>Reverse Engineering:</strong> This launch setup is broken. Inspect the target and repair the angle while drag is active.", targetDistance: 26.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 25, targetTolerance: 2.8, wall: null, debugSetup: { angle: 20, speed: 25 } },
       { title: "Level 20: Speed Limit", instruction: "⚡ <strong>Concept:</strong> Reach the target with a fixed, limited launch speed.", targetDistance: 30.0, lockSpeed: true, lockDrag: true, fixedSpeed: 18, targetTolerance: 3.0, wall: null },
       { title: "Level 21: Low-Speed Precision", instruction: "🎯 <strong>Concept:</strong> Use careful angle control to make a precise low-speed shot.", targetDistance: 18.0, lockSpeed: true, lockDrag: true, fixedSpeed: 16, targetTolerance: 2.0, wall: null },
       { title: "Level 22: Bounce Trajectory", instruction: "🔄 <strong>Concept:</strong> Account for the bounce when choosing the landing path.", targetDistance: 28.0, lockSpeed: false, lockDrag: true, fixedSpeed: 26, targetTolerance: 3.0, wall: null },
       { title: "Level 23: Energy-Loss Landing", instruction: "📉 <strong>Concept:</strong> Observe how lost energy changes the final rolling distance.", targetDistance: 24.0, lockSpeed: false, lockDrag: true, fixedSpeed: 22, targetTolerance: 2.8, wall: null },
-      { title: "Level 24: Ideal Calibration", instruction: "📏 <strong>Concept:</strong> Calibrate an ideal trajectory before introducing drag again.", targetDistance: 36.0, lockSpeed: false, lockDrag: true, fixedSpeed: 20, targetTolerance: 2.8, wall: null },
+      { title: "Level 24: Repair the Trajectory", instruction: "🛠️ <strong>Reverse Engineering:</strong> A steep preset misses the target. Use the flight data to repair the trajectory.", targetDistance: 36.0, lockSpeed: false, lockDrag: true, fixedSpeed: 20, targetTolerance: 2.8, wall: null, debugSetup: { angle: 75, speed: 20 } },
       { title: "Level 25: Drag Calibration", instruction: "💨 <strong>Concept:</strong> Calibrate the same style of shot with air resistance enabled.", targetDistance: 28.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 24, targetTolerance: 2.6, wall: null },
       { title: "Level 26: Wall with Air Resistance", instruction: "🧱 <strong>Concept:</strong> Clear an obstacle while compensating for air resistance.", targetDistance: 40.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 30, targetTolerance: 2.8, wall: { x: 20.0, height: 12.0 } },
       { title: "Level 27: Maximum Range under Drag", instruction: "🚀 <strong>Concept:</strong> Find the best range compromise when drag is always active.", targetDistance: 38.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 30, targetTolerance: 2.8, wall: null },
       { title: "Level 28: Apex vs Range", instruction: "⬆️ <strong>Concept:</strong> Balance a high apex against the need to reach the target.", targetDistance: 30.0, lockSpeed: false, lockDrag: true, fixedSpeed: 24, targetTolerance: 2.5, wall: null },
       { title: "Level 29: Tight Accuracy", instruction: "🎯 <strong>Concept:</strong> Make a highly accurate shot inside a smaller landing zone.", targetDistance: 32.0, lockSpeed: false, lockDrag: false, fixedSpeed: 27, targetTolerance: 1.5, wall: null },
-      { title: "Level 30: Final Trajectory", instruction: "🏆 <strong>Final Challenge:</strong> Combine speed, angle, drag, wall clearance, and precision.", targetDistance: 42.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 32, targetTolerance: 2.0, wall: { x: 25.0, height: 12.0 } }
+      { title: "Level 30: Debug the Final Shot", instruction: "🛠️ <strong>Final Reverse-Engineering Challenge:</strong> Diagnose the broken preset, then repair angle, speed, drag, and wall clearance.", targetDistance: 42.0, lockSpeed: false, lockDrag: false, dragMode: "on", fixedSpeed: 32, targetTolerance: 2.0, wall: { x: 25.0, height: 12.0 }, debugSetup: { angle: 15, speed: 32 } }
     ];
 
     // --- B. GAME STATE & PHYSICS CONSTANTS ---
@@ -432,6 +463,9 @@
     let isFlying = false;
     let currentBall = null; // { x, y, vx, vy, trail: [] }
     let previousTrail = null; // Ghost trajectory of previous shot
+    let missCount = 0;
+    let reflectionLocked = false;
+    let shotHistory = [];
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -621,6 +655,90 @@
       document.getElementById('dragBadge').textContent = on ? "ON" : "OFF";
     }
 
+    function setPhysicsControlsLocked(locked) {
+      reflectionLocked = locked;
+      ['angleSlider', 'speedSlider', 'dragToggle', 'btnSpeedDown', 'btnSpeedUp', 'btnFire']
+        .forEach(id => { document.getElementById(id).disabled = locked; });
+      document.querySelectorAll('.btn-nudge').forEach(button => { button.disabled = locked; });
+    }
+
+    function renderShotHistory() {
+      document.getElementById('shotHistoryBody').innerHTML = shotHistory.map((shot, index) => `
+        <tr><td>${index + 1}</td><td>${shot.time.toFixed(2)}s</td>
+        <td>${shot.apex.toFixed(1)}m</td><td>${shot.distance.toFixed(1)}m</td></tr>
+      `).join('');
+    }
+
+    function showReviewPanel() {
+      renderShotHistory();
+      document.getElementById('reviewPanel').style.display = 'grid';
+      setPhysicsControlsLocked(true);
+      showReviewAnalysis();
+      triggerMessage('Three misses. Review the data before trying again.', 'error');
+    }
+
+    function registerMiss(distance) {
+      shotHistory.push({
+        time: currentBall.elapsedTime,
+        apex: (GROUND_Y - currentBall.maxY) / SCALE,
+        distance
+      });
+      missCount += 1;
+      document.getElementById('attemptsRemainingText').textContent = Math.max(0, 3 - missCount);
+      if (missCount >= 3) showReviewPanel();
+    }
+
+    function buildReviewHint() {
+      const target = LEVELS[currentLevelIndex].targetDistance;
+      const averageDistance = shotHistory.reduce((sum, shot) => sum + shot.distance, 0) / shotHistory.length;
+      const distanceGap = target - averageDistance;
+      let hint = distanceGap > 2
+        ? `Your shots are landing about ${distanceGap.toFixed(1)}m short. Try increasing the launch speed or angle.`
+        : distanceGap < -2
+          ? `Your shots are landing about ${Math.abs(distanceGap).toFixed(1)}m long. Try reducing the launch speed or angle.`
+          : 'Your average distance is close to the target. Make a smaller adjustment instead of changing both controls at once.';
+
+      if (airResistance) {
+        hint += ' Air resistance is active, so it is reducing the forward distance.';
+      } else if (angleDeg >= 60) {
+        hint += ' Your high angle increases flight time and apex, but gives less forward motion.';
+      } else if (angleDeg <= 30) {
+        hint += ' Your low angle gives more forward motion but less height and flight time.';
+      }
+      return hint;
+    }
+
+    function showReviewAnalysis() {
+      const fallback = buildReviewHint();
+      document.getElementById('reviewHint').textContent = fallback;
+
+      if (!window.StemGameAuth) return;
+      StemGameAuth.analyzeMistake(currentLevelIndex + 1, 'three_shot_review', {
+        target: LEVELS[currentLevelIndex].targetDistance,
+        angle: angleDeg,
+        speed: speedMps,
+        airResistance,
+        shots: shotHistory
+      }).then(insight => {
+        if (!insight) return;
+        const message = insight.hint || insight.explanation;
+        if (message) document.getElementById('reviewHint').textContent = message;
+      });
+    }
+
+    function unlockAfterReview() {
+      missCount = 0;
+      shotHistory = [];
+      document.getElementById('attemptsRemainingText').textContent = '3';
+      document.getElementById('reviewPanel').style.display = 'none';
+      setPhysicsControlsLocked(false);
+      updateControls();
+      triggerMessage('Tutor feedback reviewed. Adjust the launch and try again!', 'success');
+      if (window.StemGameAuth) {
+        StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { reviewed: true });
+      }
+    }
+
     function nudgeAngle(delta) {
       if (isFlying) return;
       const el = document.getElementById('angleSlider');
@@ -637,7 +755,7 @@
 
     // --- E. KINEMATIC SIMULATION ENGINE ---
     function fireCannon() {
-      if (isFlying) return;
+      if (isFlying || reflectionLocked) return;
       if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isFlying = true;
       document.getElementById('btnFire').disabled = true;
@@ -651,7 +769,9 @@
         y: GROUND_Y,
         vx: v0 * Math.cos(rad) * SCALE, // convert m/s to px/s
         vy: -v0 * Math.sin(rad) * SCALE,
-        trail: [{ x: ORIGIN_X, y: GROUND_Y }]
+        trail: [{ x: ORIGIN_X, y: GROUND_Y }],
+        elapsedTime: 0,
+        maxY: GROUND_Y
       };
 
       const dt = 0.025; // 25ms physics time-step
@@ -659,6 +779,7 @@
       const lvl = LEVELS[currentLevelIndex];
 
       function physicsLoop() {
+        currentBall.elapsedTime += dt;
         // Quadratic air drag: opposes velocity, grows with speed
         if (useDrag) {
           const speed = Math.hypot(currentBall.vx, currentBall.vy);
@@ -670,6 +791,7 @@
         currentBall.x += currentBall.vx * dt;
         currentBall.y += currentBall.vy * dt;
         currentBall.vy += G * SCALE * dt; // Gravity pulls downward
+        currentBall.maxY = Math.min(currentBall.maxY, currentBall.y);
 
         currentBall.trail.push({ x: currentBall.x, y: currentBall.y });
 
@@ -679,19 +801,13 @@
           const wallTopY = GROUND_Y - lvl.wall.height * SCALE;
           if (Math.abs(currentBall.x - wallPx) < 7 && currentBall.y >= wallTopY) {
             triggerMessage("💥 Boom! Smashed into the wall obstacle. Try an angle >60° to arc over it!", "error");
+            registerMiss((currentBall.x - ORIGIN_X) / SCALE);
             if (window.StemGameAuth) {
               StemGameAuth.recordMistake(currentLevelIndex + 1, "wall_collision", {
                 angle: angleDeg, speed: speedMps, wall: lvl.wall
               });
             }
             if (window.StemTutor) StemTutor.show("physics", "wall_collision");
-            if (window.StemGameAuth) {
-              StemGameAuth.analyzeMistake(currentLevelIndex + 1, "wall_collision", {
-                angle: angleDeg, speed: speedMps, wall: lvl.wall
-              }).then(insight => {
-                if (insight && window.StemTutor) StemTutor.show("physics", "wall_collision", insight);
-              });
-            }
             endShot(false);
             return;
           }
@@ -717,19 +833,13 @@
             settleOnGreen(captured, () => { showVictoryModal(finalMeters, ring); endShot(true); });
           } else {
             const shortOrLong = finalMeters < targetDist ? "short" : "long";
+            registerMiss(finalMeters);
             if (window.StemGameAuth) {
               StemGameAuth.recordMistake(currentLevelIndex + 1, "shot_missed", {
                 distance: finalMeters, target: targetDist, angle: angleDeg, speed: speedMps
               });
             }
             if (window.StemTutor) StemTutor.show("physics", "shot_missed");
-            if (window.StemGameAuth) {
-              StemGameAuth.analyzeMistake(currentLevelIndex + 1, "shot_missed", {
-                distance: finalMeters, target: targetDist, angle: angleDeg, speed: speedMps
-              }).then(insight => {
-                if (insight && window.StemTutor) StemTutor.show("physics", "shot_missed", insight);
-              });
-            }
             triggerMessage(`Missed! Landed ${Math.abs(targetDist - finalMeters).toFixed(1)}m ${shortOrLong}. Adjust and try again!`, "error");
             endShot(false);
           }
@@ -770,7 +880,7 @@
 
     function endShot(isWin) {
       isFlying = false;
-      document.getElementById('btnFire').disabled = false;
+      document.getElementById('btnFire').disabled = reflectionLocked;
       previousTrail = [...currentBall.trail]; // save ghost trail
       drawScene();
       if (!isWin && window.StemGameAuth) {
@@ -825,8 +935,21 @@
       }
       currentLevelIndex = parseInt(idx);
       const lvl = LEVELS[currentLevelIndex];
+      if (lvl.debugSetup) {
+        document.getElementById('angleSlider').value = lvl.debugSetup.angle;
+        document.getElementById('speedSlider').value = lvl.debugSetup.speed;
+        if (typeof lvl.debugSetup.drag === 'boolean') {
+          document.getElementById('dragToggle').checked = lvl.debugSetup.drag;
+        }
+      }
       document.getElementById('levelTitle').textContent = lvl.title;
       document.getElementById('levelInstruction').innerHTML = lvl.instruction;
+      missCount = 0;
+      reflectionLocked = false;
+      shotHistory = [];
+      document.getElementById('attemptsRemainingText').textContent = '3';
+      document.getElementById('reviewPanel').style.display = 'none';
+      setPhysicsControlsLocked(false);
       document.getElementById('targetDistanceText').textContent = `${lvl.targetDistance.toFixed(1)} meters`;
       resetShot();
       updateControls();
