@@ -57,6 +57,17 @@ test('attempt idempotency wrappers protect authoritative validators', () => {
   assert.match(source, /already deployed frontend does not break/);
 });
 
+test('final authoritative RPC cleanup is explicitly deployment-gated', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '013_revoke_direct_authoritative_rpcs.sql'),
+    'utf8',
+  );
+  assert.match(source, /Apply only after the frontend/);
+  assert.match(source, /submit_robo_maze_attempt\(integer, jsonb\)/);
+  assert.match(source, /submit_physics_attempt\(integer, jsonb\)/);
+  assert.match(source, /from public, authenticated, anon/);
+});
+
 test('tutor reliability contract includes retry states and quota refund', () => {
   const functionSource = fs.readFileSync(
     path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'handler.ts'),
