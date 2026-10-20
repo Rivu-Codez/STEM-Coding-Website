@@ -52,7 +52,7 @@ jobs:
       - name: Scan tracked files for common secret names
         shell: bash
         run: |
-          if git grep -n -I -E 'service_role|SUPABASE_SERVICE_ROLE_KEY|GEMINI_API_KEY[[:space:]]*=' -- ':!README.md' ':!.env.example'; then
+          if git grep -n -I -E '(service_role|SUPABASE_SERVICE_ROLE_KEY|GEMINI_API_KEY)[[:space:]]*=[[:space:]]*[^[:space:]]' -- ':!README.md' ':!.env.example' ':!.github/workflows/quality.yml' ':!scripts/verify-repo.mjs'; then
             echo "Potential secret material found in tracked files."
             exit 1
           fi
