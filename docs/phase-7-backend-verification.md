@@ -1,4 +1,4 @@
-# Phase 7 backend verification
+# Backend verification
 
 This is a read-only check. It does not change Supabase data or schema.
 
@@ -19,7 +19,7 @@ Do not run this file together with a migration. It is only a verification query.
 1. The first result should show a non-null function name in every column.
 2. The RLS result should show `rls_enabled = true` for every listed table.
 3. The policy result should show policies using `auth.uid()` for user-owned data.
-4. The routine privilege result should show authenticated execution for the authoritative procedures.
+4. The routine privilege result should show authenticated execution for the idempotent submit wrappers and authoritative procedures. The direct submit procedures must not be executable by `authenticated`.
 5. The game-level result should show 30 levels per configured game, with levels 1 through 30.
 6. The index result should show the indexes used by progress, attempts, achievements, and tutor quota records.
 
@@ -32,3 +32,16 @@ Do not run this file together with a migration. It is only a verification query.
 - Missing progression indexes should be reviewed before production use.
 
 Copy the failing result and the migration number shown in the Supabase error before asking for help. Do not expose API keys or service-role credentials.
+
+## Current migration baseline
+
+This verification applies after migrations `001` through `013` and the seed
+file have been applied. Migrations `011` through `013` revoke legacy
+client-trusted writes, add duplicate-safe attempt receipts, and close the
+compatibility window by revoking direct client access to the authoritative
+submit procedures.
+
+Clients must call only `submit_robo_maze_attempt_idempotent` and
+`submit_physics_attempt_idempotent`. Repeating the same user, game, and attempt
+ID should return the stored receipt result instead of creating a second
+progression event.

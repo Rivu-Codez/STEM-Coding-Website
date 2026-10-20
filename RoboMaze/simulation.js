@@ -35,3 +35,6 @@ const RoboMazeSimulation = {
     return grid[robot.y][robot.x] === 2;
   },
 };
+
+window.RoboMazeSimulation = RoboMazeSimulation;
+export { RoboMazeSimulation };

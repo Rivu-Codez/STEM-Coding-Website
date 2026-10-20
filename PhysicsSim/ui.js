@@ -41,13 +41,6 @@ function toggleDrag(on) {
   document.getElementById('dragBadge').textContent = on ? 'ON' : 'OFF';
 }
 
-function setPhysicsControlsLocked(locked) {
-  reflectionLocked = locked;
-  ['angleSlider', 'speedSlider', 'dragToggle', 'btnSpeedDown', 'btnSpeedUp', 'btnFire']
-    .forEach((id) => { document.getElementById(id).disabled = locked; });
-  document.querySelectorAll('.btn-nudge').forEach((button) => { button.disabled = locked; });
-}
-
 function renderShotHistory() {
   document.getElementById('shotHistoryBody').innerHTML = shotHistory.map((shot, index) => `
     <tr><td>${index + 1}</td><td>${shot.time.toFixed(2)}s</td>
@@ -88,7 +81,7 @@ function buildPhysicsQuestion() {
     ['random_change', 'Change angle and speed randomly until the target is reached.'],
   ];
   document.getElementById('physicsOptions').innerHTML = options.map(([value, label]) =>
-    `<button class="learning-option" onclick="checkPhysicsPrediction('${value}', '${correct}')">${label}</button>`
+    `<button class="learning-option" type="button" data-learning-selected="${value}" data-learning-correct="${correct}">${label}</button>`
   ).join('');
 }
 
@@ -108,13 +101,13 @@ function checkPhysicsPrediction(selected, correct) {
   feedback.textContent = 'Good reasoning. Now make a deliberate adjustment.';
   document.getElementById('physicsUnlock').disabled = false;
   document.querySelectorAll('#physicsOptions .learning-option').forEach((button) => { button.disabled = true; });
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'prediction_completed', { selected });
+  if (window.StemGameAuth) PhysicsProgress.recordMistake(currentLevelIndex, 'prediction_completed', { selected });
 }
 
 function showReviewPanel(restore = false) {
   renderShotHistory();
   document.getElementById('reviewPanel').style.display = 'grid';
-  setPhysicsControlsLocked(true);
+  PhysicsLearningGateInstance.setLocked(true);
   buildPhysicsQuestion();
   document.getElementById('physicsFeedback').textContent = '';
   document.getElementById('physicsUnlock').disabled = true;
@@ -154,7 +147,7 @@ function buildReviewHint() {
 function showReviewAnalysis() {
   document.getElementById('reviewHint').textContent = buildReviewHint();
   if (!window.StemGameAuth) return;
-  StemGameAuth.analyzeMistake(currentLevelIndex + 1, 'three_shot_review', {
+  PhysicsProgress.analyzeMistake(currentLevelIndex, 'three_shot_review', {
     target: LEVELS[currentLevelIndex].targetDistance,
     angle: angleDeg,
     speed: speedMps,
@@ -172,10 +165,10 @@ function unlockAfterReview() {
   shotHistory = [];
   document.getElementById('attemptsRemainingText').textContent = '3';
   document.getElementById('reviewPanel').style.display = 'none';
-  setPhysicsControlsLocked(false);
+  PhysicsLearningGateInstance.setLocked(false);
   updateControls();
   triggerMessage('Tutor feedback reviewed. Adjust the launch and try again!', 'success');
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { reviewed: true });
+  if (window.StemGameAuth) PhysicsProgress.recordMistake(currentLevelIndex, 'reflection_completed', { reviewed: true });
 }
 
 function nudgeAngle(delta) {
@@ -207,7 +200,7 @@ function resetShot() {
 }
 
 async function restoreLearningCheckpoint() {
-  const state = await PhysicsAdapter.restoreCheckpoint(currentLevelIndex);
+  const state = await PhysicsProgress.restoreCheckpoint(currentLevelIndex);
   if (!state || state.failures.length < 3) return;
   shotHistory = state.failures.slice(-3).map((event) => {
     const details = event.details || {};
@@ -220,7 +213,7 @@ async function restoreLearningCheckpoint() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  if (!PhysicsAdapter.isLevelUnlocked(nextIndex)) {
+  if (!PhysicsProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;
   }
@@ -236,11 +229,10 @@ function changeLevel(index) {
   missCount = 0;
   failedAttempts = 0;
   lastReward = 0;
-  reflectionLocked = false;
   shotHistory = [];
   document.getElementById('attemptsRemainingText').textContent = '3';
   document.getElementById('reviewPanel').style.display = 'none';
-  setPhysicsControlsLocked(false);
+  PhysicsLearningGateInstance.reset();
   document.getElementById('targetDistanceText').textContent = `${level.targetDistance.toFixed(1)} meters`;
   resetShot();
   updateControls();

@@ -32,6 +32,7 @@ function createHarness({ session = null, rpcResponse = { data: {}, error: null }
     console,
     STEM_SUPABASE_CONFIG: { url: 'https://example.supabase.co', anonKey: 'test-key' },
     supabase: { createClient() { return client; } },
+    crypto: { randomUUID: () => 'attempt-1' },
     setTimeout,
   };
   context.window = context;
@@ -84,6 +85,21 @@ test('successful attempt returns data and refreshes progress', async () => {
   assert.deepEqual(result.data, { server_result: 'success' });
   assert.equal(progressReloaded, true);
   assert.equal(client !== null, true);
+});
+
+test('unsupported attempt payloads do not use the legacy client-trusted RPC', async () => {
+  const { context, messages, client } = createHarness({
+    session: { user: { id: 'student-1' } },
+  });
+  let rpcCalled = false;
+  client.rpc = () => {
+    rpcCalled = true;
+    return Promise.resolve({ data: null, error: null });
+  };
+  const result = await context.StemProgressApi.recordAttempt(1, 'success', null, {});
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), { ok: false, error: 'Unsupported attempt payload' });
+  assert.equal(rpcCalled, false);
+  assert.match(messages[0], /cannot submit attempts safely/);
 });
 
 test('tutor without a session uses rule-based fallback', async () => {

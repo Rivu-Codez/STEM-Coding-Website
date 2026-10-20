@@ -44,13 +44,6 @@ function updateProgrammingMode() {
   if (textMode) switchView('python');
 }
 
-function setLearningLocked(locked) {
-  learningLocked = locked;
-  document.getElementById('btnRun').disabled = locked;
-  document.getElementById('btnStep').disabled = locked;
-  updateProgrammingMode();
-}
-
 function renderProgramWorkspace() {
   const area = document.getElementById('programArea');
   if (studentProgram.length === 0) {
@@ -72,7 +65,7 @@ function renderProgramWorkspace() {
     return `
       <div class="command-item ${extraClass}" id="cmd-${index}">
         <span>${index + 1}. ${label}</span>
-        <span class="cmd-del" onclick="removeCommand(${index})">✖</span>
+        <button class="cmd-del" type="button" data-remove-command="${index}" aria-label="Remove command ${index + 1}">✖</button>
       </div>
     `;
   }).join('');
@@ -164,53 +157,10 @@ function conceptRequirementMet() {
   return !required || studentProgram.some((command) => command.type === required);
 }
 
-function showLearningGate(category) {
-  const question = category === 'wall_collision'
-    ? 'The robot hit a wall. What should you inspect before trying again?'
-    : category === 'concept_not_applied'
-      ? 'The robot reached the goal, but the level concept was not used. What should you change?'
-      : 'The program ended without reaching the goal. What should you do next?';
-  const correct = category === 'wall_collision' ? 'inspect_direction' : category === 'concept_not_applied' ? 'use_required_concept' : 'inspect_route';
-  const options = category === 'wall_collision'
-    ? [['inspect_direction', 'Inspect the next movement and the robot\'s orientation.'], ['add_random', 'Add random commands until it works.'], ['ignore_wall', 'Keep the same movement and ignore the wall.']]
-    : category === 'concept_not_applied'
-      ? [['use_required_concept', 'Revise the program to use the required concept.'], ['keep_program', 'Keep the same program because it reached the goal.'], ['add_random', 'Add unrelated blocks without checking the concept.']]
-      : [['inspect_route', 'Inspect the route and choose the needed loop or condition.'], ['repeat_same', 'Run the unchanged program again.'], ['remove_all', 'Delete the whole program without inspecting it.']];
-  document.getElementById('mazeQuestion').textContent = question;
-  document.getElementById('mazeOptions').innerHTML = options.map(([value, label]) =>
-    `<button class="learning-option" onclick="checkMazePrediction('${value}', '${correct}')">${label}</button>`
-  ).join('');
-  document.getElementById('mazeFeedback').textContent = '';
-  document.getElementById('learningGate').style.display = 'block';
-  setLearningLocked(true);
-  triggerMessage('Three failed runs. Review the program before continuing.', 'error');
-}
-
-function checkMazePrediction(selected, correct) {
-  const feedback = document.getElementById('mazeFeedback');
-  if (selected !== correct) {
-    feedback.textContent = 'Use the failure message to decide what part of the program needs inspection.';
-    return;
-  }
-  feedback.textContent = 'Good reasoning. Inspect the route, then edit and run deliberately.';
-  document.querySelectorAll('#mazeOptions .learning-option').forEach((button) => { button.disabled = true; });
-  learningFailures = 0;
-  document.getElementById('learningGate').style.display = 'none';
-  setLearningLocked(false);
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { selected });
-}
-
-function registerLearningFailure(category) {
-  learningFailures += 1;
-  failedAttempts += 1;
-  if (learningFailures >= 3) showLearningGate(category);
-}
-
 async function restoreLearningCheckpoint() {
-  const state = await RoboMazeAdapter.restoreCheckpoint(currentLevelIndex);
+  const state = await RoboMazeProgress.restoreCheckpoint(currentLevelIndex);
   if (!state || state.failures.length < 3) return;
-  learningFailures = 3;
-  showLearningGate(state.failures[state.failures.length - 1].category);
+  RoboMazeLearningGateInstance.restore(state.failures[state.failures.length - 1].category);
 }
 
 function highlightBlock(index) {
@@ -247,17 +197,15 @@ function resetLevel() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  if (!RoboMazeAdapter.isLevelUnlocked(nextIndex)) {
+  if (!RoboMazeProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;
   }
   currentLevelIndex = nextIndex;
   studentProgram = [];
-  learningFailures = 0;
-  failedAttempts = 0;
   lastProgramSignature = '';
   document.getElementById('learningGate').style.display = 'none';
-  setLearningLocked(false);
+  RoboMazeLearningGateInstance.reset();
   renderProgramWorkspace();
   updatePythonCode();
   document.getElementById('pythonEditor').value = '';

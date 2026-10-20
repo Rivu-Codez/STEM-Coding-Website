@@ -44,6 +44,11 @@ function providerFailure(status: number) {
   return { state: "AI_TEMPORARILY_UNAVAILABLE", message: "Tutor is temporarily unavailable. Showing a standard hint." };
 }
 
+function logTutorEvent(event: string, fields: Record<string, unknown> = {}) {
+  // Never include prompts, responses, student identifiers, or attempt details.
+  console.info(JSON.stringify({ event, ...fields }));
+}
+
 export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {}) {
   const deps = { ...defaultDependencies, ...overrides };
   return async (req: Request) => {
@@ -70,9 +75,17 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
     if (!gameId || !Number.isInteger(levelNumber) || levelNumber < 1 || levelNumber > 30) return json({ error: "Invalid mistake data", state: "AI_INVALID_RESPONSE" }, 400);
 
     const requestId = deps.randomUUID();
+    const startedAt = Date.now();
+    logTutorEvent("tutor_request_started", { requestId, gameId, levelNumber });
     const quota = await client.rpc("reserve_tutor_quota", { p_request_id: requestId, p_limit: 10 });
-    if (quota.error) return json({ error: "Tutor quota is temporarily unavailable", state: "AI_TEMPORARILY_UNAVAILABLE" }, 503);
-    if (!quota.data) return json({ error: "Tutor limit reached; using a standard hint.", state: "AI_RATE_LIMITED" }, 429);
+    if (quota.error) {
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_TEMPORARILY_UNAVAILABLE", latencyMs: Date.now() - startedAt });
+      return json({ error: "Tutor quota is temporarily unavailable", state: "AI_TEMPORARILY_UNAVAILABLE" }, 503);
+    }
+    if (!quota.data) {
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_RATE_LIMITED", latencyMs: Date.now() - startedAt });
+      return json({ error: "Tutor limit reached; using a standard hint.", state: "AI_RATE_LIMITED" }, 429);
+    }
 
     const details = input.details && typeof input.details === "object" ? input.details : {};
     const prompt = [
@@ -117,6 +130,9 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
     if (!response?.ok) {
       await refundQuota();
       const failure = providerFailure(lastStatus);
+      logTutorEvent("tutor_request_finished", {
+        requestId, state: failure.state, providerStatus: lastStatus, latencyMs: Date.now() - startedAt,
+      });
       return json({ error: failure.message, state: failure.state }, lastStatus === 429 ? 429 : 503);
     }
 
@@ -125,6 +141,7 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
       result = await response.json() as Record<string, unknown>;
     } catch {
       await refundQuota();
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_INVALID_RESPONSE", latencyMs: Date.now() - startedAt });
       return json({ error: "Tutor returned an unreadable response", state: "AI_INVALID_RESPONSE" }, 502);
     }
     const raw = (result as any).candidates?.[0]?.content?.parts?.[0]?.text;
@@ -133,10 +150,12 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
       insight = JSON.parse(typeof raw === "string" ? raw.trim() : "{}");
     } catch {
       await refundQuota();
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_INVALID_RESPONSE", latencyMs: Date.now() - startedAt });
       return json({ error: "Tutor returned an unreadable response", state: "AI_INVALID_RESPONSE" }, 502);
     }
     if (!insight || typeof insight !== "object") {
       await refundQuota();
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_INVALID_RESPONSE", latencyMs: Date.now() - startedAt });
       return json({ error: "Tutor returned an invalid response", state: "AI_INVALID_RESPONSE" }, 502);
     }
     const record = await client.rpc("store_ai_insight", {
@@ -147,7 +166,11 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
       p_hint: clean(insight.hint, "Try one small change and test it again.", 300),
       p_next_question: clean(insight.next_question, "What changed when you tried that?", 300), p_model: model,
     });
-    if (record.error) return json({ error: "Could not save tutor insight", state: "AI_TEMPORARILY_UNAVAILABLE" }, 500);
+    if (record.error) {
+      logTutorEvent("tutor_request_finished", { requestId, state: "AI_TEMPORARILY_UNAVAILABLE", latencyMs: Date.now() - startedAt });
+      return json({ error: "Could not save tutor insight", state: "AI_TEMPORARILY_UNAVAILABLE" }, 500);
+    }
+    logTutorEvent("tutor_request_finished", { requestId, state: "AI_SUCCESS", latencyMs: Date.now() - startedAt });
     return json({ insight: record.data, state: "AI_SUCCESS" });
   };
 }

@@ -18,18 +18,24 @@ jobs:
           node-version: 22
 
       - name: Install pinned project tools
-        run: npm install
+        run: npm ci
 
       - name: Check browser JavaScript syntax
         shell: bash
         run: |
-          find js -name '*.js' -print0 | xargs -0 -n1 node --check
+          find js PhysicsSim RoboMaze -name '*.js' -print0 | xargs -0 -n1 node --check
 
       - name: Run repository checks
         run: npm run check
 
       - name: Run automated tests
         run: npm test
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke tests
+        run: npm run test:browser
 
       - name: Set up Deno
         uses: denoland/setup-deno@v2

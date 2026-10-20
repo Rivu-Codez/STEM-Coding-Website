@@ -9,8 +9,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function loadClassicScript(relativePath, resultExpression) {
   const context = {};
+  context.window = context;
   vm.createContext(context);
-  const source = fs.readFileSync(path.join(root, relativePath), 'utf8');
+  const source = fs.readFileSync(path.join(root, relativePath), 'utf8')
+    .replace(/export\s*\{[^}]+\};?/g, '');
   return vm.runInContext(`${source}\n${resultExpression}`, context);
 }
 

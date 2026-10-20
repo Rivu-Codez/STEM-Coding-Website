@@ -8,6 +8,8 @@ student progress, and optional AI tutoring through Supabase Edge Functions.
 - `index.html` — signed-in game hub.
 - `login.html` — sign-in and account creation.
 - `PhysicsSim/` and `RoboMaze/` — current game entry pages.
+- `PhysicsSim/scene-renderer.js` and `RoboMaze/renderer.js` — isolated canvas rendering.
+- `PhysicsSim/events.js` and `RoboMaze/events.js` — isolated DOM event wiring.
 - `js/` — shared browser-side platform code.
 - `supabase/migrations/` — numbered database migrations.
 - `supabase/seed/` — canonical level seed data.
@@ -31,7 +33,7 @@ in `js/supabase-config.js`. Never put a service-role key or Gemini key there.
 ### Dashboard setup
 
 1. Create or open the Supabase project.
-2. In **SQL Editor**, run migrations in filename order: `001` through `010`.
+2. In **SQL Editor**, run migrations in filename order: `001` through `013`.
 3. Run `supabase/seed/001_game_levels.sql` after the migrations.
 4. In **Authentication > Providers > Email**, enable email/password sign-in.
 5. In **Project Settings > API**, copy only the project URL and publishable key
@@ -61,13 +63,15 @@ order by proname;
 select to_regclass('public.tutor_quota_events');
 ```
 
-Expected results are 30 seeded levels for each current game, all eight listed
-functions, and `tutor_quota_events` as the table name.
+Expected results are 30 seeded levels for each current game, the authoritative
+validators and idempotent submit wrappers, revoked direct client access to the
+old submit procedures, and `tutor_quota_events` as the table name.
 
-After applying migration `007`, test the server replay with a signed-in user by
+After applying migration `013`, test the server replay with a signed-in user by
 running RoboMaze level 1. A successful run should create a `success` row in
 `level_attempts` and unlock level 2. A wall collision or incomplete program
-must not unlock level 2.
+must not unlock level 2. Repeating the same attempt ID must return the stored
+receipt result rather than awarding progress twice.
 
 ### Deploy the tutor function
 
@@ -97,6 +101,52 @@ npx --no-install supabase login
 npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
 ```
 
+## Automated checks
+
+Run the repository and unit checks before committing:
+
+```text
+npm run check
+npm test
+```
+
+Run the local browser smoke tests with Chromium:
+
+```text
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser suite starts the repository's local static server automatically.
+It uses mocked authentication for deterministic UI checks, including a complete
+RoboMaze level-success and next-level-unlock flow. It does not require a
+service-role key or Gemini key. Hosted authenticated journeys remain a manual
+verification step until a dedicated test account and test environment are
+configured.
+
+The browser suite also checks accessible names for login controls, game canvases,
+and primary game controls. It is intentionally not a visual-regression suite.
+
+For a disposable Supabase integration project, set these variables in the
+terminal before running the optional integration checks:
+
+```text
+SUPABASE_TEST_URL=https://your-project.supabase.co
+SUPABASE_TEST_ANON_KEY=your-publishable-key
+SUPABASE_TEST_EMAIL=confirmed-test-user@example.com
+SUPABASE_TEST_PASSWORD=use-a-dedicated-test-password
+SUPABASE_INTEGRATION=1
+```
+
+Never use a service-role key for browser or integration tests. The integration
+checks are opt-in because they authenticate a real test account and may create
+test-project data. Run them only against a disposable Supabase project after
+applying migrations `001` through `013` and the seed file:
+
+```text
+npm run test:integration
+```
+
 ## Migration procedure for future changes
 
 1. Add the next numbered SQL file under `supabase/migrations/`.
@@ -109,12 +159,13 @@ npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
 
 ## Current limitations
 
-- Progress validation is not yet fully server-authoritative for both games.
-- RoboMaze attempts now have a server replay migration (`007`); Physics still
-  uses the server replay migration (`008`) with canonical Euler simulation.
-- The two game pages still contain large inline scripts.
-- Automated tests and CI checks are intentionally minimal until the shared API
-  refactor is complete.
+- The game controllers now delegate persistence, rendering, and DOM event
+  wiring, but state transitions and some legacy compatibility bridges still
+  remain inside the controllers.
+- The current browser suite covers deterministic local smoke flows. Hosted
+  authenticated journeys still require a configured test environment.
+- Supabase integration checks are opt-in and require a disposable test project;
+  they are not run by the default unit or browser commands.
 - Gemini provider rate limits produce an explicit tutor state and preserve the
   rule-based fallback. Failed provider requests refund their quota reservation.
 
