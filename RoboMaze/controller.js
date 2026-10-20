@@ -6,12 +6,22 @@
     let currentStepIndex = 0;
     let userXP = 100;
     let activeView = 'blocks'; // 'blocks' or 'python'
-    let learningFailures = 0;
-    let failedAttempts = 0;
     let learningLocked = false;
     let lastProgramSignature = '';
     const rewardedLevels = new Set();
     let lastReward = 0;
+    const learningGate = RoboMazeLearningGate.create({
+      getLevel: () => LEVELS[currentLevelIndex],
+      setLocked(locked) {
+        learningLocked = locked;
+        updateProgrammingMode();
+      },
+      triggerMessage,
+      onReflection(selected) {
+        if (window.StemGameAuth) RoboMazeProgress.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
+      },
+    });
+    window.RoboMazeLearningGateInstance = learningGate;
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -105,7 +115,7 @@
             });
             resetLevel();
             triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
-            registerLearningFailure('concept_not_applied');
+            learningGate.registerFailure('concept_not_applied');
             return 'CONCEPT_MISSING';
           }
           showVictoryModal();
@@ -149,7 +159,7 @@
               command: stepObj.action, program: studentProgram
             });
           }
-          registerLearningFailure("wall_collision", { position: { x: robot.x, y: robot.y } });
+          learningGate.registerFailure("wall_collision");
           return false; // Collision halt
         }
         robot.x = next.x;
@@ -173,7 +183,7 @@
           }
           resetLevel();
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
-          registerLearningFailure('concept_not_applied');
+          learningGate.registerFailure('concept_not_applied');
           return 'CONCEPT_MISSING';
         }
         triggerMessage("🎉 Goal reached. Confirming result...", "success");
@@ -228,7 +238,7 @@
           steps: steps.length, program: studentProgram
         });
       }
-      registerLearningFailure(failureCategory, { steps: steps.length });
+      learningGate.registerFailure(failureCategory);
       clearHighlights();
       isExecuting = false;
       enableControls();
@@ -345,7 +355,7 @@
       const removeButton = event.target.closest('[data-remove-command]');
       if (removeButton) removeCommand(Number(removeButton.dataset.removeCommand));
       const learningButton = event.target.closest('[data-learning-selected]');
-      if (learningButton) checkMazePrediction(
+      if (learningButton) learningGate.check(
         learningButton.dataset.learningSelected,
         learningButton.dataset.learningCorrect,
       );
