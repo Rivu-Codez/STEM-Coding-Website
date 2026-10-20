@@ -31,7 +31,7 @@ in `js/supabase-config.js`. Never put a service-role key or Gemini key there.
 ### Dashboard setup
 
 1. Create or open the Supabase project.
-2. In **SQL Editor**, run migrations in filename order: `001` through `010`.
+2. In **SQL Editor**, run migrations in filename order: `001` through `013`.
 3. Run `supabase/seed/001_game_levels.sql` after the migrations.
 4. In **Authentication > Providers > Email**, enable email/password sign-in.
 5. In **Project Settings > API**, copy only the project URL and publishable key
@@ -61,13 +61,15 @@ order by proname;
 select to_regclass('public.tutor_quota_events');
 ```
 
-Expected results are 30 seeded levels for each current game, all eight listed
-functions, and `tutor_quota_events` as the table name.
+Expected results are 30 seeded levels for each current game, the authoritative
+validators and idempotent submit wrappers, revoked direct client access to the
+old submit procedures, and `tutor_quota_events` as the table name.
 
-After applying migration `007`, test the server replay with a signed-in user by
+After applying migration `013`, test the server replay with a signed-in user by
 running RoboMaze level 1. A successful run should create a `success` row in
 `level_attempts` and unlock level 2. A wall collision or incomplete program
-must not unlock level 2.
+must not unlock level 2. Repeating the same attempt ID must return the stored
+receipt result rather than awarding progress twice.
 
 ### Deploy the tutor function
 
@@ -109,12 +111,10 @@ npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
 
 ## Current limitations
 
-- Progress validation is not yet fully server-authoritative for both games.
-- RoboMaze attempts now have a server replay migration (`007`); Physics still
-  uses the server replay migration (`008`) with canonical Euler simulation.
-- The two game pages still contain large inline scripts.
-- Automated tests and CI checks are intentionally minimal until the shared API
-  refactor is complete.
+- The two game pages still contain large inline controllers and are being
+  migrated to explicit browser modules.
+- Browser end-to-end coverage and frontend/seed parity checks are still being
+  added.
 - Gemini provider rate limits produce an explicit tutor state and preserve the
   rule-based fallback. Failed provider requests refund their quota reservation.
 

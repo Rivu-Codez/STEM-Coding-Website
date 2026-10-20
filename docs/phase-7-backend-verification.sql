@@ -1,10 +1,12 @@
--- Phase 7 read-only backend verification.
--- Run this in Supabase Dashboard > SQL Editor after migrations 001-010 are applied.
+-- Read-only backend verification.
+-- Run this in Supabase Dashboard > SQL Editor after migrations 001-013 are applied.
 -- This file must not contain INSERT, UPDATE, DELETE, or ALTER statements.
 
 -- 1. Required authoritative functions should exist.
 select to_regprocedure('public.submit_robo_maze_attempt(integer,jsonb)') as robo_maze_function,
        to_regprocedure('public.submit_physics_attempt(integer,jsonb)') as physics_function,
+       to_regprocedure('public.submit_robo_maze_attempt_idempotent(uuid,integer,jsonb)') as robo_maze_idempotent_function,
+       to_regprocedure('public.submit_physics_attempt_idempotent(uuid,integer,jsonb)') as physics_idempotent_function,
        to_regprocedure('public.record_authoritative_achievement(public.game_id,integer)') as achievement_function,
        to_regprocedure('public.reserve_tutor_quota(uuid,integer)') as quota_reserve_function,
        to_regprocedure('public.refund_tutor_quota(uuid)') as quota_refund_function;
@@ -40,6 +42,7 @@ where routine_schema = 'public'
   and grantee = 'authenticated'
   and routine_name in (
     'submit_robo_maze_attempt', 'submit_physics_attempt',
+    'submit_robo_maze_attempt_idempotent', 'submit_physics_attempt_idempotent',
     'record_authoritative_achievement', 'reserve_tutor_quota', 'refund_tutor_quota'
   )
 order by routine_name, specific_name;
