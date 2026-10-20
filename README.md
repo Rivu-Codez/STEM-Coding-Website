@@ -116,8 +116,9 @@ npm run test:browser
 ```
 
 The browser suite starts the repository's local static server automatically.
-It uses mocked authentication for deterministic UI checks and does not require
-a service-role key or Gemini key. Hosted authenticated journeys remain a manual
+It uses mocked authentication for deterministic UI checks, including a complete
+RoboMaze level-success and next-level-unlock flow. It does not require a
+service-role key or Gemini key. Hosted authenticated journeys remain a manual
 verification step until a dedicated test account and test environment are
 configured.
 

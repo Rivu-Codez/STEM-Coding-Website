@@ -16,11 +16,29 @@ async function mockSupabase(page, session = null) {
 async function mockGameAuth(page) {
   await page.route('**/js/game-auth.js', (route) => route.fulfill({
     contentType: 'application/javascript',
-    body: `window.StemGameAuth = {
-      init: async () => {}, allowLevel: () => true,
+    body: `let mockedUnlockedLevel = 1;
+    window.StemGameAuth = {
+      init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null, recordAttempt: async () => ({ ok: true }),
       recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
-      recordAchievement: async () => ({ ok: true })
+      recordAchievement: async (level) => ({ ok: true, data: { awarded: true, stars: 3, xp: 100 } })
+    };`,
+  }));
+}
+
+async function mockProgressionAuth(page) {
+  await page.route('**/js/game-auth.js', (route) => route.fulfill({
+    contentType: 'application/javascript',
+    body: `let mockedUnlockedLevel = 1;
+    window.StemGameAuth = {
+      init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
+      getLearningState: async () => null,
+      recordAttempt: async (level, result) => {
+        if (result === 'success') mockedUnlockedLevel = Math.max(mockedUnlockedLevel, level + 1);
+        return { ok: true, data: { server_result: result } };
+      },
+      recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
+      recordAchievement: async () => ({ ok: true, data: { awarded: true, stars: 3, xp: 100 } })
     };`,
   }));
 }
@@ -57,4 +75,20 @@ test('RoboMaze commands render and reset locally', async ({ page }) => {
   await expect(page.locator('.command-item')).toHaveCount(1);
   await page.locator('[data-action="reset"]').click();
   await expect(page.locator('#statusMessage')).toContainText('Robot reset');
+});
+
+test('RoboMaze completes a level and unlocks the next level', async ({ page }) => {
+  await mockSupabase(page);
+  await mockProgressionAuth(page);
+  await page.goto('/RoboMaze/index.html');
+
+  await expect(page.locator('#levelTitle')).toContainText('Level 1');
+  await page.locator('[data-command="FORWARD"]').click({ clickCount: 5 });
+  await page.locator('[data-action="run"]').click();
+
+  await expect(page.locator('#victoryModal')).toBeVisible({ timeout: 8_000 });
+  await expect(page.locator('#modalTitle')).toContainText('Passed');
+  await page.locator('[data-action="next-level"]').click();
+  await expect(page.locator('#levelTitle')).toContainText('Level 2');
+  await expect(page.locator('[data-action="change-level"]')).toHaveValue('1');
 });
