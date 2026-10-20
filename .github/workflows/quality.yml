@@ -37,7 +37,7 @@ jobs:
           deno-version: v2.1.4
 
       - name: Check Edge Function contract
-        run: deno test --allow-read supabase/functions/analyze-mistake/index.test.ts
+        run: deno test --allow-read --config supabase/functions/analyze-mistake/deno.json supabase/functions/analyze-mistake/index.test.ts
 
       - name: Check required files
         shell: bash
