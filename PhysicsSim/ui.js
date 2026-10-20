@@ -108,7 +108,7 @@ function checkPhysicsPrediction(selected, correct) {
   feedback.textContent = 'Good reasoning. Now make a deliberate adjustment.';
   document.getElementById('physicsUnlock').disabled = false;
   document.querySelectorAll('#physicsOptions .learning-option').forEach((button) => { button.disabled = true; });
-  if (window.StemGameAuth) PhysicsAdapter.recordMistake(currentLevelIndex, 'prediction_completed', { selected });
+  if (window.StemGameAuth) PhysicsProgress.recordMistake(currentLevelIndex, 'prediction_completed', { selected });
 }
 
 function showReviewPanel(restore = false) {
@@ -154,7 +154,7 @@ function buildReviewHint() {
 function showReviewAnalysis() {
   document.getElementById('reviewHint').textContent = buildReviewHint();
   if (!window.StemGameAuth) return;
-  PhysicsAdapter.analyzeMistake(currentLevelIndex, 'three_shot_review', {
+  PhysicsProgress.analyzeMistake(currentLevelIndex, 'three_shot_review', {
     target: LEVELS[currentLevelIndex].targetDistance,
     angle: angleDeg,
     speed: speedMps,
@@ -175,7 +175,7 @@ function unlockAfterReview() {
   setPhysicsControlsLocked(false);
   updateControls();
   triggerMessage('Tutor feedback reviewed. Adjust the launch and try again!', 'success');
-  if (window.StemGameAuth) PhysicsAdapter.recordMistake(currentLevelIndex, 'reflection_completed', { reviewed: true });
+  if (window.StemGameAuth) PhysicsProgress.recordMistake(currentLevelIndex, 'reflection_completed', { reviewed: true });
 }
 
 function nudgeAngle(delta) {
@@ -207,7 +207,7 @@ function resetShot() {
 }
 
 async function restoreLearningCheckpoint() {
-  const state = await PhysicsAdapter.restoreCheckpoint(currentLevelIndex);
+  const state = await PhysicsProgress.restoreCheckpoint(currentLevelIndex);
   if (!state || state.failures.length < 3) return;
   shotHistory = state.failures.slice(-3).map((event) => {
     const details = event.details || {};
@@ -220,7 +220,7 @@ async function restoreLearningCheckpoint() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  if (!PhysicsAdapter.isLevelUnlocked(nextIndex)) {
+  if (!PhysicsProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;
   }
