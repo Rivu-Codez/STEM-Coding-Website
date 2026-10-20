@@ -265,6 +265,9 @@
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
   <script src="../js/tutor-hints.js"></script>
+  <script src="levels.js"></script>
+  <script src="simulation.js"></script>
+  <script src="adapter.js"></script>
 </head>
 <body>
 
@@ -432,7 +435,8 @@
        ========================================================================== -->
   <script>
     // --- A. LEVEL DEFINITIONS ---
-    const LEVELS = [
+    /* Level data is maintained in levels.js. */
+    /*
       { title: "Level 1: Projectile Motion", instruction: "🔭 <strong>Concept:</strong> Observe how launch angle creates a curved projectile path.", targetDistance: 30.0, lockSpeed: true, lockDrag: true, fixedSpeed: 20, wall: null },
       { title: "Level 2: Maximum Range", instruction: "📐 <strong>Concept:</strong> Find the 45° angle that produces the greatest range at fixed speed.", targetDistance: 40.8, lockSpeed: true, lockDrag: true, fixedSpeed: 20, wall: null },
       { title: "Level 3: Speed & Distance", instruction: "⚡ <strong>Concept:</strong> Increase launch speed to reach a target farther away.", targetDistance: 50.0, lockSpeed: false, lockDrag: true, fixedSpeed: 20, wall: null },
@@ -463,19 +467,13 @@
       { title: "Level 28: Apex vs Range", instruction: "⬆️ <strong>Concept:</strong> Balance a high apex against the need to reach the target.", targetDistance: 30.0, lockSpeed: false, lockDrag: true, minAngle: 50, maxAngle: 80, fixedSpeed: 24, targetTolerance: 2.5, wall: null },
       { title: "Level 29: Tight Accuracy", instruction: "🎯 <strong>Concept:</strong> Make a highly accurate shot inside a smaller landing zone.", targetDistance: 32.0, lockSpeed: false, lockDrag: false, fixedSpeed: 27, targetTolerance: 1.5, wall: null },
       { title: "Level 30: Debug the Final Shot", instruction: "🛠️ <strong>Final Reverse-Engineering Challenge:</strong> Diagnose the broken preset, then repair angle, speed, drag, and wall clearance.", targetDistance: 42.0, lockSpeed: false, lockDrag: false, dragMode: "on", requiredDrag: true, minAngle: 45, maxAngle: 75, fixedSpeed: 32, targetTolerance: 2.0, wall: { x: 25.0, height: 12.0 }, debugSetup: { angle: 15, speed: 32 } }
-    ];
+    ]; */
 
     // --- B. GAME STATE & PHYSICS CONSTANTS ---
-    const G = 9.8; // Gravity: 9.8 m/s^2
-    const SCALE = 10; // 10 pixels = 1 meter on canvas
+    const { G, SCALE, DRAG_COEFF, RESTITUTION, GROUND_FRICTION, SUCTION_RADIUS } = PhysicsSimulation.constants;
     const ORIGIN_X = 50; // Cannon base X (pixels)
     const GROUND_Y = 280; // Ground surface Y (pixels)
 
-    // Air drag, bounce & bullseye tuning (2.1 - 2.3)
-    const DRAG_COEFF = 0.0018;    // quadratic drag, scaled for canvas pixels
-    const RESTITUTION = 0.45;     // bounce keeps 45% of vertical speed
-    const GROUND_FRICTION = 0.15; // bounce keeps 15% of horizontal speed
-    const SUCTION_RADIUS = 1.2;   // metres: cup "gravity" pulls the ball in
     const RINGS = [               // concentric zones, metres from cup centre
       { r: 1.0, stars: 3, xp: 100, msg: "Perfect Bullseye!" },
       { r: 2.2, stars: 2, xp: 50,  msg: "Near Miss!" },
@@ -866,39 +864,26 @@
       document.getElementById('btnFire').disabled = true;
       triggerMessage("Ball in flight...", "");
 
-      const rad = (angleDeg * Math.PI) / 180;
-      const v0 = speedMps;
-
-      currentBall = {
-        x: ORIGIN_X,
-        y: GROUND_Y,
-        vx: v0 * Math.cos(rad) * SCALE, // convert m/s to px/s
-        vy: -v0 * Math.sin(rad) * SCALE,
-        trail: [{ x: ORIGIN_X, y: GROUND_Y }],
-        elapsedTime: 0,
-        maxY: GROUND_Y
-      };
+      currentBall = PhysicsSimulation.createBall({
+        angleDeg,
+        speedMps,
+        originX: ORIGIN_X,
+        groundY: GROUND_Y,
+        scale: SCALE,
+      });
 
       const dt = 0.025; // 25ms physics time-step
       const useDrag = airResistance; // fixed for the whole flight
       const lvl = LEVELS[currentLevelIndex];
 
       function physicsLoop() {
-        currentBall.elapsedTime += dt;
-        // Quadratic air drag: opposes velocity, grows with speed
-        if (useDrag) {
-          const speed = Math.hypot(currentBall.vx, currentBall.vy);
-          currentBall.vx -= DRAG_COEFF * speed * currentBall.vx * dt;
-          currentBall.vy -= DRAG_COEFF * speed * currentBall.vy * dt;
-        }
-
-        // Euler Kinematic Step
-        currentBall.x += currentBall.vx * dt;
-        currentBall.y += currentBall.vy * dt;
-        currentBall.vy += G * SCALE * dt; // Gravity pulls downward
-        currentBall.maxY = Math.min(currentBall.maxY, currentBall.y);
-
-        currentBall.trail.push({ x: currentBall.x, y: currentBall.y });
+        PhysicsSimulation.advance(currentBall, {
+          dt,
+          useDrag,
+          gravity: G,
+          scale: SCALE,
+          dragCoefficient: DRAG_COEFF,
+        });
 
         // 1. Check Wall Collision (Level 3)
         if (lvl.wall) {
@@ -931,7 +916,7 @@
           const delta = Math.abs(finalMeters - targetDist);
           const captured = delta <= SUCTION_RADIUS;
           const tolerance = lvl.targetTolerance ?? 3.5;
-          const ring = captured ? RINGS[0] : RINGS.find(r => delta <= Math.min(r.r, tolerance));
+          const ring = PhysicsSimulation.ringForDistance(delta, RINGS, tolerance);
 
           if (ring) {
             if (!physicsConceptMet()) {
@@ -1076,8 +1061,8 @@
     }
 
     async function restoreLearningCheckpoint() {
-      if (!window.StemGameAuth) return;
-      const state = await StemGameAuth.getLearningState(currentLevelIndex + 1);
+      const state = await PhysicsAdapter.restoreCheckpoint(currentLevelIndex);
+      if (!state) return;
       if (state.failures.length < 3) return;
       shotHistory = state.failures.slice(-3).map(event => {
         const details = event.details || {};
@@ -1089,11 +1074,12 @@
     }
 
     function changeLevel(idx) {
-      if (window.StemGameAuth && !StemGameAuth.allowLevel(parseInt(idx) + 1)) {
+      const nextIndex = parseInt(idx, 10);
+      if (!PhysicsAdapter.isLevelUnlocked(nextIndex)) {
         document.getElementById('levelPicker').value = currentLevelIndex;
         return;
       }
-      currentLevelIndex = parseInt(idx);
+      currentLevelIndex = nextIndex;
       const lvl = LEVELS[currentLevelIndex];
       if (lvl.debugSetup) {
         document.getElementById('angleSlider').value = lvl.debugSetup.angle;
