@@ -4,7 +4,7 @@
   "description": "STEM learning platform infrastructure tools",
   "scripts": {
     "test": "node --test tests/repository-contract.test.mjs tests/game-simulation.test.mjs tests/platform-api.test.mjs tests/game-module-contract.test.mjs tests/adapter-auth.test.mjs",
-    "check": "node scripts/verify-repo.mjs"
+    "check": "node scripts/verify-repo.mjs && node scripts/verify-web-quality.mjs"
   },
   "engines": {
     "node": ">=20"

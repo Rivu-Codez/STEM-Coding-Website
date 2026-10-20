@@ -16,4 +16,20 @@ const PhysicsAdapter = {
     if (!window.StemGameAuth || typeof StemGameAuth.getLearningState !== "function") return null;
     return StemGameAuth.getLearningState(this.levelNumber(levelIndex));
   },
+
+  submitAttempt(levelIndex, outcome, category, details) {
+    return StemGameAuth.recordAttempt(this.levelNumber(levelIndex), outcome, category, details);
+  },
+
+  recordMistake(levelIndex, category, details) {
+    return StemGameAuth.recordMistake(this.levelNumber(levelIndex), category, details);
+  },
+
+  analyzeMistake(levelIndex, category, details) {
+    return StemGameAuth.analyzeMistake(this.levelNumber(levelIndex), category, details);
+  },
+
+  recordAchievement(levelIndex) {
+    return StemGameAuth.recordAchievement(this.levelNumber(levelIndex));
+  },
 };

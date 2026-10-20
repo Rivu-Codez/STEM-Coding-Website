@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
   <title>RoboLogic: STEM Coding Maze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -563,7 +565,7 @@
         drawGame();
         if (grid[robot.y][robot.x] === 2) {
           if (!conceptRequirementMet()) {
-            if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'concept_not_applied', {
+            if (window.StemGameAuth) RoboMazeAdapter.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
             resetLevel();
@@ -599,16 +601,16 @@
         if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
-            StemGameAuth.recordMistake(currentLevelIndex + 1, "wall_collision", {
+            RoboMazeAdapter.recordMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             });
             if (window.StemTutor) StemTutor.show("robo_maze", "wall_collision");
-            StemGameAuth.analyzeMistake(currentLevelIndex + 1, "wall_collision", {
+            RoboMazeAdapter.analyzeMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             }).then(insight => {
               if (insight && window.StemTutor) StemTutor.show("robo_maze", "wall_collision", insight);
             });
-            StemGameAuth.recordAttempt(currentLevelIndex + 1, "collision", "wall_collision", {
+            RoboMazeAdapter.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
               command: stepObj.action, program: studentProgram
             });
           }
@@ -630,7 +632,7 @@
         if (!conceptRequirementMet()) {
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
           if (window.StemGameAuth) {
-            StemGameAuth.recordMistake(currentLevelIndex + 1, 'concept_not_applied', {
+            RoboMazeAdapter.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
           }
@@ -678,16 +680,16 @@
       const failureCategory = signature === lastProgramSignature ? "unchanged_program" : "program_incomplete";
       lastProgramSignature = signature;
       if (window.StemGameAuth) {
-        StemGameAuth.recordMistake(currentLevelIndex + 1, failureCategory, {
+        RoboMazeAdapter.recordMistake(currentLevelIndex, failureCategory, {
           steps: steps.length
         });
         if (window.StemTutor) StemTutor.show("robo_maze", failureCategory);
-        StemGameAuth.analyzeMistake(currentLevelIndex + 1, failureCategory, {
+        RoboMazeAdapter.analyzeMistake(currentLevelIndex, failureCategory, {
           steps: steps.length, program: studentProgram
         }).then(insight => {
           if (insight && window.StemTutor) StemTutor.show("robo_maze", failureCategory, insight);
         });
-        StemGameAuth.recordAttempt(currentLevelIndex + 1, "miss", "goal_not_reached", {
+        RoboMazeAdapter.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
           steps: steps.length, program: studentProgram
         });
       }
@@ -725,14 +727,14 @@
       let stars = 0;
       let reward = 0;
       if (window.StemGameAuth) {
-        const attempt = await StemGameAuth.recordAttempt(currentLevelIndex + 1, "success", null, {
+        const attempt = await RoboMazeAdapter.submitAttempt(currentLevelIndex, "success", null, {
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
           triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
           return;
         }
-        const achievement = await StemGameAuth.recordAchievement(currentLevelIndex + 1);
+        const achievement = await RoboMazeAdapter.recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The solution was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -745,7 +747,7 @@
           userXP += reward;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        StemGameAuth.recordMistake(currentLevelIndex + 1, 'level_completed', { steps: studentProgram.length });
+        RoboMazeAdapter.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
       }
       document.getElementById('modalTitle').textContent = `${level.title} Passed! ${'⭐'.repeat(stars)} (+${reward} XP)`;
       modal.style.display = 'flex';
