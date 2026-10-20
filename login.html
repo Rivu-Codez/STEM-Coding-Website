@@ -3,10 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RoboLogic Student Login</title>
+  <title>RoboLogic STEM Lab | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
+  <script src="js/game-platform.js"></script>
+  <script src="js/auth-api.js"></script>
+  <script src="js/progress-api.js"></script>
+  <script src="js/achievement-api.js"></script>
+  <script src="js/mistake-api.js"></script>
+  <script src="js/tutor-api.js"></script>
   <script src="js/game-auth.js"></script>
 </head>
 <body>
@@ -18,6 +27,10 @@
       <form id="authForm" class="auth-form">
         <label for="loginEmail">Email address</label>
         <input id="loginEmail" type="email" placeholder="Student email" autocomplete="email">
+        <div id="displayNameRow" hidden>
+          <label for="displayName">Display name</label>
+          <input id="displayName" type="text" placeholder="What should we call you?" autocomplete="name" maxlength="60">
+        </div>
         <label for="loginPassword">Password</label>
         <div class="password-wrap">
           <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
@@ -32,15 +45,6 @@
         <p id="loginMessage" class="auth-message" aria-live="polite"></p>
         <button id="modeToggle" type="button" class="secondary">Need an account? Create one</button>
       </form>
-    </section>
-    <section id="gameChoices" hidden>
-      <h1>Choose your game</h1>
-      <p>Signed in as <strong id="studentName"></strong></p>
-      <div class="game-choices">
-        <button id="physicsChoice" class="game-choice">🎯 Physics Kinematics Lab</button>
-        <button id="mazeChoice" class="game-choice">🤖 RoboLogic Maze</button>
-      </div>
-      <button id="logoutButton" class="secondary" style="max-width:180px;margin-top:20px;">Log out</button>
     </section>
   </main>
   <script>window.addEventListener("load", () => StemGameAuth.initLoginPage());</script>

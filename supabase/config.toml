@@ -1,0 +1,25 @@
+project_id = "qavxpvscadmvxffpuyrh"
+
+[api]
+enabled = true
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+
+[functions.analyze-mistake]
+verify_jwt = true
