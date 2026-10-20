@@ -1,5 +1,6 @@
 import { LEVELS } from './levels.js';
 import { PhysicsSimulation } from './simulation.js';
+import { createGamePersistence } from '../js/game-persistence.js';
 
 // --- A. LEVEL DEFINITIONS ---
     /* Level data is maintained in levels.js. */
@@ -83,7 +84,11 @@ import { PhysicsSimulation } from './simulation.js';
     exposeState('lastReward', () => lastReward, (value) => { lastReward = value; });
     exposeState('shotHistory', () => shotHistory, (value) => { shotHistory = value; });
     exposeState('physicsPrediction', () => physicsPrediction, (value) => { physicsPrediction = value; });
-    const PhysicsProgress = window.PhysicsProgress;
+    const persistence = createGamePersistence({
+      gameId: 'physics',
+      auth: window.StemGameAuth,
+      progress: window.PhysicsProgress,
+    });
     const updateControls = (...args) => window.updateControls(...args);
     const toggleDrag = (...args) => window.toggleDrag(...args);
     const renderShotHistory = (...args) => window.renderShotHistory(...args);
@@ -279,7 +284,7 @@ import { PhysicsSimulation } from './simulation.js';
             triggerMessage("💥 Boom! Smashed into the wall obstacle. Try an angle >60° to arc over it!", "error");
             registerMiss((currentBall.x - ORIGIN_X) / SCALE);
             if (window.StemGameAuth) {
-              PhysicsProgress.recordMistake(currentLevelIndex, "wall_collision", {
+              persistence.recordMistake(currentLevelIndex, "wall_collision", {
                 angle: angleDeg, speed: speedMps, wall: lvl.wall,
                 time: currentBall.elapsedTime, apex: (GROUND_Y - currentBall.maxY) / SCALE,
                 distance: (currentBall.x - ORIGIN_X) / SCALE
@@ -308,7 +313,7 @@ import { PhysicsSimulation } from './simulation.js';
             if (!physicsConceptMet()) {
               registerMiss(finalMeters);
               if (window.StemGameAuth) {
-                PhysicsProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
+                persistence.recordMistake(currentLevelIndex, 'concept_not_applied', {
                   requiredDrag: lvl.requiredDrag, minAngle: lvl.minAngle, maxAngle: lvl.maxAngle,
                   angle: angleDeg, airResistance
                 });
@@ -328,7 +333,7 @@ import { PhysicsSimulation } from './simulation.js';
             const shortOrLong = finalMeters < targetDist ? "short" : "long";
             registerMiss(finalMeters);
             if (window.StemGameAuth) {
-              PhysicsProgress.recordMistake(currentLevelIndex, "shot_missed", {
+              persistence.recordMistake(currentLevelIndex, "shot_missed", {
                 distance: finalMeters, target: targetDist, angle: angleDeg, speed: speedMps,
                 time: currentBall.elapsedTime, apex: (GROUND_Y - currentBall.maxY) / SCALE
               });
@@ -378,7 +383,7 @@ import { PhysicsSimulation } from './simulation.js';
       previousTrail = [...currentBall.trail]; // save ghost trail
       drawScene();
       if (!isWin && window.StemGameAuth) {
-        PhysicsProgress.submitAttempt(currentLevelIndex, "miss", "trajectory_miss", {
+        persistence.submitAttempt(currentLevelIndex, "miss", "trajectory_miss", {
           distance: currentBall ? (currentBall.x - ORIGIN_X) / SCALE : null,
           angle: angleDeg, speed: speedMps, airResistance,
           flightTime: currentBall?.elapsedTime || 0,
@@ -391,7 +396,7 @@ import { PhysicsSimulation } from './simulation.js';
     async function showVictoryModal(dist, ring) {
       const modal = document.getElementById('victoryModal');
       if (window.StemGameAuth) {
-        const attempt = await PhysicsProgress.submitAttempt(currentLevelIndex, "success", null, {
+        const attempt = await persistence.submitAttempt(currentLevelIndex, "success", null, {
           distance: dist, stars: ring.stars, angle: angleDeg, speed: speedMps,
           airResistance, flightTime: currentBall?.elapsedTime || 0,
           apex: currentBall ? (GROUND_Y - currentBall.maxY) / SCALE : 0
@@ -400,7 +405,7 @@ import { PhysicsSimulation } from './simulation.js';
           triggerMessage('The server could not confirm this trajectory. Please try the shot again.', 'error');
           return;
         }
-        const achievement = await PhysicsProgress.recordAchievement(currentLevelIndex);
+        const achievement = await persistence.recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The result was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -413,7 +418,7 @@ import { PhysicsSimulation } from './simulation.js';
           userXP += serverXp;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        PhysicsProgress.recordMistake(currentLevelIndex, 'level_completed', { distance: dist });
+        persistence.recordMistake(currentLevelIndex, 'level_completed', { distance: dist });
         ring = { ...ring, stars: serverStars };
       }
       document.getElementById('modalTitle').textContent = `${LEVELS[currentLevelIndex].title} Passed!`;

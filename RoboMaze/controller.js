@@ -1,5 +1,6 @@
 import { LEVELS } from './levels.js';
 import { RoboMazeSimulation } from './simulation.js';
+import { createGamePersistence } from '../js/game-persistence.js';
 
 // --- B. GAME STATE VARIABLES ---
     let currentLevelIndex = 0;
@@ -13,6 +14,11 @@ import { RoboMazeSimulation } from './simulation.js';
     let lastProgramSignature = '';
     const rewardedLevels = new Set();
     let lastReward = 0;
+    const persistence = createGamePersistence({
+      gameId: 'robo_maze',
+      auth: window.StemGameAuth,
+      progress: window.RoboMazeProgress,
+    });
 
     // ui.js is still a classic script, so expose its shared state explicitly.
     const exposeState = (name, read, write) => Object.defineProperty(window, name, {
@@ -46,7 +52,7 @@ import { RoboMazeSimulation } from './simulation.js';
       },
       triggerMessage,
       onReflection(selected) {
-        if (window.StemGameAuth) window.RoboMazeProgress.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
+        if (window.StemGameAuth) persistence.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
       },
     });
     window.RoboMazeLearningGateInstance = learningGate;
@@ -140,7 +146,7 @@ import { RoboMazeSimulation } from './simulation.js';
         drawGame();
         if (grid[robot.y][robot.x] === 2) {
           if (!conceptRequirementMet()) {
-            if (window.StemGameAuth) window.RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            if (window.StemGameAuth) persistence.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
             resetLevel();
@@ -176,16 +182,16 @@ import { RoboMazeSimulation } from './simulation.js';
         if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
-            window.RoboMazeProgress.recordMistake(currentLevelIndex, "wall_collision", {
+            persistence.recordMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             });
             if (window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision");
-            window.RoboMazeProgress.analyzeMistake(currentLevelIndex, "wall_collision", {
+            persistence.analyzeMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             }).then(insight => {
               if (insight && window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision", insight);
             });
-            window.RoboMazeProgress.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
+            persistence.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
               command: stepObj.action, program: studentProgram
             });
           }
@@ -207,7 +213,7 @@ import { RoboMazeSimulation } from './simulation.js';
         if (!conceptRequirementMet()) {
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
           if (window.StemGameAuth) {
-            window.RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            persistence.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
           }
@@ -255,16 +261,16 @@ import { RoboMazeSimulation } from './simulation.js';
       const failureCategory = signature === lastProgramSignature ? "unchanged_program" : "program_incomplete";
       lastProgramSignature = signature;
       if (window.StemGameAuth) {
-        window.RoboMazeProgress.recordMistake(currentLevelIndex, failureCategory, {
+        persistence.recordMistake(currentLevelIndex, failureCategory, {
           steps: steps.length
         });
         if (window.StemTutor) window.StemTutor.show("robo_maze", failureCategory);
-        window.RoboMazeProgress.analyzeMistake(currentLevelIndex, failureCategory, {
+        persistence.analyzeMistake(currentLevelIndex, failureCategory, {
           steps: steps.length, program: studentProgram
         }).then(insight => {
           if (insight && window.StemTutor) window.StemTutor.show("robo_maze", failureCategory, insight);
         });
-        window.RoboMazeProgress.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
+        persistence.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
           steps: steps.length, program: studentProgram
         });
       }
@@ -302,14 +308,14 @@ import { RoboMazeSimulation } from './simulation.js';
       let stars = 0;
       let reward = 0;
       if (window.StemGameAuth) {
-        const attempt = await window.RoboMazeProgress.submitAttempt(currentLevelIndex, "success", null, {
+        const attempt = await persistence.submitAttempt(currentLevelIndex, "success", null, {
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
           triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
           return;
         }
-        const achievement = await window.RoboMazeProgress.recordAchievement(currentLevelIndex);
+        const achievement = await persistence.recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The solution was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -322,7 +328,7 @@ import { RoboMazeSimulation } from './simulation.js';
           userXP += reward;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        window.RoboMazeProgress.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
+        persistence.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
       }
       document.getElementById('modalTitle').textContent = `${level.title} Passed! ${'⭐'.repeat(stars)} (+${reward} XP)`;
       modal.style.display = 'flex';
