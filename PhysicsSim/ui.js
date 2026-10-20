@@ -41,13 +41,6 @@ function toggleDrag(on) {
   document.getElementById('dragBadge').textContent = on ? 'ON' : 'OFF';
 }
 
-function setPhysicsControlsLocked(locked) {
-  reflectionLocked = locked;
-  ['angleSlider', 'speedSlider', 'dragToggle', 'btnSpeedDown', 'btnSpeedUp', 'btnFire']
-    .forEach((id) => { document.getElementById(id).disabled = locked; });
-  document.querySelectorAll('.btn-nudge').forEach((button) => { button.disabled = locked; });
-}
-
 function renderShotHistory() {
   document.getElementById('shotHistoryBody').innerHTML = shotHistory.map((shot, index) => `
     <tr><td>${index + 1}</td><td>${shot.time.toFixed(2)}s</td>
@@ -114,7 +107,7 @@ function checkPhysicsPrediction(selected, correct) {
 function showReviewPanel(restore = false) {
   renderShotHistory();
   document.getElementById('reviewPanel').style.display = 'grid';
-  setPhysicsControlsLocked(true);
+  PhysicsLearningGateInstance.setLocked(true);
   buildPhysicsQuestion();
   document.getElementById('physicsFeedback').textContent = '';
   document.getElementById('physicsUnlock').disabled = true;
@@ -172,7 +165,7 @@ function unlockAfterReview() {
   shotHistory = [];
   document.getElementById('attemptsRemainingText').textContent = '3';
   document.getElementById('reviewPanel').style.display = 'none';
-  setPhysicsControlsLocked(false);
+  PhysicsLearningGateInstance.setLocked(false);
   updateControls();
   triggerMessage('Tutor feedback reviewed. Adjust the launch and try again!', 'success');
   if (window.StemGameAuth) PhysicsProgress.recordMistake(currentLevelIndex, 'reflection_completed', { reviewed: true });
@@ -236,11 +229,10 @@ function changeLevel(index) {
   missCount = 0;
   failedAttempts = 0;
   lastReward = 0;
-  reflectionLocked = false;
   shotHistory = [];
   document.getElementById('attemptsRemainingText').textContent = '3';
   document.getElementById('reviewPanel').style.display = 'none';
-  setPhysicsControlsLocked(false);
+  PhysicsLearningGateInstance.reset();
   document.getElementById('targetDistanceText').textContent = `${level.targetDistance.toFixed(1)} meters`;
   resetShot();
   updateControls();

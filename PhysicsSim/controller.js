@@ -57,9 +57,10 @@
     let failedAttempts = 0;
     const rewardedLevels = new Set();
     let lastReward = 0;
-    let reflectionLocked = false;
     let shotHistory = [];
     let physicsPrediction = null;
+    const physicsLearningGate = PhysicsLearningGate.create();
+    window.PhysicsLearningGateInstance = physicsLearningGate;
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -199,7 +200,7 @@
     }
 
     function fireCannon() {
-      if (isFlying || reflectionLocked) return;
+      if (isFlying || physicsLearningGate.isLocked()) return;
       if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isFlying = true;
       document.getElementById('btnFire').disabled = true;
@@ -329,7 +330,7 @@
 
     function endShot(isWin) {
       isFlying = false;
-      document.getElementById('btnFire').disabled = reflectionLocked;
+      document.getElementById('btnFire').disabled = physicsLearningGate.isLocked();
       previousTrail = [...currentBall.trail]; // save ghost trail
       drawScene();
       if (!isWin && window.StemGameAuth) {
