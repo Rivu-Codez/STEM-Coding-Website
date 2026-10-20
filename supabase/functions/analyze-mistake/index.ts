@@ -21,12 +21,27 @@ function publicKey() {
   }
 }
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const transientStatuses = new Set([429, 500, 502, 503, 504]);
+
+async function refundQuota(client: ReturnType<typeof createClient>, requestId: string) {
+  const result = await client.rpc("refund_tutor_quota", { p_request_id: requestId });
+  if (result.error) console.error("Tutor quota refund failed", { code: result.error.code });
+}
+
+function providerFailure(status: number) {
+  if (status === 429) return { state: "AI_RATE_LIMITED", message: "Tutor rate limit reached. Showing a standard hint." };
+  return { state: "AI_TEMPORARILY_UNAVAILABLE", message: "Tutor is temporarily unavailable. Showing a standard hint." };
+}
+
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "POST required" }, 405);
+  if (req.method !== "POST") return json({ error: "POST required", state: "AI_INVALID_RESPONSE" }, 405);
   const authorization = req.headers.get("Authorization");
   const geminiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!authorization || !geminiKey) return json({ error: "Tutor service is not configured" }, 503);
+  if (!authorization || !geminiKey) {
+    return json({ error: "Tutor service is not configured", state: "AI_TEMPORARILY_UNAVAILABLE" }, 503);
+  }
 
   const client = createClient(Deno.env.get("SUPABASE_URL")!, publicKey(), {
     global: { headers: { Authorization: authorization } }
@@ -40,19 +55,20 @@ Deno.serve(async req => {
     const body = await req.json();
     input = body && typeof body === "object" ? body as Record<string, unknown> : {};
   } catch {
-    return json({ error: "Invalid JSON body" }, 400);
+    return json({ error: "Invalid JSON body", state: "AI_INVALID_RESPONSE" }, 400);
   }
   const gameId = input.gameId === "physics" || input.gameId === "robo_maze" ? input.gameId : null;
   const levelNumber = Number(input.levelNumber);
   if (!gameId || !Number.isInteger(levelNumber) || levelNumber < 1 || levelNumber > 30) {
-    return json({ error: "Invalid mistake data" }, 400);
+    return json({ error: "Invalid mistake data", state: "AI_INVALID_RESPONSE" }, 400);
   }
-  const quota = await client.rpc("consume_tutor_quota", { p_limit: 10 });
-  if (quota.error) return json({ error: "Tutor quota is temporarily unavailable" }, 503);
-  if (!quota.data) return json({ error: "Tutor limit reached; using a standard hint." }, 429);
+
+  const requestId = crypto.randomUUID();
+  const quota = await client.rpc("reserve_tutor_quota", { p_request_id: requestId, p_limit: 10 });
+  if (quota.error) return json({ error: "Tutor quota is temporarily unavailable", state: "AI_TEMPORARILY_UNAVAILABLE" }, 503);
+  if (!quota.data) return json({ error: "Tutor limit reached; using a standard hint.", state: "AI_RATE_LIMITED" }, 429);
 
   const details = input.details && typeof input.details === "object" ? input.details : {};
-
   const prompt = [
     "You are a patient STEM tutor for a school student.",
     "Analyze one failed game attempt and return only valid JSON.",
@@ -66,34 +82,61 @@ Deno.serve(async req => {
     "Attempt details: <untrusted>" + JSON.stringify(details).slice(0, 3000) + "</untrusted>"
   ].join("\n");
   const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
-  const response = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + geminiKey,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
-      })
+  const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + geminiKey;
+  let response: Response | null = null;
+  let lastStatus = 503;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
+        }),
+        signal: controller.signal
+      });
+      lastStatus = response.status;
+    } catch {
+      response = null;
+      lastStatus = 503;
+    } finally {
+      clearTimeout(timeout);
     }
-  );
-  if (!response.ok) {
-    const errorText = (await response.text()).slice(0, 1000);
-    console.error("Gemini request failed", {
-      status: response.status,
-      model,
-      error: errorText
-    });
-    return json({ error: "Tutor temporarily unavailable" }, 502);
+    if (response?.ok) break;
+    if (!transientStatuses.has(lastStatus) || attempt === 2) break;
+    await sleep(250 * (2 ** attempt));
   }
-  const result = await response.json();
-  const raw = result.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+
+  if (!response?.ok) {
+    await refundQuota(client, requestId);
+    const failure = providerFailure(lastStatus);
+    return json({ error: failure.message, state: failure.state }, lastStatus === 429 ? 429 : 503);
+  }
+
+  let result: Record<string, unknown>;
+  try {
+    result = await response.json() as Record<string, unknown>;
+  } catch {
+    await refundQuota(client, requestId);
+    return json({ error: "Tutor returned an unreadable response", state: "AI_INVALID_RESPONSE" }, 502);
+  }
+  const raw = (result as any).candidates?.[0]?.content?.parts?.[0]?.text;
   let insight: Record<string, unknown>;
   try {
-    insight = JSON.parse(raw.trim());
+    insight = JSON.parse(typeof raw === "string" ? raw.trim() : "{}");
   } catch {
-    return json({ error: "Tutor returned an unreadable response" }, 502);
+    await refundQuota(client, requestId);
+    return json({ error: "Tutor returned an unreadable response", state: "AI_INVALID_RESPONSE" }, 502);
   }
+  if (!insight || typeof insight !== "object") {
+    await refundQuota(client, requestId);
+    return json({ error: "Tutor returned an invalid response", state: "AI_INVALID_RESPONSE" }, 502);
+  }
+
   const record = await client.rpc("store_ai_insight", {
     p_game_id: gameId,
     p_level_number: levelNumber,
@@ -104,6 +147,6 @@ Deno.serve(async req => {
     p_next_question: clean(insight.next_question, "What changed when you tried that?", 300),
     p_model: model
   });
-  if (record.error) return json({ error: "Could not save tutor insight" }, 500);
-  return json({ insight: record.data });
+  if (record.error) return json({ error: "Could not save tutor insight", state: "AI_TEMPORARILY_UNAVAILABLE" }, 500);
+  return json({ insight: record.data, state: "AI_SUCCESS" });
 });

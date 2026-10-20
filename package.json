@@ -1,0 +1,11 @@
+{
+  "name": "stem-website",
+  "private": true,
+  "description": "STEM learning platform infrastructure tools",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "supabase": "2.118.0"
+  }
+}

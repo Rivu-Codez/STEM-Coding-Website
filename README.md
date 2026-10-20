@@ -1,0 +1,126 @@
+# STEM Website
+
+An educational STEM platform with authenticated Physics and RoboMaze games,
+student progress, and optional AI tutoring through Supabase Edge Functions.
+
+## Project layout
+
+- `index.html` — signed-in game hub.
+- `login.html` — sign-in and account creation.
+- `PhysicsSim/` and `RoboMaze/` — current game entry pages.
+- `js/` — shared browser-side platform code.
+- `supabase/migrations/` — numbered database migrations.
+- `supabase/seed/` — canonical level seed data.
+- `supabase/functions/analyze-mistake/` — tutor Edge Function.
+
+## Run the site locally
+
+The pages must be served over HTTP; do not open them with `file://`.
+
+1. Open a terminal in this repository.
+2. Start any static web server. VS Code Live Server is acceptable.
+3. Open `/login.html` through that server.
+4. Sign in with a confirmed student account.
+5. Open a game from the dashboard.
+
+The browser only needs the Supabase project URL and publishable/anonymous key
+in `js/supabase-config.js`. Never put a service-role key or Gemini key there.
+
+## Supabase setup
+
+### Dashboard setup
+
+1. Create or open the Supabase project.
+2. In **SQL Editor**, run migrations in filename order: `001` through `010`.
+3. Run `supabase/seed/001_game_levels.sql` after the migrations.
+4. In **Authentication > Providers > Email**, enable email/password sign-in.
+5. In **Project Settings > API**, copy only the project URL and publishable key
+   into `js/supabase-config.js`.
+6. In **Edge Functions > Secrets**, add `GEMINI_API_KEY` and optionally
+   `GEMINI_MODEL=gemini-2.5-flash`.
+7. Deploy the `analyze-mistake` function from the Supabase dashboard or CLI.
+
+### Verify the database
+
+Run these queries in SQL Editor:
+
+```sql
+select game_id, count(*)
+from public.game_levels
+group by game_id
+order by game_id;
+
+select proname
+from pg_proc
+where proname in ('record_game_attempt', 'submit_robo_maze_attempt',
+                  'submit_physics_attempt', 'record_authoritative_achievement',
+                  'consume_tutor_quota', 'reserve_tutor_quota',
+                  'refund_tutor_quota', 'store_ai_insight')
+order by proname;
+
+select to_regclass('public.tutor_quota_events');
+```
+
+Expected results are 30 seeded levels for each current game, all eight listed
+functions, and `tutor_quota_events` as the table name.
+
+After applying migration `007`, test the server replay with a signed-in user by
+running RoboMaze level 1. A successful run should create a `success` row in
+`level_attempts` and unlock level 2. A wall collision or incomplete program
+must not unlock level 2.
+
+### Deploy the tutor function
+
+If using the dashboard, open **Edge Functions**, choose `analyze-mistake`, and
+deploy the current `supabase/functions/analyze-mistake/index.ts` source.
+Then open **Edge Functions > Logs** while triggering a tutor request in the
+game. Do not log prompts, student responses, API keys, or access tokens.
+
+The repository pins the Supabase CLI in `package.json`. After installing
+Node.js 20 or newer, install the project tools once:
+
+```text
+npm install
+```
+
+Then use the project-pinned CLI:
+
+```text
+npx --no-install supabase functions deploy analyze-mistake
+```
+
+The CLI must be authenticated and linked to the intended Supabase project. The
+first-time commands are:
+
+```text
+npx --no-install supabase login
+npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
+```
+
+## Migration procedure for future changes
+
+1. Add the next numbered SQL file under `supabase/migrations/`.
+2. Review it locally before running it remotely.
+3. Run it in Supabase SQL Editor.
+4. Run verification SQL and confirm the expected result.
+5. Deploy an Edge Function only if its source changed.
+6. Test login, one failed attempt, one successful attempt, and tutor fallback.
+7. Record the migration and verification result in the pull request.
+
+## Current limitations
+
+- Progress validation is not yet fully server-authoritative for both games.
+- RoboMaze attempts now have a server replay migration (`007`); Physics still
+  uses the server replay migration (`008`) with canonical Euler simulation.
+- The two game pages still contain large inline scripts.
+- Automated tests and CI checks are intentionally minimal until the shared API
+  refactor is complete.
+- Gemini provider rate limits produce an explicit tutor state and preserve the
+  rule-based fallback. Failed provider requests refund their quota reservation.
+
+## Safety rules
+
+- Never commit `.env`, service-role keys, Gemini keys, or access tokens.
+- Treat browser-supplied attempt data as untrusted.
+- Keep database writes behind authenticated RPCs or Edge Functions.
+- Review every migration before applying it to the hosted project.

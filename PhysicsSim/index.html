@@ -257,6 +257,12 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-platform.js"></script>
+  <script src="../js/auth-api.js"></script>
+  <script src="../js/progress-api.js"></script>
+  <script src="../js/achievement-api.js"></script>
+  <script src="../js/mistake-api.js"></script>
+  <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
   <script src="../js/tutor-hints.js"></script>
 </head>
@@ -942,12 +948,11 @@
             }
             const penaltySteps = Math.floor(failedAttempts / 3);
             const reward = rewardedLevels.has(currentLevelIndex) ? 0 : Math.max(10, Math.round(ring.xp * Math.pow(0.75, penaltySteps)));
-            rewardedLevels.add(currentLevelIndex);
             lastReward = reward;
-            userXP += reward;
-            document.getElementById('xpCount').textContent = `${userXP} XP`;
-            triggerMessage(`🎯 ${ring.msg} Landed at ${finalMeters.toFixed(1)}m (+${reward} XP)`, "success");
-            settleOnGreen(captured, () => { showVictoryModal(finalMeters, ring); endShot(true); });
+            triggerMessage(`🎯 ${ring.msg} Landed at ${finalMeters.toFixed(1)}m. Confirming result...`, "success");
+            settleOnGreen(captured, () => {
+              showVictoryModal(finalMeters, ring).finally(() => endShot(true));
+            });
           } else {
             const shortOrLong = finalMeters < targetDist ? "short" : "long";
             registerMiss(finalMeters);
@@ -1003,7 +1008,10 @@
       drawScene();
       if (!isWin && window.StemGameAuth) {
         StemGameAuth.recordAttempt(currentLevelIndex + 1, "miss", "trajectory_miss", {
-          distance: document.getElementById('lastShotDistanceText').textContent
+          distance: currentBall ? (currentBall.x - ORIGIN_X) / SCALE : null,
+          angle: angleDeg, speed: speedMps, airResistance,
+          flightTime: currentBall?.elapsedTime || 0,
+          apex: currentBall ? (GROUND_Y - currentBall.maxY) / SCALE : 0
         });
       }
     }
@@ -1023,15 +1031,33 @@
       msg.className = "status-toast " + (statusClass ? `toast-${statusClass}` : "");
     }
 
-    function showVictoryModal(dist, ring) {
+    async function showVictoryModal(dist, ring) {
       const modal = document.getElementById('victoryModal');
       if (window.StemGameAuth) {
-        StemGameAuth.recordAttempt(currentLevelIndex + 1, "success", null, {
-          distance: dist, stars: ring.stars
+        const attempt = await StemGameAuth.recordAttempt(currentLevelIndex + 1, "success", null, {
+          distance: dist, stars: ring.stars, angle: angleDeg, speed: speedMps,
+          airResistance, flightTime: currentBall?.elapsedTime || 0,
+          apex: currentBall ? (GROUND_Y - currentBall.maxY) / SCALE : 0
         });
+        if (!attempt?.ok || attempt.data?.server_result !== "success") {
+          triggerMessage('The server could not confirm this trajectory. Please try the shot again.', 'error');
+          return;
+        }
+        const achievement = await StemGameAuth.recordAchievement(currentLevelIndex + 1);
+        if (!achievement?.ok) {
+          triggerMessage('The result was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
+          return;
+        }
+        const serverStars = achievement.data?.stars || ring.stars;
+        const serverXp = achievement.data?.awarded ? (achievement.data.xp || 0) : 0;
+        lastReward = serverXp;
+        if (achievement.data?.awarded && !rewardedLevels.has(currentLevelIndex)) {
+          rewardedLevels.add(currentLevelIndex);
+          userXP += serverXp;
+          document.getElementById('xpCount').textContent = `${userXP} XP`;
+        }
         StemGameAuth.recordMistake(currentLevelIndex + 1, 'level_completed', { distance: dist });
-        StemGameAuth.recordAchievement(currentLevelIndex + 1, ring.stars, lastReward,
-          Math.max(1, failedAttempts + 1), true, { distance: dist });
+        ring = { ...ring, stars: serverStars };
       }
       document.getElementById('modalTitle').textContent = `${LEVELS[currentLevelIndex].title} Passed!`;
       document.getElementById('modalDesc').innerHTML = `${"⭐".repeat(ring.stars)}<br><strong>${ring.msg}</strong> Landed at <strong>${dist.toFixed(1)} meters</strong>! You discovered the exact kinematic relationship required for this target.`;
