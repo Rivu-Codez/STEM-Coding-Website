@@ -19,3 +19,4 @@ const RoboMazeProgress = Object.freeze({
     return RoboMazeAdapter.recordAchievement(levelIndex);
   },
 });
+window.RoboMazeProgress = RoboMazeProgress;

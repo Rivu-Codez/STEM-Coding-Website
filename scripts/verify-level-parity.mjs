@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function loadFrontendLevels(relativePath) {
-  const source = fs.readFileSync(path.join(root, relativePath), 'utf8');
+  const source = fs.readFileSync(path.join(root, relativePath), 'utf8')
+    .replace(/export\s*\{[^}]+\};?/g, '');
   const context = {};
+  context.window = context;
   vm.createContext(context);
   vm.runInContext(`${source}\n;globalThis.__levels = LEVELS;`, context);
   return context.__levels;

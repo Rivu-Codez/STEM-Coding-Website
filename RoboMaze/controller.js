@@ -1,3 +1,6 @@
+import { LEVELS } from './levels.js';
+import { RoboMazeSimulation } from './simulation.js';
+
 // --- B. GAME STATE VARIABLES ---
     let currentLevelIndex = 0;
     let robot = { x: 1, y: 1, dir: 1 };
@@ -10,7 +13,32 @@
     let lastProgramSignature = '';
     const rewardedLevels = new Set();
     let lastReward = 0;
-    const learningGate = RoboMazeLearningGate.create({
+
+    // ui.js is still a classic script, so expose its shared state explicitly.
+    const exposeState = (name, read, write) => Object.defineProperty(window, name, {
+      configurable: true,
+      get: read,
+      set: write,
+    });
+    exposeState('currentLevelIndex', () => currentLevelIndex, (value) => { currentLevelIndex = value; });
+    exposeState('robot', () => robot, (value) => { robot = value; });
+    exposeState('studentProgram', () => studentProgram, (value) => { studentProgram = value; });
+    exposeState('isExecuting', () => isExecuting, (value) => { isExecuting = value; });
+    exposeState('currentStepIndex', () => currentStepIndex, (value) => { currentStepIndex = value; });
+    exposeState('activeView', () => activeView, (value) => { activeView = value; });
+    exposeState('learningLocked', () => learningLocked, (value) => { learningLocked = value; });
+    exposeState('lastProgramSignature', () => lastProgramSignature, (value) => { lastProgramSignature = value; });
+    const triggerMessage = (...args) => window.triggerMessage(...args);
+    const updateProgrammingMode = (...args) => window.updateProgrammingMode(...args);
+    const loadPythonProgram = (...args) => window.loadPythonProgram(...args);
+    const validateProgramRules = (...args) => window.validateProgramRules(...args);
+    const conceptRequirementMet = (...args) => window.conceptRequirementMet(...args);
+    const highlightBlock = (...args) => window.highlightBlock(...args);
+    const clearHighlights = (...args) => window.clearHighlights(...args);
+    const enableControls = (...args) => window.enableControls(...args);
+    const resetLevel = (...args) => window.resetLevel(...args);
+    const changeLevel = (...args) => window.changeLevel(...args);
+    const learningGate = window.RoboMazeLearningGate.create({
       getLevel: () => LEVELS[currentLevelIndex],
       setLocked(locked) {
         learningLocked = locked;
@@ -18,7 +46,7 @@
       },
       triggerMessage,
       onReflection(selected) {
-        if (window.StemGameAuth) RoboMazeProgress.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
+        if (window.StemGameAuth) window.RoboMazeProgress.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
       },
     });
     window.RoboMazeLearningGateInstance = learningGate;
@@ -88,6 +116,8 @@
       ctx.fillStyle = "#ffffff";
       ctx.fill();
     }
+    window.drawGame = drawGame;
+    drawGame();
 
     // --- E. EXECUTION ENGINE (Conditionals, Step & Run) ---
     const expandProgramToSteps = (program) => RoboMazeSimulation.expandProgramToSteps(program);
@@ -110,7 +140,7 @@
         drawGame();
         if (grid[robot.y][robot.x] === 2) {
           if (!conceptRequirementMet()) {
-            if (window.StemGameAuth) RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            if (window.StemGameAuth) window.RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
             resetLevel();
@@ -146,16 +176,16 @@
         if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
-            RoboMazeProgress.recordMistake(currentLevelIndex, "wall_collision", {
+            window.RoboMazeProgress.recordMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             });
-            if (window.StemTutor) StemTutor.show("robo_maze", "wall_collision");
-            RoboMazeProgress.analyzeMistake(currentLevelIndex, "wall_collision", {
+            if (window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision");
+            window.RoboMazeProgress.analyzeMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             }).then(insight => {
-              if (insight && window.StemTutor) StemTutor.show("robo_maze", "wall_collision", insight);
+              if (insight && window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision", insight);
             });
-            RoboMazeProgress.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
+            window.RoboMazeProgress.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
               command: stepObj.action, program: studentProgram
             });
           }
@@ -177,7 +207,7 @@
         if (!conceptRequirementMet()) {
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
           if (window.StemGameAuth) {
-            RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            window.RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
           }
@@ -199,7 +229,7 @@
       if (!loadPythonProgram()) return;
       if (studentProgram.length === 0 || isExecuting || learningLocked) return;
       if (!validateProgramRules()) return;
-      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
+      if (window.StemGameAuth && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isExecuting = true;
       document.getElementById('btnRun').disabled = true;
       triggerMessage("Robot executing program...", "");
@@ -225,16 +255,16 @@
       const failureCategory = signature === lastProgramSignature ? "unchanged_program" : "program_incomplete";
       lastProgramSignature = signature;
       if (window.StemGameAuth) {
-        RoboMazeProgress.recordMistake(currentLevelIndex, failureCategory, {
+        window.RoboMazeProgress.recordMistake(currentLevelIndex, failureCategory, {
           steps: steps.length
         });
-        if (window.StemTutor) StemTutor.show("robo_maze", failureCategory);
-        RoboMazeProgress.analyzeMistake(currentLevelIndex, failureCategory, {
+        if (window.StemTutor) window.StemTutor.show("robo_maze", failureCategory);
+        window.RoboMazeProgress.analyzeMistake(currentLevelIndex, failureCategory, {
           steps: steps.length, program: studentProgram
         }).then(insight => {
-          if (insight && window.StemTutor) StemTutor.show("robo_maze", failureCategory, insight);
+          if (insight && window.StemTutor) window.StemTutor.show("robo_maze", failureCategory, insight);
         });
-        RoboMazeProgress.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
+        window.RoboMazeProgress.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
           steps: steps.length, program: studentProgram
         });
       }
@@ -245,11 +275,11 @@
     }
 
     // Step Button (Single Step Execution for Code.org-Style Debugging)
-    function stepSingleCommand() {
+    async function stepSingleCommand() {
       if (!loadPythonProgram()) return;
       if (studentProgram.length === 0 || learningLocked) return;
       if (!validateProgramRules()) return;
-      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
+      if (window.StemGameAuth && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       const steps = expandProgramToSteps(studentProgram);
       if (currentStepIndex >= steps.length) {
         triggerMessage("Program ended. Tap 'Reset' to step again.", "");
@@ -272,14 +302,14 @@
       let stars = 0;
       let reward = 0;
       if (window.StemGameAuth) {
-        const attempt = await RoboMazeProgress.submitAttempt(currentLevelIndex, "success", null, {
+        const attempt = await window.RoboMazeProgress.submitAttempt(currentLevelIndex, "success", null, {
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
           triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
           return;
         }
-        const achievement = await RoboMazeProgress.recordAchievement(currentLevelIndex);
+        const achievement = await window.RoboMazeProgress.recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The solution was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -292,7 +322,7 @@
           userXP += reward;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        RoboMazeProgress.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
+        window.RoboMazeProgress.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
       }
       document.getElementById('modalTitle').textContent = `${level.title} Passed! ${'⭐'.repeat(stars)} (+${reward} XP)`;
       modal.style.display = 'flex';
@@ -308,7 +338,7 @@
       }
     }
 
-    const RoboMazeModule = StemGameModule.create({
+    window.RoboMazeModule = window.StemGameModule.create({
       gameId: 'robo_maze',
       levels: LEVELS,
       loadLevel(levelNumber) {
@@ -328,14 +358,13 @@
     // Start on window load
     window.onload = () => {
       if (window.StemGameAuth) {
-        StemGameAuth.init("robo_maze", { requireSession: true }).then(() => RoboMazeModule.loadLevel(1));
+        window.StemGameAuth.init("robo_maze", { requireSession: true }).then(() => window.RoboMazeModule.loadLevel(1));
       } else {
-        RoboMazeModule.loadLevel(1);
+        window.RoboMazeModule.loadLevel(1);
       }
     };
 
 // RoboMaze DOM event wiring keeps HTML free of inline handlers.
-(function () {
   function bind() {
     document.querySelector('[data-action="change-level"]')?.addEventListener('change', (event) => {
       changeLevel(event.target.value);
@@ -362,4 +391,3 @@
     });
   }
   bind();
-})();

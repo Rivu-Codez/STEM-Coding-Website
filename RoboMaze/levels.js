@@ -31,3 +31,6 @@ const LEVELS = [
   {"title":"Level 29: Advanced Conditionals","instruction":"🧠 Concept: Use conditionals at multiple decision points without losing direction.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,1,0,0,0,1],[1,0,0,1,0,1,0,1],[1,0,0,0,0,1,0,1],[1,0,1,1,0,0,0,1],[1,0,0,0,1,2,0,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}},
   {"title":"Level 30: Final Logic Maze","instruction":"🏆 Final Challenge: Combine sequence, loops, turns, and conditionals to solve the full 8x8 maze.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,1,1,1],[1,1,1,0,0,1,1,1],[1,0,0,0,1,0,1,1],[1,0,1,0,0,0,1,1],[1,0,0,0,1,0,0,1],[1,2,0,0,1,0,0,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}},
 ];
+
+window.LEVELS = LEVELS;
+export { LEVELS };
