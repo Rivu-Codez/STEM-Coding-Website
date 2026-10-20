@@ -39,10 +39,11 @@ export function verifyRepository(repositoryRoot = root) {
     errors.push(`Migration numbers must be contiguous from 001. Found: ${migrationNumbers.join(', ')}`);
   }
 
-  const functionSource = fs.readFileSync(
-    path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'index.ts'),
-    'utf8',
-  );
+  const functionDirectory = path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake');
+  const functionSource = fs.readdirSync(functionDirectory)
+    .filter((name) => name.endsWith('.ts'))
+    .map((name) => fs.readFileSync(path.join(functionDirectory, name), 'utf8'))
+    .join('\n');
   for (const requiredState of [
     'AI_SUCCESS',
     'AI_RATE_LIMITED',
