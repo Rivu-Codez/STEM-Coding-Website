@@ -1,3 +1,6 @@
+import { LEVELS } from './levels.js';
+import { PhysicsSimulation } from './simulation.js';
+
 // --- A. LEVEL DEFINITIONS ---
     /* Level data is maintained in levels.js. */
     /*
@@ -43,6 +46,9 @@
       { r: 2.2, stars: 2, xp: 50,  msg: "Near Miss!" },
       { r: 3.5, stars: 1, xp: 25,  msg: "Close Rim Shot!" }
     ];
+    window.G = G;
+    window.SCALE = SCALE;
+    window.GROUND_Y = GROUND_Y;
     let airResistance = false;
 
     let currentLevelIndex = 0;
@@ -59,7 +65,43 @@
     let lastReward = 0;
     let shotHistory = [];
     let physicsPrediction = null;
-    const physicsLearningGate = PhysicsLearningGate.create();
+    const exposeState = (name, read, write) => Object.defineProperty(window, name, {
+      configurable: true,
+      get: read,
+      set: write,
+    });
+    exposeState('currentLevelIndex', () => currentLevelIndex, (value) => { currentLevelIndex = value; });
+    exposeState('airResistance', () => airResistance, (value) => { airResistance = value; });
+    exposeState('angleDeg', () => angleDeg, (value) => { angleDeg = value; });
+    exposeState('speedMps', () => speedMps, (value) => { speedMps = value; });
+    exposeState('userXP', () => userXP, (value) => { userXP = value; });
+    exposeState('isFlying', () => isFlying, (value) => { isFlying = value; });
+    exposeState('currentBall', () => currentBall, (value) => { currentBall = value; });
+    exposeState('previousTrail', () => previousTrail, (value) => { previousTrail = value; });
+    exposeState('missCount', () => missCount, (value) => { missCount = value; });
+    exposeState('failedAttempts', () => failedAttempts, (value) => { failedAttempts = value; });
+    exposeState('lastReward', () => lastReward, (value) => { lastReward = value; });
+    exposeState('shotHistory', () => shotHistory, (value) => { shotHistory = value; });
+    exposeState('physicsPrediction', () => physicsPrediction, (value) => { physicsPrediction = value; });
+    const PhysicsProgress = window.PhysicsProgress;
+    const updateControls = (...args) => window.updateControls(...args);
+    const toggleDrag = (...args) => window.toggleDrag(...args);
+    const renderShotHistory = (...args) => window.renderShotHistory(...args);
+    const buildPhysicsQuestion = (...args) => window.buildPhysicsQuestion(...args);
+    const physicsConceptMet = (...args) => window.physicsConceptMet(...args);
+    const checkPhysicsPrediction = (...args) => window.checkPhysicsPrediction(...args);
+    const showReviewPanel = (...args) => window.showReviewPanel(...args);
+    const registerMiss = (...args) => window.registerMiss(...args);
+    const buildReviewHint = (...args) => window.buildReviewHint(...args);
+    const showReviewAnalysis = (...args) => window.showReviewAnalysis(...args);
+    const unlockAfterReview = (...args) => window.unlockAfterReview(...args);
+    const nudgeAngle = (...args) => window.nudgeAngle(...args);
+    const nudgeSpeed = (...args) => window.nudgeSpeed(...args);
+    const triggerMessage = (...args) => window.triggerMessage(...args);
+    const resetShot = (...args) => window.resetShot(...args);
+    const restoreLearningCheckpoint = (...args) => window.restoreLearningCheckpoint(...args);
+    const changeLevel = (...args) => window.changeLevel(...args);
+    const physicsLearningGate = window.PhysicsLearningGate.create();
     window.PhysicsLearningGateInstance = physicsLearningGate;
 
     const canvas = document.getElementById('gameCanvas');
@@ -172,6 +214,8 @@
       // 7. Draw Cannon Base & Rotating Barrel
       drawCannon();
     }
+    window.drawScene = drawScene;
+    drawScene();
 
     function drawCannon() {
       const angleRad = (angleDeg * Math.PI) / 180;
@@ -201,7 +245,7 @@
 
     function fireCannon() {
       if (isFlying || physicsLearningGate.isLocked()) return;
-      if (window.StemGameAuth && !StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
+      if (window.StemGameAuth && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isFlying = true;
       document.getElementById('btnFire').disabled = true;
       triggerMessage("Ball in flight...", "");
@@ -241,7 +285,7 @@
                 distance: (currentBall.x - ORIGIN_X) / SCALE
               });
             }
-            if (window.StemTutor) StemTutor.show("physics", "wall_collision");
+            if (window.StemTutor) window.StemTutor.show("physics", "wall_collision");
             endShot(false);
             return;
           }
@@ -289,7 +333,7 @@
                 time: currentBall.elapsedTime, apex: (GROUND_Y - currentBall.maxY) / SCALE
               });
             }
-            if (window.StemTutor) StemTutor.show("physics", "shot_missed");
+            if (window.StemTutor) window.StemTutor.show("physics", "shot_missed");
             triggerMessage(`Missed! Landed ${Math.abs(targetDist - finalMeters).toFixed(1)}m ${shortOrLong}. Adjust and try again!`, "error");
             endShot(false);
           }
@@ -388,7 +432,7 @@
       }
     }
 
-    const PhysicsModule = StemGameModule.create({
+    window.PhysicsModule = window.StemGameModule.create({
       gameId: 'physics',
       levels: LEVELS,
       loadLevel(levelNumber) {
@@ -415,14 +459,13 @@
     // Initialize on window load
     window.onload = () => {
       if (window.StemGameAuth) {
-        StemGameAuth.init("physics", { requireSession: true }).then(() => PhysicsModule.loadLevel(1));
+        window.StemGameAuth.init("physics", { requireSession: true }).then(() => window.PhysicsModule.loadLevel(1));
       } else {
-        PhysicsModule.loadLevel(1);
+        window.PhysicsModule.loadLevel(1);
       }
     };
 
 // PhysicsSim DOM event wiring keeps HTML free of inline handlers.
-(function () {
   function bind() {
     document.querySelector('[data-action="change-level"]')?.addEventListener('change', (event) => {
       changeLevel(event.target.value);
@@ -449,4 +492,3 @@
     });
   }
   bind();
-})();

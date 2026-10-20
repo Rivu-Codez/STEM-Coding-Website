@@ -19,3 +19,4 @@ const PhysicsProgress = Object.freeze({
     return PhysicsAdapter.recordAchievement(levelIndex);
   },
 });
+window.PhysicsProgress = PhysicsProgress;

@@ -31,3 +31,6 @@ const LEVELS = [
   {"title":"Level 29: Tight Accuracy","instruction":"🎯 Concept: Make a highly accurate shot inside a smaller landing zone.","targetDistance":32,"lockSpeed":false,"lockDrag":false,"fixedSpeed":27,"wall":null,"dragMode":null,"targetTolerance":1.5},
   {"title":"Level 30: Final Trajectory","instruction":"🏆 Final Challenge: Combine speed, angle, drag, wall clearance, and precision.","targetDistance":42,"lockSpeed":false,"lockDrag":false,"fixedSpeed":32,"wall":{"x":25,"height":12},"dragMode":"on","targetTolerance":2},
 ];
+
+window.LEVELS = LEVELS;
+export { LEVELS };

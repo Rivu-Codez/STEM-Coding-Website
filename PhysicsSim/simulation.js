@@ -42,3 +42,6 @@ const PhysicsSimulation = {
     return captured ? rings[0] : rings.find((ring) => delta <= Math.min(ring.r, tolerance));
   },
 };
+
+window.PhysicsSimulation = PhysicsSimulation;
+export { PhysicsSimulation };
