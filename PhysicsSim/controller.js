@@ -1,6 +1,7 @@
 import { LEVELS } from './levels.js';
 import { PhysicsSimulation } from './simulation.js';
-import { drawCannon } from './renderer.js';
+import { createPhysicsSceneRenderer } from './scene-renderer.js';
+import { bindPhysicsEvents } from './events.js';
 import { createGamePersistence } from '../js/game-persistence.js';
 
 // --- A. LEVEL DEFINITIONS ---
@@ -114,112 +115,18 @@ import { createGamePersistence } from '../js/game-persistence.js';
     const ctx = canvas.getContext('2d');
 
     // --- C. RENDER CANVAS WORLD ---
-    function drawScene() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const lvl = LEVELS[currentLevelIndex];
-
-      // 1. Draw Sky Grid & Distance Meter Marks
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
-      ctx.lineWidth = 1;
-      for (let m = 0; m <= 55; m += 5) {
-        const px = ORIGIN_X + m * SCALE;
-        ctx.beginPath();
-        ctx.moveTo(px, 20);
-        ctx.lineTo(px, GROUND_Y);
-        ctx.stroke();
-
-        ctx.fillStyle = "#64748b";
-        ctx.font = "10px monospace";
-        ctx.textAlign = "center";
-        ctx.fillText(`${m}m`, px, GROUND_Y + 16);
-      }
-
-      // 2. Draw Ground Line
-      ctx.strokeStyle = "#334155";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, GROUND_Y);
-      ctx.lineTo(canvas.width, GROUND_Y);
-      ctx.stroke();
-
-      // 3. Draw Target Hole
-      const targetPx = ORIGIN_X + lvl.targetDistance * SCALE;
-      // Bullseye rings, drawn outer to inner
-      [...RINGS].reverse().forEach((ring, i) => {
-        ctx.fillStyle = `rgba(251, 191, 36, ${0.1 + i * 0.1})`;
-        ctx.beginPath();
-        ctx.ellipse(targetPx, GROUND_Y + 2, ring.r * SCALE, ring.r * SCALE * 0.25, 0, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      // Hole Flag
-      ctx.fillStyle = "#f87171";
-      ctx.beginPath();
-      ctx.moveTo(targetPx, GROUND_Y - 32);
-      ctx.lineTo(targetPx + 16, GROUND_Y - 24);
-      ctx.lineTo(targetPx, GROUND_Y - 16);
-      ctx.fill();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(targetPx, GROUND_Y);
-      ctx.lineTo(targetPx, GROUND_Y - 32);
-      ctx.stroke();
-
-      // Hole Pit
-      ctx.fillStyle = "#0284c7";
-      ctx.beginPath();
-      ctx.ellipse(targetPx, GROUND_Y + 2, 14, 6, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 4. Draw Wall Obstacle (Level 3)
-      if (lvl.wall) {
-        const wallPx = ORIGIN_X + lvl.wall.x * SCALE;
-        const wallH = lvl.wall.height * SCALE;
-        ctx.fillStyle = "#ef4444";
-        ctx.fillRect(wallPx - 6, GROUND_Y - wallH, 12, wallH);
-        ctx.strokeStyle = "#ffffff";
-        ctx.strokeRect(wallPx - 6, GROUND_Y - wallH, 12, wallH);
-
-        ctx.fillStyle = "#fca5a5";
-        ctx.font = "10px sans-serif";
-        ctx.fillText("WALL", wallPx, GROUND_Y - wallH - 6);
-      }
-
-      // 5. Draw Ghost Trajectory (Previous Shot)
-      if (previousTrail && previousTrail.length > 1) {
-        ctx.save();
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.45)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(previousTrail[0].x, previousTrail[0].y);
-        for (let pt of previousTrail) ctx.lineTo(pt.x, pt.y);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // 6. Draw Current Shot Trajectory
-      if (currentBall && currentBall.trail.length > 1) {
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(currentBall.trail[0].x, currentBall.trail[0].y);
-        for (let pt of currentBall.trail) ctx.lineTo(pt.x, pt.y);
-        ctx.stroke();
-
-        // Draw Active Ball
-        ctx.fillStyle = "#fbbf24";
-        ctx.beginPath();
-        ctx.arc(currentBall.x, currentBall.y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      // 7. Draw Cannon Base & Rotating Barrel
-      drawCannon(ctx, { originX: ORIGIN_X, groundY: GROUND_Y, angleDeg });
-    }
+    const drawScene = createPhysicsSceneRenderer({
+      canvas,
+      levels: LEVELS,
+      rings: RINGS,
+      originX: ORIGIN_X,
+      groundY: GROUND_Y,
+      scale: SCALE,
+      getLevelIndex: () => currentLevelIndex,
+      getAngle: () => angleDeg,
+      getPreviousTrail: () => previousTrail,
+      getCurrentBall: () => currentBall,
+    });
     window.drawScene = drawScene;
     drawScene();
 
@@ -445,30 +352,4 @@ import { createGamePersistence } from '../js/game-persistence.js';
       }
     };
 
-// PhysicsSim DOM event wiring keeps HTML free of inline handlers.
-  function bind() {
-    document.querySelector('[data-action="change-level"]')?.addEventListener('change', (event) => {
-      changeLevel(event.target.value);
-    });
-    document.querySelectorAll('[data-nudge-angle]').forEach((button) => {
-      button.addEventListener('click', () => nudgeAngle(Number(button.dataset.nudgeAngle)));
-    });
-    document.getElementById('angleSlider')?.addEventListener('input', updateControls);
-    document.querySelectorAll('[data-nudge-speed]').forEach((button) => {
-      button.addEventListener('click', () => nudgeSpeed(Number(button.dataset.nudgeSpeed)));
-    });
-    document.getElementById('speedSlider')?.addEventListener('input', updateControls);
-    document.getElementById('dragToggle')?.addEventListener('change', (event) => toggleDrag(event.target.checked));
-    document.querySelector('[data-action="unlock-review"]')?.addEventListener('click', unlockAfterReview);
-    document.querySelector('[data-action="fire"]')?.addEventListener('click', fireCannon);
-    document.querySelector('[data-action="reset"]')?.addEventListener('click', resetShot);
-    document.querySelector('[data-action="next-level"]')?.addEventListener('click', closeModalAndNext);
-    document.addEventListener('click', (event) => {
-      const learningButton = event.target.closest('[data-learning-selected]');
-      if (learningButton) checkPhysicsPrediction(
-        learningButton.dataset.learningSelected,
-        learningButton.dataset.learningCorrect,
-      );
-    });
-  }
-  bind();
+  bindPhysicsEvents({ changeLevel, nudgeAngle, updateControls, nudgeSpeed, toggleDrag, unlockAfterReview, fireCannon, resetShot, closeModalAndNext, checkPhysicsPrediction });

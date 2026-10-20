@@ -8,6 +8,8 @@ student progress, and optional AI tutoring through Supabase Edge Functions.
 - `index.html` — signed-in game hub.
 - `login.html` — sign-in and account creation.
 - `PhysicsSim/` and `RoboMaze/` — current game entry pages.
+- `PhysicsSim/scene-renderer.js` and `RoboMaze/renderer.js` — isolated canvas rendering.
+- `PhysicsSim/events.js` and `RoboMaze/events.js` — isolated DOM event wiring.
 - `js/` — shared browser-side platform code.
 - `supabase/migrations/` — numbered database migrations.
 - `supabase/seed/` — canonical level seed data.
@@ -157,9 +159,9 @@ npm run test:integration
 
 ## Current limitations
 
-- The game controllers are externalized but still contain multiple
-  responsibilities and should eventually be decomposed into smaller browser
-  modules.
+- The game controllers now delegate persistence, rendering, and DOM event
+  wiring, but state transitions and some legacy compatibility bridges still
+  remain inside the controllers.
 - The current browser suite covers deterministic local smoke flows. Hosted
   authenticated journeys still require a configured test environment.
 - Supabase integration checks are opt-in and require a disposable test project;
