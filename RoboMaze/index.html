@@ -325,6 +325,7 @@
   <script src="../js/mistake-api.js"></script>
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/game-module.js"></script>
   <script src="../js/tutor-hints.js"></script>
   <script src="levels.js"></script>
   <script src="simulation.js"></script>
@@ -760,12 +761,29 @@
       }
     }
 
+    const RoboMazeModule = StemGameModule.create({
+      gameId: 'robo_maze',
+      levels: LEVELS,
+      loadLevel(levelNumber) {
+        changeLevel(levelNumber - 1);
+      },
+      reset() {
+        resetLevel();
+      },
+      getAttemptPayload() {
+        return { program: studentProgram };
+      },
+      renderFeedback(feedback) {
+        if (feedback?.message) triggerMessage(feedback.message, feedback.statusClass || '');
+      },
+    });
+
     // Start on window load
     window.onload = () => {
       if (window.StemGameAuth) {
-        StemGameAuth.init("robo_maze", { requireSession: true }).then(() => resetLevel());
+        StemGameAuth.init("robo_maze", { requireSession: true }).then(() => RoboMazeModule.loadLevel(1));
       } else {
-        resetLevel();
+        RoboMazeModule.loadLevel(1);
       }
     };
   </script>
