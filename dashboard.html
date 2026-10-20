@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboLogic STEM Lab | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/game-auth.js"></script>
+</head>
+<body>
+  <main class="dashboard-shell">
+    <header class="dashboard-header">
+      <div>
+        <div class="brand-line"><span class="brand-mark">⚙</span> ROBOLOGIC STEM LAB</div>
+        <p class="eyebrow">STUDENT COMMAND CENTER</p>
+        <h1>Your learning dashboard</h1>
+        <p class="intro">Choose a lab and continue building your skills.</p>
+      </div>
+      <button id="logoutButton" class="button button-quiet" type="button">Log out</button>
+    </header>
+
+    <section class="profile-card" aria-labelledby="profileHeading">
+      <div id="profileInitials" class="avatar" aria-hidden="true">S</div>
+      <div class="profile-copy">
+        <p class="eyebrow">STUDENT PROFILE</p>
+        <h2 id="profileHeading"><span id="profileName">Student</span></h2>
+        <p id="profileEmail" class="muted">Loading account...</p>
+        <form id="profileForm" class="profile-form" hidden>
+          <label for="profileNameInput">Display name</label>
+          <div class="profile-edit-row">
+            <input id="profileNameInput" maxlength="60" autocomplete="name">
+            <button class="button" type="submit">Save</button>
+            <button id="cancelProfileButton" class="button button-quiet" type="button">Cancel</button>
+          </div>
+          <p id="profileMessage" class="form-message" aria-live="polite"></p>
+        </form>
+        <button id="editProfileButton" class="text-button" type="button">Edit profile name</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="gamesHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">LEARNING PATH</p>
+          <h2 id="gamesHeading">Choose your next challenge</h2>
+        </div>
+        <p class="muted">Complete levels to earn stars and XP.</p>
+      </div>
+
+      <div class="game-grid">
+        <article class="game-card physics-card">
+          <div class="game-icon" aria-hidden="true">⚡</div>
+          <div class="game-content">
+            <div class="game-label physics-label"><span>⚡</span> PHYSICS LAB</div>
+            <h3>Physics Kinematics Lab</h3>
+            <p>Explore speed, angles, distance, and trajectory through experiments.</p>
+            <div class="progress-row"><span>Progress</span><strong id="physicsProgress">0%</strong></div>
+            <div class="progress-track"><span id="physicsProgressBar"></span></div>
+            <div class="stat-grid">
+              <div><strong id="physicsCompleted">0/30</strong><span>Levels</span></div>
+              <div><strong id="physicsStars">0</strong><span>Stars</span></div>
+              <div><strong id="physicsXp">0</strong><span>XP</span></div>
+            </div>
+            <button id="physicsGameButton" class="button game-button" type="button">Continue Physics</button>
+          </div>
+        </article>
+
+        <article class="game-card coding-card">
+          <div class="game-icon" aria-hidden="true">▦</div>
+          <div class="game-content">
+            <div class="game-label coding-label"><span>▦</span> CODING &amp; MATHS</div>
+            <h3>RoboLogic Maze</h3>
+            <p>Plan routes, practise logic, and teach a robot to solve the maze.</p>
+            <div class="progress-row"><span>Progress</span><strong id="roboProgress">0%</strong></div>
+            <div class="progress-track"><span id="roboProgressBar"></span></div>
+            <div class="stat-grid">
+              <div><strong id="roboCompleted">0/30</strong><span>Levels</span></div>
+              <div><strong id="roboStars">0</strong><span>Stars</span></div>
+              <div><strong id="roboXp">0</strong><span>XP</span></div>
+            </div>
+            <button id="roboGameButton" class="button game-button" type="button">Continue RoboMaze</button>
+          </div>
+        </article>
+
+        <article class="game-card coming-card">
+          <div class="game-icon" aria-hidden="true">⚗</div>
+          <div class="game-content">
+            <div class="game-label coming-label"><span>⚗</span> CHEMISTRY</div>
+            <h3>Coming soon</h3>
+            <p>Experiment with reactions, matter, and the building blocks of chemistry.</p>
+            <button class="button button-disabled game-button" type="button" disabled>In development</button>
+          </div>
+        </article>
+
+        <article class="game-card coming-card">
+          <div class="game-icon" aria-hidden="true">✦</div>
+          <div class="game-content">
+            <div class="game-label coming-label"><span>✦</span> BIOLOGY &amp; ENVIRONMENT</div>
+            <h3>Coming soon</h3>
+            <p>Discover living systems, ecosystems, and practical environmental science.</p>
+            <button class="button button-disabled game-button" type="button" disabled>In development</button>
+          </div>
+        </article>
+      </div>
+    </section>
+    <p id="dashboardMessage" class="dashboard-message" aria-live="polite"></p>
+  </main>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

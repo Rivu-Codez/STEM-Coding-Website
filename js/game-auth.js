@@ -82,6 +82,69 @@
   }
 
   window.StemGameAuth = {
+    async initDashboard() {
+      addStyles();
+      if (!config.url || !config.anonKey || !window.supabase) {
+        showStatus("Add your Supabase URL and anonymous key in js/supabase-config.js.");
+        return false;
+      }
+      state.client = window.supabase.createClient(config.url, config.anonKey);
+      const result = await state.client.auth.getSession();
+      state.session = result.data.session;
+      if (!state.session) {
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
+    },
+    async getStudentProfile() {
+      if (!state.client || !state.session) return null;
+      const result = await state.client.from("profiles")
+        .select("id,display_name").eq("id", state.session.user.id).maybeSingle();
+      return result.data || { display_name: "" };
+    },
+    getCurrentUser() {
+      return state.session?.user || null;
+    },
+    async updateStudentProfile(displayName) {
+      if (!state.client || !state.session) return false;
+      const name = displayName.trim();
+      const result = await state.client.from("profiles")
+        .update({ display_name: name, updated_at: new Date().toISOString() })
+        .eq("id", state.session.user.id);
+      if (result.error) return false;
+      const user = await state.client.auth.updateUser({ data: { display_name: name } });
+      return !user.error;
+    },
+    async getDashboardStats(gameId) {
+      if (!state.client || !state.session) return { completedLevels: 0, stars: 0, xp: 0 };
+      const progress = await state.client.from("level_progress")
+        .select("level_number,status,best_result").eq("game_id", gameId);
+      const achievements = await state.client.from("student_achievements")
+        .select("level_number,stars,xp").eq("game_id", gameId);
+      const completed = (progress.data || []).filter(row => row.status === "completed");
+      const records = achievements.error ? [] : (achievements.data || []);
+      const fallback = completed.map(row => row.best_result || {});
+      const starSum = records.reduce((total, row) => total + (row.stars || 0), 0);
+      const xpSum = records.reduce((total, row) => total + (row.xp || 0), 0);
+      const totalStars = await state.client.rpc("get_student_star_total", { p_game_id: gameId });
+      const stars = totalStars.error
+        ? (records.length ? starSum : fallback.reduce((total, row) => total + (row.stars || 0), 0))
+        : (totalStars.data || 0);
+      const xp = records.length
+        ? xpSum
+        : fallback.reduce((total, row) => total + (row.xp || 0), 0);
+      return {
+        completedLevels: completed.length,
+        stars,
+        xp,
+        nextLevel: Math.min(30, completed.length + 1)
+      };
+    },
+    async signOut() {
+      if (state.client) await state.client.auth.signOut();
+      window.location.href = "login.html";
+    },
     async init(gameId, options = {}) {
       state.gameId = gameId;
       addStyles();
@@ -118,6 +181,7 @@
       const email = document.getElementById("loginEmail");
       const password = document.getElementById("loginPassword");
       const confirmPassword = document.getElementById("confirmPassword");
+      const displayName = document.getElementById("displayName");
       const message = document.getElementById("loginMessage");
       const submitButton = document.getElementById("authSubmit");
       const modeToggle = document.getElementById("modeToggle");
@@ -137,12 +201,14 @@
         submitButton.textContent = signup ? "Create account" : "Log in";
         modeToggle.textContent = signup ? "Already have an account? Log in" : "Need an account? Create one";
         confirmRow.hidden = !signup;
+        document.getElementById("displayNameRow").hidden = !signup;
         rules.hidden = !signup;
         setMessage("");
       };
       const submit = async () => {
         if (busy) return;
         if (!email.value.trim() || !password.value) return setMessage("Enter your email and password.");
+        if (mode === "signup" && !displayName.value.trim()) return setMessage("Enter a display name.");
         if (mode === "signup" && password.value !== confirmPassword.value) {
           return setMessage("The passwords do not match.");
         }
@@ -150,7 +216,10 @@
         submitButton.disabled = true;
         submitButton.textContent = mode === "signup" ? "Creating account..." : "Logging in...";
         const result = mode === "signup"
-          ? await state.client.auth.signUp({ email: email.value.trim(), password: password.value })
+          ? await state.client.auth.signUp({
+            email: email.value.trim(), password: password.value,
+            options: { data: { display_name: displayName.value.trim() } }
+          })
           : await state.client.auth.signInWithPassword({ email: email.value.trim(), password: password.value });
         busy = false;
         submitButton.disabled = false;
@@ -159,7 +228,7 @@
         if (mode === "signup" && !result.data.session) {
           return setMessage("Account created. Check your email, confirm it, then log in.");
         }
-        showGameChoices(result.data.session);
+        window.location.href = "dashboard.html";
       };
       document.getElementById("authForm").onsubmit = event => {
         event.preventDefault();
@@ -176,7 +245,7 @@
       };
       updateMode();
       const current = await state.client.auth.getSession();
-      if (current.data.session) showGameChoices(current.data.session);
+      if (current.data.session) window.location.href = "dashboard.html";
     },
     allowLevel(levelNumber) {
       if (!state.session) {
@@ -198,6 +267,31 @@
       if (response.error) return console.error("Progress update failed:", response.error.message);
       await loadProgress();
     },
+    async getLevelAttemptCount(levelNumber) {
+      if (!state.client || !state.session) return 0;
+      const result = await state.client.from("level_progress")
+        .select("attempt_count").eq("game_id", state.gameId)
+        .eq("level_number", levelNumber).maybeSingle();
+      return result.data?.attempt_count || 0;
+    },
+    async recordAchievement(levelNumber, stars, xp, attempts, conceptCompleted, bestResult) {
+      if (!state.client || !state.session) return;
+      const response = await state.client.rpc("record_student_achievement", {
+        p_game_id: state.gameId,
+        p_level_number: levelNumber,
+        p_stars: stars,
+        p_xp: xp,
+        p_attempts: attempts,
+        p_concept_completed: conceptCompleted,
+        p_best_result: bestResult || {}
+      });
+      if (response.error) console.error("Achievement update failed:", response.error.message);
+    },
+    async getTotalStars() {
+      if (!state.client || !state.session) return 0;
+      const response = await state.client.rpc("get_student_star_total", { p_game_id: state.gameId });
+      return response.error ? 0 : (response.data || 0);
+    },
     async recordMistake(levelNumber, category, details) {
       if (!state.client || !state.session) return;
       const response = await state.client.rpc("record_mistake_event", {
@@ -207,6 +301,23 @@
         p_details: details || {}
       });
       if (response.error) console.error("Mistake event failed:", response.error.message);
+    },
+    async getLearningState(levelNumber) {
+      if (!state.client || !state.session) return { failures: [] };
+      const result = await state.client.from("mistake_events")
+        .select("category,details,created_at")
+        .eq("game_id", state.gameId)
+        .eq("level_number", levelNumber)
+        .order("created_at", { ascending: true });
+      if (result.error) return { failures: [] };
+      const events = result.data || [];
+      const lastReflection = events.map((event, index) =>
+        ["reflection_completed", "level_completed"].includes(event.category) ? index : -1
+      ).pop();
+      const failures = events.slice(lastReflection + 1).filter(event =>
+        ["shot_missed", "wall_collision", "program_incomplete", "unchanged_program", "concept_not_applied"].includes(event.category)
+      );
+      return { failures };
     },
     async analyzeMistake(levelNumber, category, details) {
       if (!state.client || !state.session) return null;
@@ -221,19 +332,4 @@
     }
   };
 
-  function showGameChoices(session) {
-    document.getElementById("loginPanel").hidden = true;
-    document.getElementById("gameChoices").hidden = false;
-    document.getElementById("studentName").textContent = session.user.email;
-    document.getElementById("physicsChoice").onclick = () => {
-      window.location.href = "PhysicsSim/index.html";
-    };
-    document.getElementById("mazeChoice").onclick = () => {
-      window.location.href = "RoboMaze/index.html";
-    };
-    document.getElementById("logoutButton").onclick = async () => {
-      await state.client.auth.signOut();
-      window.location.reload();
-    };
-  }
 })();
