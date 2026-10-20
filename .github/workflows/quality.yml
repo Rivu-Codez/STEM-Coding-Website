@@ -31,6 +31,14 @@ jobs:
       - name: Run automated tests
         run: npm test
 
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.1.4
+
+      - name: Check Edge Function contract
+        run: deno test --allow-read supabase/functions/analyze-mistake/index.test.ts
+
       - name: Check required files
         shell: bash
         run: |
