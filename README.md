@@ -99,6 +99,28 @@ npx --no-install supabase login
 npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
 ```
 
+## Automated checks
+
+Run the repository and unit checks before committing:
+
+```text
+npm run check
+npm test
+```
+
+Run the local browser smoke tests with Chromium:
+
+```text
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser suite starts the repository's local static server automatically.
+It uses mocked authentication for deterministic UI checks and does not require
+a service-role key or Gemini key. Hosted authenticated journeys remain a manual
+verification step until a dedicated test account and test environment are
+configured.
+
 ## Migration procedure for future changes
 
 1. Add the next numbered SQL file under `supabase/migrations/`.
@@ -111,10 +133,11 @@ npx --no-install supabase link --project-ref qavxpvscadmvxffpuyrh
 
 ## Current limitations
 
-- The two game pages still contain large inline controllers and are being
-  migrated to explicit browser modules.
-- Browser end-to-end coverage and frontend/seed parity checks are still being
-  added.
+- The game controllers are externalized but still contain multiple
+  responsibilities and should eventually be decomposed into smaller browser
+  modules.
+- The current browser suite covers deterministic local smoke flows. Hosted
+  authenticated journeys still require a configured test environment.
 - Gemini provider rate limits produce an explicit tutor state and preserve the
   rule-based fallback. Failed provider requests refund their quota reservation.
 

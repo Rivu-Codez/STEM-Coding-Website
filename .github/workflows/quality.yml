@@ -31,6 +31,12 @@ jobs:
       - name: Run automated tests
         run: npm test
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke tests
+        run: npm run test:browser
+
       - name: Set up Deno
         uses: denoland/setup-deno@v2
         with:
