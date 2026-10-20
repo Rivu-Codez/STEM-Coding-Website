@@ -197,7 +197,7 @@ function checkMazePrediction(selected, correct) {
   learningFailures = 0;
   document.getElementById('learningGate').style.display = 'none';
   setLearningLocked(false);
-  if (window.StemGameAuth) RoboMazeAdapter.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
+  if (window.StemGameAuth) RoboMazeProgress.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
 }
 
 function registerLearningFailure(category) {
@@ -207,7 +207,7 @@ function registerLearningFailure(category) {
 }
 
 async function restoreLearningCheckpoint() {
-  const state = await RoboMazeAdapter.restoreCheckpoint(currentLevelIndex);
+  const state = await RoboMazeProgress.restoreCheckpoint(currentLevelIndex);
   if (!state || state.failures.length < 3) return;
   learningFailures = 3;
   showLearningGate(state.failures[state.failures.length - 1].category);
@@ -247,7 +247,7 @@ function resetLevel() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  if (!RoboMazeAdapter.isLevelUnlocked(nextIndex)) {
+  if (!RoboMazeProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;
   }

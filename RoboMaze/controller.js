@@ -100,7 +100,7 @@
         drawGame();
         if (grid[robot.y][robot.x] === 2) {
           if (!conceptRequirementMet()) {
-            if (window.StemGameAuth) RoboMazeAdapter.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            if (window.StemGameAuth) RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
             resetLevel();
@@ -136,16 +136,16 @@
         if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
-            RoboMazeAdapter.recordMistake(currentLevelIndex, "wall_collision", {
+            RoboMazeProgress.recordMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             });
             if (window.StemTutor) StemTutor.show("robo_maze", "wall_collision");
-            RoboMazeAdapter.analyzeMistake(currentLevelIndex, "wall_collision", {
+            RoboMazeProgress.analyzeMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             }).then(insight => {
               if (insight && window.StemTutor) StemTutor.show("robo_maze", "wall_collision", insight);
             });
-            RoboMazeAdapter.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
+            RoboMazeProgress.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
               command: stepObj.action, program: studentProgram
             });
           }
@@ -167,7 +167,7 @@
         if (!conceptRequirementMet()) {
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
           if (window.StemGameAuth) {
-            RoboMazeAdapter.recordMistake(currentLevelIndex, 'concept_not_applied', {
+            RoboMazeProgress.recordMistake(currentLevelIndex, 'concept_not_applied', {
               requiredBlock: LEVELS[currentLevelIndex].requiredBlock
             });
           }
@@ -215,16 +215,16 @@
       const failureCategory = signature === lastProgramSignature ? "unchanged_program" : "program_incomplete";
       lastProgramSignature = signature;
       if (window.StemGameAuth) {
-        RoboMazeAdapter.recordMistake(currentLevelIndex, failureCategory, {
+        RoboMazeProgress.recordMistake(currentLevelIndex, failureCategory, {
           steps: steps.length
         });
         if (window.StemTutor) StemTutor.show("robo_maze", failureCategory);
-        RoboMazeAdapter.analyzeMistake(currentLevelIndex, failureCategory, {
+        RoboMazeProgress.analyzeMistake(currentLevelIndex, failureCategory, {
           steps: steps.length, program: studentProgram
         }).then(insight => {
           if (insight && window.StemTutor) StemTutor.show("robo_maze", failureCategory, insight);
         });
-        RoboMazeAdapter.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
+        RoboMazeProgress.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
           steps: steps.length, program: studentProgram
         });
       }
@@ -262,14 +262,14 @@
       let stars = 0;
       let reward = 0;
       if (window.StemGameAuth) {
-        const attempt = await RoboMazeAdapter.submitAttempt(currentLevelIndex, "success", null, {
+        const attempt = await RoboMazeProgress.submitAttempt(currentLevelIndex, "success", null, {
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
           triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
           return;
         }
-        const achievement = await RoboMazeAdapter.recordAchievement(currentLevelIndex);
+        const achievement = await RoboMazeProgress.recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The solution was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -282,7 +282,7 @@
           userXP += reward;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        RoboMazeAdapter.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
+        RoboMazeProgress.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
       }
       document.getElementById('modalTitle').textContent = `${level.title} Passed! ${'⭐'.repeat(stars)} (+${reward} XP)`;
       modal.style.display = 'flex';
@@ -353,4 +353,3 @@
   }
   bind();
 })();
-
