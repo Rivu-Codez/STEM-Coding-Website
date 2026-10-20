@@ -32,6 +32,17 @@ test('authoritative progression migrations expose server-owned procedures', () =
   assert.match(source, /record_authoritative_achievement/);
 });
 
+test('legacy client-trusted RPCs are revoked after authoritative migration', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '011_revoke_legacy_client_rpcs.sql'),
+    'utf8',
+  );
+  assert.match(source, /record_game_attempt/);
+  assert.match(source, /record_student_achievement/);
+  assert.match(source, /consume_tutor_quota/);
+  assert.match(source, /from public, authenticated, anon/);
+});
+
 test('tutor reliability contract includes retry states and quota refund', () => {
   const functionSource = fs.readFileSync(
     path.join(repositoryRoot, 'supabase', 'functions', 'analyze-mistake', 'handler.ts'),

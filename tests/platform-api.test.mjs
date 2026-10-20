@@ -86,6 +86,21 @@ test('successful attempt returns data and refreshes progress', async () => {
   assert.equal(client !== null, true);
 });
 
+test('unsupported attempt payloads do not use the legacy client-trusted RPC', async () => {
+  const { context, messages, client } = createHarness({
+    session: { user: { id: 'student-1' } },
+  });
+  let rpcCalled = false;
+  client.rpc = () => {
+    rpcCalled = true;
+    return Promise.resolve({ data: null, error: null });
+  };
+  const result = await context.StemProgressApi.recordAttempt(1, 'success', null, {});
+  assert.deepEqual(JSON.parse(JSON.stringify(result)), { ok: false, error: 'Unsupported attempt payload' });
+  assert.equal(rpcCalled, false);
+  assert.match(messages[0], /cannot submit attempts safely/);
+});
+
 test('tutor without a session uses rule-based fallback', async () => {
   const { context } = createHarness();
   const insight = await context.StemTutorApi.analyze(1, 'wall_collision', {});

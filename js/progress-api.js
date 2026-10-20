@@ -53,26 +53,26 @@
     },
     async recordAttempt(levelNumber, result, mistakeCode, attemptData) {
       if (!client() || !session()) return { ok: false, error: "Authentication required" };
-      const isRoboMaze = platform().getGameId() === "robo_maze" && Array.isArray(attemptData?.program);
-      const isPhysics = platform().getGameId() === "physics" && attemptData &&
+      const gameId = platform().getGameId();
+      const isRoboMaze = gameId === "robo_maze" && Array.isArray(attemptData?.program);
+      const isPhysics = gameId === "physics" && attemptData &&
         Number.isFinite(Number(attemptData.angle)) && Number.isFinite(Number(attemptData.speed));
+      if (!isRoboMaze && !isPhysics) {
+        platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
+        return { ok: false, error: "Unsupported attempt payload" };
+      }
       const response = isRoboMaze
         ? await client().rpc("submit_robo_maze_attempt", {
           p_level_number: levelNumber, p_program: attemptData.program
         })
-        : isPhysics
-          ? await client().rpc("submit_physics_attempt", {
-            p_level_number: levelNumber, p_attempt_data: attemptData
-          })
-          : await client().rpc("record_game_attempt", {
-            p_game_id: platform().getGameId(), p_level_number: levelNumber, p_result: result,
-            p_mistake_code: mistakeCode || null, p_attempt_data: attemptData || {}
-          });
+        : await client().rpc("submit_physics_attempt", {
+          p_level_number: levelNumber, p_attempt_data: attemptData
+        });
       if (response.error) {
         platform().showStatus("Progress could not be saved. Please retry this attempt.");
         return { ok: false, error: response.error.message };
       }
-      await load(platform().getGameId());
+      await load(gameId);
       return { ok: true, data: response.data };
     },
     async getLevelAttemptCount(levelNumber) {
