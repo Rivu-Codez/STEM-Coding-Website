@@ -3,7 +3,7 @@
   "private": true,
   "description": "STEM learning platform infrastructure tools",
   "scripts": {
-    "test": "node --test tests/repository-contract.test.mjs tests/game-simulation.test.mjs",
+    "test": "node --test tests/repository-contract.test.mjs tests/game-simulation.test.mjs tests/platform-api.test.mjs",
     "check": "node scripts/verify-repo.mjs"
   },
   "engines": {
