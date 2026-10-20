@@ -39,18 +39,27 @@
     const list = hints[gameId] && hints[gameId][category];
     const panel = getPanel();
     if (!panel) return;
+    panel.replaceChildren();
     if (insight) {
-      panel.innerHTML = "<strong>🤖 AI tutor:</strong> " + insight.hint +
-        "<br><small>" + insight.next_question + "</small>";
+      const title = document.createElement("strong");
+      title.textContent = "🤖 AI tutor: ";
+      const hint = document.createTextNode(String(insight.hint || ""));
+      const question = document.createElement("small");
+      question.textContent = String(insight.next_question || "");
+      panel.append(title, hint, document.createElement("br"), question);
       return;
     }
     if (!list) return;
     const key = gameId + ":" + category;
     positions[key] = positions[key] || 0;
     const index = positions[key] % list.length;
-    panel.innerHTML = '<strong>💡 Tutor hint:</strong> ' + list[index] +
-      ' <button type="button">Another hint</button>';
-    panel.querySelector("button").onclick = () => {
+    const title = document.createElement("strong");
+    title.textContent = "💡 Tutor hint: ";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Another hint";
+    panel.append(title, document.createTextNode(list[index] + " "), button);
+    button.onclick = () => {
       positions[key]++;
       show(gameId, category);
     };
