@@ -27,6 +27,8 @@ export function verifyWebQuality(repositoryRoot = root) {
     if (!/<meta\b[^>]*name=["']viewport["']/i.test(html)) errors.push(`${relativePage}: missing viewport metadata`);
     if (!/<meta\b[^>]*name=["']referrer["'][^>]*strict-origin-when-cross-origin/i.test(html)) errors.push(`${relativePage}: missing referrer policy`);
     if (!/<meta\b[^>]*http-equiv=["']Content-Security-Policy["']/i.test(html)) errors.push(`${relativePage}: missing content security policy`);
+    const csp = html.match(/<meta\b[^>]*http-equiv=["']Content-Security-Policy["'][^>]*content=["']([^"']+)["']/i)?.[1] ?? '';
+    if (/script-src[^;]*'unsafe-inline'/i.test(csp)) errors.push(`${relativePage}: script-src must not allow unsafe-inline`);
     if (!/<title>[^<]+<\/title>/i.test(html)) errors.push(`${relativePage}: missing page title`);
     if (html.includes('@supabase/supabase-js@') && !html.includes(pinnedSupabase)) {
       errors.push(`${relativePage}: Supabase browser dependency is not pinned`);
@@ -37,6 +39,14 @@ export function verifyWebQuality(repositoryRoot = root) {
       if (/^(?:https?:|data:|mailto:|javascript:|\/\/)/i.test(reference)) continue;
       const target = resolveLocalReference(relativePage, reference);
       if (target && !fs.existsSync(target)) errors.push(`${relativePage}: missing local asset ${reference}`);
+    }
+
+    for (const script of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      const attributes = script[1];
+      const body = script[2].trim();
+      if (body && !/\bsrc=["']/i.test(attributes)) {
+        errors.push(`${relativePage}: inline executable script remains`);
+      }
     }
   }
 
@@ -56,6 +66,13 @@ export function verifyWebQuality(repositoryRoot = root) {
   const physics = fs.readFileSync(path.join(repositoryRoot, 'PhysicsSim/index.html'), 'utf8');
   if (/\son(?:click|change|input|load)=/i.test(physics)) {
     errors.push('PhysicsSim/index.html: inline event handler remains');
+  }
+
+  for (const [page, label] of [['PhysicsSim/index.html', 'Projectile trajectory simulation'], ['RoboMaze/index.html', 'Robot maze game board']]) {
+    const html = fs.readFileSync(path.join(repositoryRoot, page), 'utf8');
+    if (!new RegExp(`<canvas\\b[^>]*aria-label=["']${label}["']`, 'i').test(html)) {
+      errors.push(`${page}: game canvas is missing its accessible label`);
+    }
   }
 
   return errors;

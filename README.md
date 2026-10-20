@@ -122,6 +122,29 @@ service-role key or Gemini key. Hosted authenticated journeys remain a manual
 verification step until a dedicated test account and test environment are
 configured.
 
+The browser suite also checks accessible names for login controls, game canvases,
+and primary game controls. It is intentionally not a visual-regression suite.
+
+For a disposable Supabase integration project, set these variables in the
+terminal before running the optional integration checks:
+
+```text
+SUPABASE_TEST_URL=https://your-project.supabase.co
+SUPABASE_TEST_ANON_KEY=your-publishable-key
+SUPABASE_TEST_EMAIL=confirmed-test-user@example.com
+SUPABASE_TEST_PASSWORD=use-a-dedicated-test-password
+SUPABASE_INTEGRATION=1
+```
+
+Never use a service-role key for browser or integration tests. The integration
+checks are opt-in because they authenticate a real test account and may create
+test-project data. Run them only against a disposable Supabase project after
+applying migrations `001` through `013` and the seed file:
+
+```text
+npm run test:integration
+```
+
 ## Migration procedure for future changes
 
 1. Add the next numbered SQL file under `supabase/migrations/`.
@@ -139,6 +162,8 @@ configured.
   modules.
 - The current browser suite covers deterministic local smoke flows. Hosted
   authenticated journeys still require a configured test environment.
+- Supabase integration checks are opt-in and require a disposable test project;
+  they are not run by the default unit or browser commands.
 - Gemini provider rate limits produce an explicit tutor state and preserve the
   rule-based fallback. Failed provider requests refund their quota reservation.
 
