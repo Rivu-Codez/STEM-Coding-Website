@@ -88,7 +88,7 @@ function buildPhysicsQuestion() {
     ['random_change', 'Change angle and speed randomly until the target is reached.'],
   ];
   document.getElementById('physicsOptions').innerHTML = options.map(([value, label]) =>
-    `<button class="learning-option" onclick="checkPhysicsPrediction('${value}', '${correct}')">${label}</button>`
+    `<button class="learning-option" type="button" data-learning-selected="${value}" data-learning-correct="${correct}">${label}</button>`
   ).join('');
 }
 
@@ -108,7 +108,7 @@ function checkPhysicsPrediction(selected, correct) {
   feedback.textContent = 'Good reasoning. Now make a deliberate adjustment.';
   document.getElementById('physicsUnlock').disabled = false;
   document.querySelectorAll('#physicsOptions .learning-option').forEach((button) => { button.disabled = true; });
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'prediction_completed', { selected });
+  if (window.StemGameAuth) PhysicsAdapter.recordMistake(currentLevelIndex, 'prediction_completed', { selected });
 }
 
 function showReviewPanel(restore = false) {
@@ -154,7 +154,7 @@ function buildReviewHint() {
 function showReviewAnalysis() {
   document.getElementById('reviewHint').textContent = buildReviewHint();
   if (!window.StemGameAuth) return;
-  StemGameAuth.analyzeMistake(currentLevelIndex + 1, 'three_shot_review', {
+  PhysicsAdapter.analyzeMistake(currentLevelIndex, 'three_shot_review', {
     target: LEVELS[currentLevelIndex].targetDistance,
     angle: angleDeg,
     speed: speedMps,
@@ -175,7 +175,7 @@ function unlockAfterReview() {
   setPhysicsControlsLocked(false);
   updateControls();
   triggerMessage('Tutor feedback reviewed. Adjust the launch and try again!', 'success');
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { reviewed: true });
+  if (window.StemGameAuth) PhysicsAdapter.recordMistake(currentLevelIndex, 'reflection_completed', { reviewed: true });
 }
 
 function nudgeAngle(delta) {

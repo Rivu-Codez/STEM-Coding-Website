@@ -40,13 +40,22 @@ export function verifyWebQuality(repositoryRoot = root) {
     }
   }
 
-  for (const gamePage of ['PhysicsSim/index.html', 'RoboMaze/index.html']) {
+  for (const gamePage of ['PhysicsSim/index.html', 'PhysicsSim/ui.js', 'RoboMaze/index.html', 'RoboMaze/ui.js']) {
     const html = fs.readFileSync(path.join(repositoryRoot, gamePage), 'utf8');
     for (const method of ['recordAttempt', 'recordMistake', 'analyzeMistake', 'recordAchievement']) {
       if (new RegExp(`StemGameAuth\\.${method}\\s*\\(`).test(html)) {
         errors.push(`${gamePage}: direct ${method} call bypasses the game adapter`);
       }
     }
+  }
+
+  const roboMaze = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze/index.html'), 'utf8');
+  if (/\son(?:click|change|input|load)=/i.test(roboMaze)) {
+    errors.push('RoboMaze/index.html: inline event handler remains');
+  }
+  const physics = fs.readFileSync(path.join(repositoryRoot, 'PhysicsSim/index.html'), 'utf8');
+  if (/\son(?:click|change|input|load)=/i.test(physics)) {
+    errors.push('PhysicsSim/index.html: inline event handler remains');
   }
 
   return errors;

@@ -72,7 +72,7 @@ function renderProgramWorkspace() {
     return `
       <div class="command-item ${extraClass}" id="cmd-${index}">
         <span>${index + 1}. ${label}</span>
-        <span class="cmd-del" onclick="removeCommand(${index})">✖</span>
+        <button class="cmd-del" type="button" data-remove-command="${index}" aria-label="Remove command ${index + 1}">✖</button>
       </div>
     `;
   }).join('');
@@ -178,7 +178,7 @@ function showLearningGate(category) {
       : [['inspect_route', 'Inspect the route and choose the needed loop or condition.'], ['repeat_same', 'Run the unchanged program again.'], ['remove_all', 'Delete the whole program without inspecting it.']];
   document.getElementById('mazeQuestion').textContent = question;
   document.getElementById('mazeOptions').innerHTML = options.map(([value, label]) =>
-    `<button class="learning-option" onclick="checkMazePrediction('${value}', '${correct}')">${label}</button>`
+    `<button class="learning-option" type="button" data-learning-selected="${value}" data-learning-correct="${correct}">${label}</button>`
   ).join('');
   document.getElementById('mazeFeedback').textContent = '';
   document.getElementById('learningGate').style.display = 'block';
@@ -197,7 +197,7 @@ function checkMazePrediction(selected, correct) {
   learningFailures = 0;
   document.getElementById('learningGate').style.display = 'none';
   setLearningLocked(false);
-  if (window.StemGameAuth) StemGameAuth.recordMistake(currentLevelIndex + 1, 'reflection_completed', { selected });
+  if (window.StemGameAuth) RoboMazeAdapter.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
 }
 
 function registerLearningFailure(category) {
