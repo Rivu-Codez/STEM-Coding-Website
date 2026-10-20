@@ -34,20 +34,20 @@ function harness({ quota = true, fetchImpl = () => Promise.resolve(new Response(
   return { handler, calls };
 }
 
-test("rejects requests without authentication", async () => {
+Deno.test("rejects requests without authentication", async () => {
   const { handler } = harness();
   const response = await handler(request({ gameId: "physics", levelNumber: 1 }, {}));
   assertEquals(response.status, 503);
 });
 
-test("rejects invalid mistake data before reserving quota", async () => {
+Deno.test("rejects invalid mistake data before reserving quota", async () => {
   const { handler, calls } = harness();
   const response = await handler(request({ gameId: "unknown", levelNumber: 1 }));
   assertEquals(response.status, 400);
   assertEquals(calls.length, 0);
 });
 
-test("returns rate limited when quota is exhausted", async () => {
+Deno.test("returns rate limited when quota is exhausted", async () => {
   const { handler, calls } = harness({ quota: false });
   const response = await handler(request({ gameId: "physics", levelNumber: 1 }));
   assertEquals(response.status, 429);
@@ -55,7 +55,7 @@ test("returns rate limited when quota is exhausted", async () => {
   assertEquals(calls, ["reserve_tutor_quota"]);
 });
 
-test("retries provider failures and refunds quota", async () => {
+Deno.test("retries provider failures and refunds quota", async () => {
   let attempts = 0;
   const { handler, calls } = harness({
     fetchImpl: async () => {
@@ -69,7 +69,7 @@ test("retries provider failures and refunds quota", async () => {
   assertEquals(calls, ["reserve_tutor_quota", "refund_tutor_quota"]);
 });
 
-test("returns a successful insight and stores it", async () => {
+Deno.test("returns a successful insight and stores it", async () => {
   const providerBody = {
     candidates: [{ content: { parts: [{ text: JSON.stringify({
       mistake_category: "shot_missed",
@@ -90,7 +90,7 @@ test("returns a successful insight and stores it", async () => {
   assertEquals(calls, ["reserve_tutor_quota", "store_ai_insight"]);
 });
 
-test("refunds quota for invalid provider JSON", async () => {
+Deno.test("refunds quota for invalid provider JSON", async () => {
   const { handler, calls } = harness({
     fetchImpl: () => Promise.resolve(new Response("not-json", { status: 200 })),
   });
