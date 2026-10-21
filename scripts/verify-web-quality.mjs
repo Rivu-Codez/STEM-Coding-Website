@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html', 'RoboMaze/creator.html'];
+const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html', 'RoboMaze/creator.html', 'SubmarineMath/index.html'];
 const pinnedSupabase = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
 
 function resolveLocalReference(page, reference) {
@@ -68,7 +68,7 @@ export function verifyWebQuality(repositoryRoot = root) {
     errors.push('PhysicsSim/index.html: inline event handler remains');
   }
 
-  for (const [page, label] of [['PhysicsSim/index.html', 'Projectile trajectory simulation'], ['RoboMaze/index.html', 'Robot maze game board']]) {
+  for (const [page, label] of [['PhysicsSim/index.html', 'Projectile trajectory simulation'], ['RoboMaze/index.html', 'Robot maze game board'], ['SubmarineMath/index.html', 'Submarine depth navigation']]) {
     const html = fs.readFileSync(path.join(repositoryRoot, page), 'utf8');
     if (!new RegExp(`<canvas\\b[^>]*aria-label=["']${label}["']`, 'i').test(html)) {
       errors.push(`${page}: game canvas is missing its accessible label`);

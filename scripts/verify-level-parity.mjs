@@ -11,6 +11,10 @@ function loadFrontendLevels(relativePath) {
   const context = {};
   context.window = context;
   vm.createContext(context);
+  if (relativePath === 'SubmarineMath/levels.js') {
+    vm.runInContext(source, context);
+    return JSON.parse(JSON.stringify(context.window.SubmarineMathLevels));
+  }
   vm.runInContext(`${source}\n;globalThis.__levels = LEVELS; globalThis.__allLevels = typeof ALL_LEVELS === 'undefined' ? LEVELS : ALL_LEVELS;`, context);
   return context.__allLevels;
 }
@@ -36,6 +40,10 @@ function cleanInstruction(value) {
 }
 
 function normalizedFrontend(gameId, level, index) {
+  if (gameId === 'submarine_math') {
+    return { gameId, levelNumber: level.id, title: level.title,
+      instruction: cleanInstruction(level.question), configuration: Object.fromEntries(Object.entries(level).filter(([key]) => key !== 'correctAnswer')) };
+  }
   if (gameId === 'physics') {
     const { title, instruction, targetDistance, lockSpeed, lockDrag, fixedSpeed, wall, dragMode,
       targetTolerance, requiredDrag, minAngle, maxAngle, debugSetup } = level;
@@ -63,6 +71,7 @@ export function verifyLevelParity(repositoryRoot = root) {
   const games = [
     ['physics', 'PhysicsSim/levels.js'],
     ['robo_maze', 'RoboMaze/levels.js'],
+    ['submarine_math', 'SubmarineMath/levels.js'],
   ];
   for (const [gameId, file] of games) {
     const frontend = loadFrontendLevels(file).map((level, index) => normalizedFrontend(gameId, level, index));

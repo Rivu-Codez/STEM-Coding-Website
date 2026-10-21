@@ -99,9 +99,26 @@
           </div>
         </details>
 
-        <details class="subject-card coming-subject">
-          <summary><span class="subject-icon" aria-hidden="true">∑</span><span><span class="subject-kicker">SUBJECT</span><strong>Maths</strong><small>New games in development</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
-          <div class="subject-body"><div class="coming-state"><span aria-hidden="true">✦</span><div><h3>Coming soon</h3><p>Maths challenges are on the way.</p></div></div></div>
+        <details class="subject-card submarine-subject" open>
+          <summary><span class="subject-icon" aria-hidden="true">⚓</span><span><span class="subject-kicker">SUBJECT</span><strong>Maths</strong><small>1 interactive game</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body">
+            <article class="game-card submarine-card">
+              <div class="game-icon" aria-hidden="true">⚓</div>
+              <div class="game-content">
+                <div class="game-label submarine-label"><span>⚓</span> MATHS EXPEDITION</div>
+                <h3>Submarine Math Expedition</h3>
+                <p>Use integers and number operations to navigate a submarine through 15 deep-sea levels.</p>
+                <div class="progress-row"><span>Progress</span><strong id="submarineProgress">0%</strong></div>
+                <div class="progress-track"><span id="submarineProgressBar"></span></div>
+                <div class="stat-grid">
+                  <div><strong id="submarineCompleted">0/15</strong><span>Levels</span></div>
+                  <div><strong id="submarineStars">0</strong><span>Stars</span></div>
+                  <div><strong id="submarineXp">0</strong><span>XP</span></div>
+                </div>
+                <button id="submarineGameButton" class="button game-button" type="button">Start expedition</button>
+              </div>
+            </article>
+          </div>
         </details>
 
         <details class="subject-card coming-subject">

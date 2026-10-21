@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { collectMigrationNumbers, verifyRepository } from '../scripts/verify-repo.mjs';
 
@@ -112,10 +113,61 @@ test('frontend game registry exposes stable routes and feature flags', () => {
   const source = fs.readFileSync(path.join(repositoryRoot, 'js', 'game-registry.js'), 'utf8');
   assert.match(source, /gameId: "physics"/);
   assert.match(source, /gameId: "robo_maze"/);
+  assert.match(source, /gameId: "submarine_math"/);
   assert.match(source, /gameId: "chemistry"/);
   assert.match(source, /gameId: "biology"/);
   assert.match(source, /enabled: false/);
   assert.match(source, /levelCount\(gameId\)/);
+});
+
+test('Submarine Math backend validates canonical answers and awards server-owned progress', () => {
+  const names = ['021_submarine_math_game_id.sql', '022_submarine_math_registry.sql',
+    '023_submarine_math_validator.sql', '024_submarine_math_rewards.sql'];
+  const migrations = names.map(file => fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', file), 'utf8')).join('\n');
+  assert.match(migrations, /add value if not exists 'submarine_math'/);
+  assert.match(migrations, /validator_key = 'submarine_math'/);
+  assert.match(migrations, /p_level_number not between 1 and 15/);
+  assert.match(migrations, /create table if not exists public\.submarine_math_answer_keys/);
+  assert.match(migrations, /revoke all on table public\.submarine_math_answer_keys from public, anon, authenticated/);
+  assert.match(migrations, /select correct_answer into expected_answer/);
+  assert.doesNotMatch(migrations, /\"correctAnswer\"/);
+  assert.match(migrations, /p_level_number - 1 and status = 'completed'/);
+  assert.match(migrations, /submit_submarine_math_attempt_idempotent/);
+  assert.match(migrations, /attempts = 1 then stars := 3/);
+  assert.match(migrations, /base_xp := 50/);
+});
+
+test('Submarine Math target depths match answers and allow visible movement', () => {
+  const context = { window: {} };
+  vm.runInNewContext(fs.readFileSync(
+    path.join(repositoryRoot, 'SubmarineMath', 'levels.js'), 'utf8'), context);
+  const levels = context.window.SubmarineMathLevels;
+
+  levels.forEach(level => assert.equal(level.targetDepth, level.numericVal,
+    'Level ' + level.id + ' target must match its answer destination'));
+  [2, 10, 11].forEach(levelNumber => {
+    const level = levels[levelNumber - 1];
+    assert.notEqual(level.startDepth, level.targetDepth,
+      'Level ' + levelNumber + ' should move the submarine to its target');
+  });
+  assert.equal(Number(levels[13].correctAnswer), levels[13].targetDepth,
+    'Level 14 target must match the multiplication answer');
+});
+
+test('Submarine Math is linked from the dashboard and protected by the shared sign-in gate', () => {
+  const dashboard = fs.readFileSync(path.join(repositoryRoot, 'dashboard.html'), 'utf8');
+  const dashboardScript = fs.readFileSync(path.join(repositoryRoot, 'js', 'dashboard.js'), 'utf8');
+  const page = fs.readFileSync(path.join(repositoryRoot, 'SubmarineMath', 'index.html'), 'utf8');
+  const auth = fs.readFileSync(path.join(repositoryRoot, 'SubmarineMath', 'auth.js'), 'utf8');
+
+  assert.match(dashboard, /id="submarineGameButton"/);
+  assert.match(dashboardScript, /submarine_math/);
+  assert.match(page, /src="game.js"/);
+  assert.match(page, /aria-label="Submarine depth navigation"/);
+  assert.doesNotMatch(page, /\son(?:click|change|input|load)=/i);
+  assert.doesNotMatch(page, /<script>([\s\S]*?)<\/script>/i);
+  assert.match(auth, /init\('submarine_math', \{ requireSession: true \}\)/);
 });
 
 test('game modules support optional tutor and mistake adapters', () => {

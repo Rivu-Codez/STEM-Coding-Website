@@ -68,6 +68,20 @@
         : fallback.reduce((total, row) => total + (row.xp || 0), 0);
       return { completedLevels: completed.length, stars, xp, nextLevel: Math.min(maxLevels, completed.length + 1), maxLevels };
     },
+    async getGameProgress(gameId = platform().getGameId()) {
+      if (!client() || !session()) return { ok: false, levels: [], achievements: [] };
+      const [levels, achievements] = await Promise.all([
+        client().from("level_progress")
+          .select("level_number,status,attempt_count").eq("game_id", gameId),
+        client().from("student_achievements")
+          .select("level_number,stars,xp").eq("game_id", gameId)
+      ]);
+      if (levels.error || achievements.error) {
+        platform().showStatus("Could not load your level progress. Refresh and retry.");
+        return { ok: false, levels: [], achievements: [] };
+      }
+      return { ok: true, levels: levels.data || [], achievements: achievements.data || [] };
+    },
     async recordAttempt(levelNumber, result, mistakeCode, attemptData) {
       if (!client() || !session()) return { ok: false, error: "Authentication required" };
       const gameId = platform().getGameId();
@@ -76,7 +90,9 @@
       const isRoboMaze = gameId === "robo_maze" && Array.isArray(attemptData?.program);
       const isPhysics = gameId === "physics" && attemptData &&
         Number.isFinite(Number(attemptData.angle)) && Number.isFinite(Number(attemptData.speed));
-      if (!isRoboMaze && !isPhysics) {
+      const isSubmarineMath = gameId === "submarine_math" &&
+        typeof attemptData?.answer === "string" && attemptData.answer.length <= 32;
+      if (!isRoboMaze && !isPhysics && !isSubmarineMath) {
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };
       }
