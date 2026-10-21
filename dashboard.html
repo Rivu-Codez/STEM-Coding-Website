@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
-  <link rel="stylesheet" href="css/aimora-theme.css">
+  <link rel="stylesheet" href="css/aimora-theme.css?v=dashboard-gradient-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/game-registry.js"></script>
@@ -62,60 +62,57 @@
         <p class="muted">Complete levels to earn stars and XP.</p>
       </div>
 
-      <div class="game-grid">
-        <article class="game-card physics-card">
-          <div class="game-icon" aria-hidden="true">⚡</div>
-          <div class="game-content">
-            <div class="game-label physics-label"><span>⚡</span> PHYSICS LAB</div>
-            <h3>Physics Kinematics Lab</h3>
-            <p>Explore speed, angles, distance, and trajectory through experiments.</p>
-            <div class="progress-row"><span>Progress</span><strong id="physicsProgress">0%</strong></div>
-            <div class="progress-track"><span id="physicsProgressBar"></span></div>
-            <div class="stat-grid">
-              <div><strong id="physicsCompleted">0/15</strong><span>Levels</span></div>
-              <div><strong id="physicsStars">0</strong><span>Stars</span></div>
-              <div><strong id="physicsXp">0</strong><span>XP</span></div>
-            </div>
-            <button id="physicsGameButton" class="button game-button" type="button">Continue Physics</button>
+      <div class="subject-grid">
+        <details class="subject-card physics-subject" open>
+          <summary><span class="subject-icon" aria-hidden="true">⚡</span><span><span class="subject-kicker">SUBJECT</span><strong>Physics</strong><small>1 interactive game</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body">
+            <article class="game-card">
+              <div class="game-icon" aria-hidden="true">🚀</div>
+              <div class="game-content">
+                <div class="game-label physics-label"><span>🚀</span> PHYSICS GAME</div>
+                <h3>Projectile</h3>
+                <p>Explore speed, angles, distance, and trajectory through experiments.</p>
+                <div class="progress-row"><span>Progress</span><strong id="physicsProgress">0%</strong></div>
+                <div class="progress-track"><span id="physicsProgressBar"></span></div>
+                <div class="stat-grid"><div><strong id="physicsCompleted">0/15</strong><span>Levels</span></div><div><strong id="physicsStars">0</strong><span>Stars</span></div><div><strong id="physicsXp">0</strong><span>XP</span></div></div>
+                <button id="physicsGameButton" class="button game-button" type="button">Play Projectile</button>
+              </div>
+            </article>
           </div>
-        </article>
+        </details>
 
-        <article class="game-card coding-card">
-          <div class="game-icon" aria-hidden="true">▦</div>
-          <div class="game-content">
-            <div class="game-label coding-label"><span>▦</span> CODING &amp; MATHS</div>
-            <h3>RoboLogic Maze</h3>
-            <p>Plan routes, practise logic, and teach a robot to solve the maze.</p>
-            <div class="progress-row"><span>Progress</span><strong id="roboProgress">0%</strong></div>
-            <div class="progress-track"><span id="roboProgressBar"></span></div>
-            <div class="stat-grid">
-              <div><strong id="roboCompleted">0/15</strong><span>Levels</span></div>
-              <div><strong id="roboStars">0</strong><span>Stars</span></div>
-              <div><strong id="roboXp">0</strong><span>XP</span></div>
-            </div>
-            <button id="roboGameButton" class="button game-button" type="button">Continue RoboMaze</button>
+        <details class="subject-card coding-subject" open>
+          <summary><span class="subject-icon" aria-hidden="true">▦</span><span><span class="subject-kicker">SUBJECT</span><strong>Coding</strong><small>1 interactive game</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body">
+            <article class="game-card">
+              <div class="game-icon" aria-hidden="true">🤖</div>
+              <div class="game-content">
+                <div class="game-label coding-label"><span>🤖</span> CODING GAME</div>
+                <h3>RoboMaze</h3>
+                <p>Plan routes, practise logic, and teach a robot to solve the maze.</p>
+                <div class="progress-row"><span>Progress</span><strong id="roboProgress">0%</strong></div>
+                <div class="progress-track"><span id="roboProgressBar"></span></div>
+                <div class="stat-grid"><div><strong id="roboCompleted">0/15</strong><span>Levels</span></div><div><strong id="roboStars">0</strong><span>Stars</span></div><div><strong id="roboXp">0</strong><span>XP</span></div></div>
+                <button id="roboGameButton" class="button game-button" type="button">Play RoboMaze</button>
+              </div>
+            </article>
           </div>
-        </article>
+        </details>
 
-        <article class="game-card coming-card">
-          <div class="game-icon" aria-hidden="true">⚗</div>
-          <div class="game-content">
-            <div class="game-label coming-label"><span>⚗</span> CHEMISTRY</div>
-            <h3>Coming soon</h3>
-            <p>Experiment with reactions, matter, and the building blocks of chemistry.</p>
-            <button class="button button-disabled game-button" type="button" disabled>In development</button>
-          </div>
-        </article>
+        <details class="subject-card coming-subject">
+          <summary><span class="subject-icon" aria-hidden="true">∑</span><span><span class="subject-kicker">SUBJECT</span><strong>Maths</strong><small>New games in development</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body"><div class="coming-state"><span aria-hidden="true">✦</span><div><h3>Coming soon</h3><p>Maths challenges are on the way.</p></div></div></div>
+        </details>
 
-        <article class="game-card coming-card">
-          <div class="game-icon" aria-hidden="true">✦</div>
-          <div class="game-content">
-            <div class="game-label coming-label"><span>✦</span> BIOLOGY &amp; ENVIRONMENT</div>
-            <h3>Coming soon</h3>
-            <p>Discover living systems, ecosystems, and practical environmental science.</p>
-            <button class="button button-disabled game-button" type="button" disabled>In development</button>
-          </div>
-        </article>
+        <details class="subject-card coming-subject">
+          <summary><span class="subject-icon" aria-hidden="true">✦</span><span><span class="subject-kicker">SUBJECT</span><strong>Biology</strong><small>New games in development</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body"><div class="coming-state"><span aria-hidden="true">✦</span><div><h3>Coming soon</h3><p>Discover living systems and the world around us.</p></div></div></div>
+        </details>
+
+        <details class="subject-card coming-subject">
+          <summary><span class="subject-icon" aria-hidden="true">⚗</span><span><span class="subject-kicker">SUBJECT</span><strong>Chemistry</strong><small>New games in development</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body"><div class="coming-state"><span aria-hidden="true">✦</span><div><h3>Coming soon</h3><p>Experiment with reactions, matter, and materials.</p></div></div></div>
+        </details>
       </div>
     </section>
     <p id="dashboardMessage" class="dashboard-message" aria-live="polite"></p>
