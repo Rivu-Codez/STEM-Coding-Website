@@ -96,6 +96,65 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .dashboard-shell .button-quiet { color: var(--aimora-indigo) !important; background: #fff !important; border-color: var(--aimora-line) !important; }
 .button-disabled { background: #e8e5f3 !important; color: #9290aa !important; }
 
+/* Dashboard subject navigation: keep the playful palette, but give the page a calmer workspace. */
+html:has(body .subject-grid),
+body:has(.subject-grid) {
+  color: #17233d !important;
+  background: linear-gradient(120deg, #c7d2fe 0%, #e9d5ff 48%, #bae6fd 100%) !important;
+  background-attachment: fixed !important;
+}
+body:has(.subject-grid) .dashboard-shell h1,
+body:has(.subject-grid) .dashboard-shell h2,
+body:has(.subject-grid) .dashboard-shell h3,
+body:has(.subject-grid) .dashboard-shell p,
+body:has(.subject-grid) .dashboard-shell strong,
+body:has(.subject-grid) .dashboard-shell span,
+body:has(.subject-grid) .dashboard-shell small,
+body:has(.subject-grid) .dashboard-shell button {
+  -webkit-text-stroke: .45px currentColor;
+  text-shadow: 0 1px 1px rgba(20, 30, 70, .08);
+}
+body:has(.subject-grid) .dashboard-header h1,
+body:has(.subject-grid) .dashboard-header p,
+body:has(.subject-grid) .dashboard-header span,
+body:has(.subject-grid) .dashboard-header button {
+  text-shadow: 0 1px 2px rgba(18, 28, 82, .24);
+}
+body:has(.subject-grid) .dashboard-header {
+  padding: 24px 28px 28px;
+  border: 1px solid rgba(89,100,232,.12) !important;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #263b75, #5964e8 72%, #7d5be8);
+  box-shadow: 0 20px 50px rgba(48, 61, 133, .16);
+}
+body:has(.subject-grid) .dashboard-header .eyebrow,
+body:has(.subject-grid) .dashboard-header h1,
+body:has(.subject-grid) .dashboard-header .intro,
+body:has(.subject-grid) .dashboard-header .brand-line { color: #fff !important; }
+body:has(.subject-grid) .profile-card {
+  border: 1px solid rgba(118, 104, 220, .25) !important;
+  background: linear-gradient(135deg, #f2edff 0%, #e5f4ff 100%) !important;
+  box-shadow: 0 12px 28px rgba(39, 57, 101, .12) !important;
+}
+body:has(.subject-grid) .subject-card {
+  border: 1px solid #e1e6f1 !important;
+  border-top: 4px solid #5964e8 !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, #f7f3ff 0%, #eaf5ff 100%) !important;
+  box-shadow: 0 10px 26px rgba(39, 57, 101, .12) !important;
+}
+body:has(.subject-grid) .subject-card:hover { box-shadow: 0 16px 34px rgba(39, 57, 101, .12) !important; }
+body:has(.subject-grid) .subject-card summary { min-height: 104px; padding: 20px 22px; }
+body:has(.subject-grid) .subject-card summary > span:nth-child(2) { flex: 1 1 auto; min-width: 0; }
+body:has(.subject-grid) .subject-card summary strong { color: #17233d !important; font-size: 1.28rem; line-height: 1.15; }
+body:has(.subject-grid) .subject-card summary small { color: #66738d !important; }
+body:has(.subject-grid) .subject-body { background: linear-gradient(135deg, rgba(232, 226, 255, .68), rgba(220, 244, 250, .72)); border-top-color: rgba(112, 123, 203, .18); }
+body:has(.subject-grid) .subject-body .game-card { border: 1px solid rgba(118, 104, 220, .2) !important; border-radius: 14px !important; background: linear-gradient(135deg, #f5f1ff, #eaf8ff) !important; box-shadow: none !important; }
+body:has(.subject-grid) .subject-body .game-card:hover { transform: none !important; box-shadow: 0 8px 22px rgba(39, 57, 101, .08) !important; }
+body:has(.subject-grid) .coming-state { border-color: rgba(118, 104, 220, .25); background: linear-gradient(135deg, #f4efff, #eaf7ff); }
+body:has(.subject-grid) .coding-subject { border-top-color: #159570 !important; }
+body:has(.subject-grid) .coming-subject { border-top-color: #aeb9cc !important; }
+
 /* Games and Creator Academy */
 body:has(#gameCanvas), body:has(#creatorGrid) { color: var(--aimora-ink) !important; background: linear-gradient(145deg, #5966ed 0%, #8d5cf3 52%, #d95ee8 100%) !important; }
 body:has(#gameCanvas) header, body:has(#creatorGrid) header { background: transparent !important; border-bottom-color: rgba(255,255,255,.24) !important; }
