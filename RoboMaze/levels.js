@@ -1,5 +1,5 @@
 // Canonical RoboMaze level data. This mirrors supabase/seed/001_game_levels.sql.
-const LEVELS = [
+const ALL_LEVELS = [
   {"title":"Level 1: Sequence Steps","instruction":"🎯 Concept: Use a simple sequence of forward commands.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,0,2,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}},
   {"title":"Level 2: Turning","instruction":"↪️ Concept: Turn at a corner to change direction.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,1,1,1],[1,1,1,1,0,0,1,1],[1,1,1,1,1,2,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}},
   {"title":"Level 3: Repeat Loops","instruction":"🔁 Concept: Replace repeated movement with a loop.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,0,0,0,0,0,2,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":2}},
@@ -32,5 +32,10 @@ const LEVELS = [
   {"title":"Level 30: Final Logic Maze","instruction":"🏆 Final Challenge: Combine sequence, loops, turns, and conditionals to solve the full 8x8 maze.","grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,1,1,1],[1,1,1,0,0,1,1,1],[1,0,0,0,1,0,1,1],[1,0,1,0,0,0,1,1],[1,0,0,0,1,0,0,1],[1,2,0,0,1,0,0,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}},
 ];
 
+// The expo path is intentionally compact: 10 foundations and 5 coding
+// challenges. Keep the full catalog available for parity checks and future
+// expansion without exposing repetitive levels in the UI.
+const LEVELS = ALL_LEVELS.slice(0, 15);
 window.LEVELS = LEVELS;
-export { LEVELS };
+window.ALL_LEVELS = ALL_LEVELS;
+export { LEVELS, ALL_LEVELS };

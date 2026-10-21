@@ -37,7 +37,7 @@
     if (link) {
       link.classList.toggle("is-locked", !state.creatorUnlocked);
       link.textContent = state.creatorUnlocked ? "🛠️ Creator Academy" : "🔒 Creator Academy";
-      link.title = state.creatorUnlocked ? "Open Creator Academy" : "Complete Level 30 to unlock Creator Academy";
+      link.title = state.creatorUnlocked ? "Open Creator Academy" : "Complete RoboMaze Level 15 to unlock Creator Academy";
       link.setAttribute("aria-disabled", String(!state.creatorUnlocked));
       link.href = state.creatorUnlocked ? "creator.html" : "#";
     }

@@ -34,7 +34,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .auth-card {
   width: min(920px, 100%) !important;
   display: grid;
-  grid-template-columns: .9fr 1.1fr;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
   gap: 34px;
   padding: 0 !important;
   overflow: hidden;
@@ -44,19 +44,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   box-shadow: var(--aimora-shadow) !important;
 }
 .auth-card::before {
-  content: "AIMORA\A Learn. Build. Explore.";
-  white-space: pre;
+  content: "ROBO LOGIC\A STEM LAB\A Learn. Build. Explore.";
+  white-space: pre-wrap;
   display: flex;
   align-items: flex-end;
   min-height: 540px;
   padding: 38px;
   color: #fff;
-  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  font-size: clamp(1.35rem, 3.2vw, 2.35rem);
   font-weight: 800;
   line-height: 1.12;
   background: radial-gradient(circle at 78% 22%, rgba(255,255,255,.22) 0 8%, transparent 8.5%), linear-gradient(155deg, #5465ed, #8e5df4 55%, #d957e7);
 }
-.auth-card > section { padding: 42px 42px 38px 0; }
+.auth-card > section { min-width: 0; padding: 42px 42px 38px 0; }
 .auth-card .brand { color: var(--aimora-indigo); letter-spacing: .04em; }
 .auth-card h1 { color: var(--aimora-ink); font-size: clamp(2rem, 4vw, 2.7rem); letter-spacing: -.04em; }
 .auth-card p { color: var(--aimora-muted); }
@@ -99,6 +99,31 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 /* Games and Creator Academy */
 body:has(#gameCanvas), body:has(#creatorGrid) { color: var(--aimora-ink) !important; background: linear-gradient(145deg, #5966ed 0%, #8d5cf3 52%, #d95ee8 100%) !important; }
 body:has(#gameCanvas) header, body:has(#creatorGrid) header { background: transparent !important; border-bottom-color: rgba(255,255,255,.24) !important; }
+body:has(#gameCanvas) header {
+  gap: 18px;
+  flex-wrap: nowrap;
+}
+body:has(#gameCanvas) header .brand-home {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+body:has(#gameCanvas) header .nav-links,
+body:has(#gameCanvas) header .stats-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+body:has(#gameCanvas) header .nav-links { gap: 12px; }
+body:has(#gameCanvas) header .stats-bar { gap: 10px; }
+body:has(#gameCanvas) header .brand-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+body:has(#gameCanvas) header .brand-name { color: #38bdf8 !important; }
+body:has(#gameCanvas) header .brand-subtitle { color: #c4c9e7 !important; font-size: .78rem; font-weight: 600; }
 body:has(#gameCanvas) main, body:has(#creatorGrid) main { width: 100% !important; max-width: 1240px !important; }
 body:has(#gameCanvas) main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
 body:has(#gameCanvas) main > .panel, body:has(#creatorGrid) main > .panel { min-width: 0 !important; }
@@ -130,7 +155,24 @@ body:has(#angleSlider) #tutorHint button {
   color: #fff !important;
   font-weight: 800 !important;
 }
+body:has(#gameCanvas) .tutor-hint,
+body:has(#gameCanvas) #tutorHint {
+  background: #fff5df !important;
+  border-left-color: #f59e0b !important;
+  color: #4b356e !important;
+  box-shadow: 0 8px 20px rgba(61,45,115,.12) !important;
+}
+body:has(#gameCanvas) .tutor-hint strong,
+body:has(#gameCanvas) #tutorHint strong { color: #4b356e !important; }
+body:has(#gameCanvas) .tutor-hint button,
+body:has(#gameCanvas) #tutorHint button {
+  background: #a95716 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+}
 body:has(#gameCanvas) canvas { max-width: 100%; height: auto; }
+body:has(#gameCanvas) .canvas-container { width: 100%; overflow: hidden; }
+body:has(#gameCanvas) canvas { display: block; width: 100%; height: auto; }
 body:has(#gameCanvas) .panel, body:has(#creatorGrid) .panel {
   border: 1px solid rgba(255,255,255,.32) !important;
   border-radius: 24px !important;
@@ -162,6 +204,19 @@ body:has(#gameCanvas) .btn-nav, body:has(#creatorGrid) nav a { color: #fff !impo
 body:has(#gameCanvas) .stat-pill { background: rgba(39, 36, 104, .55) !important; border-color: rgba(255,255,255,.25) !important; color: #fff !important; }
 body:has(#gameCanvas) .level-select, body:has(#gameCanvas) input, body:has(#gameCanvas) textarea, body:has(#gameCanvas) select,
 body:has(#creatorGrid) input, body:has(#creatorGrid) textarea, body:has(#creatorGrid) select { border-color: rgba(255,255,255,.28) !important; background: rgba(12, 16, 46, .58) !important; color: #fff !important; }
+body:has(#gameCanvas) .shared-level-entry input {
+  color: #fff !important;
+  background: #111832 !important;
+  border-color: #8f86e8 !important;
+}
+body:has(#gameCanvas) .shared-level-entry input::placeholder {
+  color: #d9d8f4 !important;
+  opacity: 1 !important;
+}
+body:has(#gameCanvas) .shared-level-entry input:focus {
+  border-color: #ff9d5c !important;
+  box-shadow: 0 0 0 3px rgba(255,157,92,.25) !important;
+}
 body:has(#gameCanvas) .level-select option {
   background: #111832;
   color: #fff;
@@ -184,6 +239,9 @@ body:has(#gameCanvas) .btn-step { background: linear-gradient(135deg, #746df4, #
 body:has(#gameCanvas) .btn-reset { background: #4f5878 !important; color: #fff !important; box-shadow: 0 5px 0 #353c59 !important; }
 body:has(#creatorGrid) button.secondary { background: #4f5878 !important; color: #fff !important; }
 body:has(#gameCanvas) .program-area, body:has(#gameCanvas) .python-code-box { border-color: rgba(255,255,255,.22) !important; background: rgba(8, 12, 35, .7) !important; }
+body:has(#gameCanvas) .command-item { color: #fff !important; background: #202f49 !important; border-color: #536584 !important; }
+body:has(#gameCanvas) .command-item span { color: #fff !important; }
+body:has(#gameCanvas) .command-item .cmd-del { color: #273653 !important; background: #f4f6ff !important; }
 body:has(#gameCanvas) .program-empty, body:has(#gameCanvas) .python-code-box { color: #d9d8f4 !important; }
 body:has(#gameCanvas) .program-empty br + *, body:has(#gameCanvas) .py-comment { color: #aaa8cf !important; }
 body:has(#gameCanvas) .modal-card, body:has(#gameCanvas) .learning-gate { border: 1px solid rgba(255,255,255,.28) !important; border-radius: 22px !important; box-shadow: var(--aimora-shadow) !important; }
@@ -201,4 +259,18 @@ body:has(#creatorGrid) .share-panel { background: linear-gradient(135deg, #695ee
   .auth-card { grid-template-columns: 1fr; gap: 0; }
   .auth-card::before { min-height: 180px; align-items: center; padding: 28px; }
   .auth-card > section { padding: 30px 28px; }
+}
+
+@media (max-width: 980px) {
+  .auth-card { grid-template-columns: 1fr; width: min(560px, 100%) !important; }
+  .auth-card::before { min-height: 210px; align-items: center; padding: 28px; }
+  .auth-card > section { padding: 32px 28px 34px; }
+}
+
+@media (max-width: 900px) {
+  body:has(#gameCanvas) header { flex-wrap: wrap; }
+  body:has(#gameCanvas) header .nav-links { width: 100%; justify-content: flex-end; }
+  body:has(#gameCanvas) main { grid-template-columns: minmax(0, 1fr) !important; }
+  body:has(#gameCanvas) header { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  body:has(#gameCanvas) .brand-home { font-size: 1.35rem !important; }
 }

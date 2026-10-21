@@ -4,6 +4,7 @@ import { publishDraft, saveDraft } from './creator-api.js';
 import { formatCreatorProgram, parseCreatorProgram, runCreatorProgram } from './creator-program.js';
 
 const state = { draft: createInitialDraft(), id: null, academyLevel: 31, busy: false, program: [] };
+const displayLevel = academyLevel => academyLevel - 15;
 
 const $ = id => document.getElementById(id);
 const definition = () => ({ grid: state.draft.grid, start: state.draft.start, goal: state.draft.goal, program: state.program });
@@ -24,12 +25,12 @@ const testProgram = () => {
     return false;
   }
   const result = runCreatorProgram(state.draft, state.program);
-  const limit = state.academyLevel === 32 ? ' Level 32 requires fewer than 10 commands.' : '';
+  const limit = state.academyLevel === 32 ? ` Level ${displayLevel(state.academyLevel)} requires fewer than 10 commands.` : '';
   const withinLimit = state.academyLevel !== 32 || state.program.length < 10;
   $('programStatus').textContent = result.solved && withinLimit
     ? `Solution confirmed in ${result.steps} steps.${limit}`
     : result.solved && !withinLimit
-      ? 'The route works, but Level 32 needs fewer than 10 commands.'
+      ? `The route works, but Level ${displayLevel(state.academyLevel)} needs fewer than 10 commands.`
       : result.halted
         ? `The robot hit a wall after ${result.steps} steps. Fix the route and test again.`
         : `The route ended after ${result.steps} steps without reaching the exit.`;
@@ -42,7 +43,7 @@ const renderSummary = () => {
   $('validationList').replaceChildren();
   const messages = result.errors.length ? result.errors : [
     result.maxCommands < 40
-      ? `Maze ready. Solve it in fewer than 10 commands for Level ${state.academyLevel}.`
+      ? `Maze ready. Solve it in fewer than 10 commands for Level ${displayLevel(state.academyLevel)}.`
       : 'Ready to test and save this maze.'
   ];
   messages.forEach(error => {
@@ -73,7 +74,7 @@ const renderGrid = () => {
 };
 const render = () => {
   const level = CREATOR_LEVELS.find(item => item.number === state.academyLevel);
-  $('academyTitle').textContent = 'Level ' + state.academyLevel + ': ' + level.title;
+  $('academyTitle').textContent = 'Level ' + displayLevel(state.academyLevel) + ': ' + level.title;
   $('academyHint').textContent = level.hint;
   renderGrid();
   renderSummary();
@@ -135,7 +136,7 @@ $('copyCode').addEventListener('click', async () => {
 window.addEventListener('load', async () => {
   await window.StemGameAuth.init('robo_maze', { requireSession: true });
   if (!window.StemGamePlatform.isCreatorUnlocked()) {
-    setStatus('Complete RoboMaze Level 30 to unlock Creator Academy.', 'error');
+    setStatus('Complete RoboMaze Level 15 to unlock Creator Academy.', 'error');
     setTimeout(() => { window.location.href = 'index.html'; }, 1200);
     return;
   }

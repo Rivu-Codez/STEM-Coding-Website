@@ -1,5 +1,5 @@
 // Canonical PhysicsSim level data. This mirrors supabase/seed/001_game_levels.sql.
-const LEVELS = [
+const ALL_LEVELS = [
   {"title":"Level 1: Projectile Motion","instruction":"🔭 Concept: Observe how launch angle creates a curved projectile path.","targetDistance":30,"lockSpeed":true,"lockDrag":true,"fixedSpeed":20,"wall":null,"dragMode":null,"targetTolerance":null},
   {"title":"Level 2: Maximum Range","instruction":"📐 Concept: Find the 45° angle that produces the greatest range at fixed speed.","targetDistance":40.8,"lockSpeed":true,"lockDrag":true,"fixedSpeed":20,"wall":null,"dragMode":null,"targetTolerance":null},
   {"title":"Level 3: Speed & Distance","instruction":"⚡ Concept: Increase launch speed to reach a target farther away.","targetDistance":50,"lockSpeed":false,"lockDrag":true,"fixedSpeed":20,"wall":null,"dragMode":null,"targetTolerance":null},
@@ -32,5 +32,9 @@ const LEVELS = [
   {"title":"Level 30: Final Trajectory","instruction":"🏆 Final Challenge: Combine speed, angle, drag, wall clearance, and precision.","targetDistance":42,"lockSpeed":false,"lockDrag":false,"fixedSpeed":32,"wall":{"x":25,"height":12},"dragMode":"on","targetTolerance":2},
 ];
 
+// The expo path uses 10 core experiments plus 5 critical-thinking shots.
+// Keep the full catalog available for parity checks and future expansion.
+const LEVELS = ALL_LEVELS.slice(0, 15);
 window.LEVELS = LEVELS;
-export { LEVELS };
+window.ALL_LEVELS = ALL_LEVELS;
+export { LEVELS, ALL_LEVELS };
