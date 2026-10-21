@@ -1,0 +1,167 @@
+/* Submarine Math visual system: a bright, readable companion to the dashboard. */
+.submarine-page {
+  --sub-ink: #17233d;
+  --sub-muted: #5e6d89;
+  --sub-line: #dce4f0;
+  --sub-blue: #2563eb;
+  --sub-cyan: #0891b2;
+  --sub-purple: #7456d8;
+  min-height: 100vh;
+  color: var(--sub-ink) !important;
+  background: linear-gradient(135deg, #e9edff 0%, #f8f5ff 48%, #e4f7fb 100%) !important;
+  font-family: "Manrope", "Inter", sans-serif !important;
+}
+
+.submarine-page header {
+  min-height: 76px;
+  padding: 14px clamp(16px, 3vw, 38px) !important;
+  border-bottom: 1px solid rgba(89, 100, 232, .18) !important;
+  background: linear-gradient(135deg, #263b75, #5964e8 72%, #7d5be8) !important;
+  box-shadow: 0 12px 30px rgba(39, 57, 101, .16);
+}
+.submarine-page header h1 { color: #fff !important; letter-spacing: .045em; }
+.submarine-page header > div:first-child > div:first-child {
+  background: rgba(255,255,255,.16) !important;
+  box-shadow: none !important;
+}
+.submarine-dashboard-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: 12px;
+  background: rgba(255,255,255,.13);
+  color: #fff !important;
+  font-size: .82rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .16s ease, transform .16s ease;
+}
+.submarine-dashboard-link:hover { background: rgba(255,255,255,.24); transform: translateY(-1px); }
+.submarine-dashboard-link span:first-child { font-size: 1.05rem; }
+
+.submarine-page > main { max-width: 1320px !important; padding: 26px clamp(14px, 3vw, 38px) 42px !important; }
+.submarine-page .glass-panel {
+  border: 1px solid rgba(89, 100, 232, .16) !important;
+  border-radius: 22px !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: 0 16px 38px rgba(39, 57, 101, .12) !important;
+  backdrop-filter: blur(14px);
+}
+.submarine-page main > div:first-child > .glass-panel {
+  color: var(--sub-ink) !important;
+  background: linear-gradient(135deg, #f7f4ff, #eaf8ff) !important;
+}
+.submarine-page main > div:first-child > .glass-panel span,
+.submarine-page main > div:first-child > .glass-panel #hud-level-title { color: var(--sub-ink) !important; }
+.submarine-page #hud-section-tag { color: var(--sub-cyan) !important; background: #e3f8fc !important; border-color: #a7e7f0 !important; }
+.submarine-page #hud-depth { color: #0783a4 !important; }
+.submarine-page #hud-target { color: #b66a00 !important; }
+.submarine-page .glass-panel > .border-b { border-color: var(--sub-line) !important; }
+
+.submarine-page #question-text {
+  color: var(--sub-ink) !important;
+  font-size: clamp(1.2rem, 2vw, 1.75rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.45 !important;
+  letter-spacing: -.02em;
+  text-shadow: none !important;
+}
+.submarine-page .mission-chip {
+  min-height: 42px;
+  padding: 8px 6px;
+  border: 1px solid #cbd7e8 !important;
+  border-radius: 10px;
+  background: #f5f8fd !important;
+  color: #33415e !important;
+  font-size: .68rem;
+  font-weight: 800;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+.submarine-page .mission-chip:hover { background: #e4f7fb !important; border-color: #62c9dc !important; transform: translateY(-1px); }
+.submarine-page .route-preview {
+  min-height: 34px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px dashed #b9cbe2;
+  border-radius: 9px;
+  background: #f7f9fd;
+  color: #33415e !important;
+  font-family: "JetBrains Mono", monospace;
+  font-size: .74rem;
+  font-weight: 700;
+}
+.submarine-page #level-indicator { color: var(--sub-muted) !important; font-weight: 700; }
+.submarine-page main .text-slate-400,
+.submarine-page main .text-slate-500,
+.submarine-page main .text-slate-600,
+.submarine-page main .text-slate-300 { color: #33415e !important; }
+.submarine-page #comparison-btn-group button span:last-child { color: #33415e !important; font-weight: 700; }
+.submarine-page #progress-bar { background: linear-gradient(90deg, var(--sub-cyan), var(--sub-blue)) !important; }
+.submarine-page #comparison-btn-group button {
+  min-height: 126px;
+  border-color: #cbd7e8 !important;
+  background: #f5f8fd !important;
+  color: var(--sub-blue) !important;
+  box-shadow: 0 6px 14px rgba(39,57,101,.06);
+}
+.submarine-page #comparison-btn-group button:hover { background: #e5f7fb !important; border-color: #63c9dc !important; }
+.submarine-page #comparison-btn-group button span:last-child { color: var(--sub-muted) !important; }
+.submarine-page #native-user-input {
+  color: var(--sub-ink) !important;
+  background: #fff !important;
+  border-color: #b8c7dd !important;
+  box-shadow: inset 0 1px 3px rgba(39,57,101,.08) !important;
+}
+.submarine-page #native-user-input::placeholder { color: #4b5b78 !important; opacity: 1 !important; font-weight: 700; }
+.submarine-page #native-user-input:focus { border-color: var(--sub-cyan) !important; box-shadow: 0 0 0 4px rgba(8,145,178,.14) !important; }
+.submarine-page #answer-form button[data-action="clear-input"] { color: #657590 !important; }
+.submarine-page #btn-submit { background: linear-gradient(135deg, #0891b2, #2563eb) !important; font-weight: 800 !important; }
+.submarine-page #feedback-box { background: #f4f8ff !important; border-color: #d6e0ed !important; }
+.submarine-page #feedback-text { color: #253451 !important; font-weight: 800; }
+.submarine-page #feedback-icon { color: var(--sub-cyan) !important; }
+.submarine-page #lesson-box { background: linear-gradient(135deg, #fff7df, #fff1cf) !important; border-color: #f0c76e !important; }
+.submarine-page #lesson-title { color: #8a5200 !important; }
+.submarine-page #lesson-rule,
+.submarine-page #lesson-steps { color: #3f4655 !important; font-weight: 600; }
+.submarine-page #lesson-steps li::marker { color: #c47a00; font-weight: 800; }
+.submarine-page #btn-hint { color: #253451 !important; background: #eef3fb !important; border-color: #b9cbe2 !important; font-weight: 800; }
+.submarine-page #btn-hint:hover { background: #e1ecfb !important; }
+.submarine-page #btn-next { background: #159570 !important; }
+.submarine-page .tutor-hint,
+.submarine-page #tutorHint {
+  margin-top: 12px !important;
+  padding: 14px 16px !important;
+  border: 1px solid #f0c76e !important;
+  border-left: 5px solid #d99000 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #fff8e8, #fff1cf) !important;
+  color: #3f4655 !important;
+  font-size: .92rem !important;
+  line-height: 1.55 !important;
+  box-shadow: 0 8px 18px rgba(129, 87, 11, .1) !important;
+}
+.submarine-page .tutor-hint strong,
+.submarine-page #tutorHint strong { color: #7a4b00 !important; }
+.submarine-page .tutor-hint small,
+.submarine-page #tutorHint small { display: block; margin-top: 7px; color: #59657a !important; font-size: .86rem !important; }
+.submarine-page .tutor-hint button,
+.submarine-page #tutorHint button { background: #a95716 !important; color: #fff !important; font-weight: 800 !important; }
+.submarine-page #gameCanvas { border-radius: 0 0 18px 18px; }
+
+.submarine-page #level-modal > div {
+  border-color: #d8e1ed !important;
+  background: #fff !important;
+  color: var(--sub-ink) !important;
+}
+.submarine-page #level-modal h2 { color: var(--sub-ink) !important; }
+.submarine-page #gameover-modal > div { background: #fff !important; border-color: #f0a7ad !important; }
+.submarine-page #gameover-modal p { color: #4f5e78 !important; }
+
+@media (max-width: 720px) {
+  .submarine-dashboard-link span:last-child { display: none; }
+  .submarine-dashboard-link { padding: 8px 11px; }
+  .submarine-page header h1 { font-size: .82rem !important; }
+}

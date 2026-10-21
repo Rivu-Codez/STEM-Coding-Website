@@ -91,7 +91,7 @@
       const isPhysics = gameId === "physics" && attemptData &&
         Number.isFinite(Number(attemptData.angle)) && Number.isFinite(Number(attemptData.speed));
       const isSubmarineMath = gameId === "submarine_math" &&
-        typeof attemptData?.answer === "string" && attemptData.answer.length <= 32;
+        typeof attemptData?.answer === "string" && attemptData.answer.length <= 64;
       if (!isRoboMaze && !isPhysics && !isSubmarineMath) {
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };

@@ -122,7 +122,8 @@ test('frontend game registry exposes stable routes and feature flags', () => {
 
 test('Submarine Math backend validates canonical answers and awards server-owned progress', () => {
   const names = ['021_submarine_math_game_id.sql', '022_submarine_math_registry.sql',
-    '023_submarine_math_validator.sql', '024_submarine_math_rewards.sql'];
+    '023_submarine_math_validator.sql', '024_submarine_math_rewards.sql',
+    '025_submarine_mission_routes.sql', '026_submarine_target_guidance.sql'];
   const migrations = names.map(file => fs.readFileSync(
     path.join(repositoryRoot, 'supabase', 'migrations', file), 'utf8')).join('\n');
   assert.match(migrations, /add value if not exists 'submarine_math'/);
@@ -136,6 +137,8 @@ test('Submarine Math backend validates canonical answers and awards server-owned
   assert.match(migrations, /submit_submarine_math_attempt_idempotent/);
   assert.match(migrations, /attempts = 1 then stars := 3/);
   assert.match(migrations, /base_xp := 50/);
+  assert.match(migrations, /incorrect_route/);
+  assert.match(migrations, /maxDistance/);
 });
 
 test('Submarine Math target depths match answers and allow visible movement', () => {
@@ -151,8 +154,9 @@ test('Submarine Math target depths match answers and allow visible movement', ()
     assert.notEqual(level.startDepth, level.targetDepth,
       'Level ' + levelNumber + ' should move the submarine to its target');
   });
-  assert.equal(Number(levels[13].correctAnswer), levels[13].targetDepth,
-    'Level 14 target must match the multiplication answer');
+  assert.deepEqual(Array.from(levels[0].moves), [10]);
+  assert.deepEqual(Array.from(levels[14].moves), [-24, 18, 12, 24]);
+  assert.equal(levels[14].targetDepth, 0, 'Final mission must dock at sea level');
 });
 
 test('Submarine Math is linked from the dashboard and protected by the shared sign-in gate', () => {
