@@ -125,3 +125,12 @@ test('integrated creator player uses the owner-read RPC', () => {
   assert.match(api, /rpc\('get_my_creator_level'/);
   assert.match(page, /data-creator-level="31"/);
 });
+
+test('creator validation fix qualifies recursive walk columns', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '016_fix_creator_validation_walk.sql'),
+    'utf8',
+  );
+  assert.match(source, /walk\.x = goal_x/);
+  assert.match(source, /walk\.x \+ 1, walk\.y/);
+});
