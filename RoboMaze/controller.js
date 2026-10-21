@@ -19,6 +19,9 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
     let lastReward = 0;
     let creatorMode = false;
     let creatorLevel = null;
+    let creatorLevelNumber = null;
+    const creatorLevels = new Map();
+    const creatorRuntimeIndexes = new Map();
     const runtimeLevels = [...LEVELS];
     window.LEVELS = runtimeLevels;
     window.RoboMazeCreatorMode = { isActive: () => creatorMode };
@@ -302,13 +305,13 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
         document.getElementById('levelPicker').value = currentLevelIndex;
       } else {
         alert(creatorMode
-          ? "🎉 Your Creator Academy Level 31 is complete!"
+          ? `🎉 Your Creator Academy Level ${creatorLevelNumber} is complete!`
           : "🎉 Congratulations! You have completed all 30 levels in the RoboLogic Maze!");
         resetLevel();
       }
     }
 
-    function toRuntimeCreatorLevel(row) {
+    function toRuntimeCreatorLevel(row, academyLevel) {
       const definition = row?.definition;
       if (!row?.id || !definition?.grid || !definition.start || !definition.goal) return null;
       const grid = definition.grid.map((line, y) => line.map((cell, x) => (
@@ -316,35 +319,45 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
       )));
       return {
         id: row.id,
-        title: `Level 31: ${row.title || 'Trap Master'}`,
+        title: `Level ${academyLevel}: ${row.title || 'Creator Challenge'}`,
         instruction: `<strong>Creator Academy:</strong> Navigate the maze you designed. Your solution is validated securely by the server.`,
         grid,
         start: { ...definition.start },
       };
     }
 
-    async function loadCreatorLevel() {
-      const result = await loadLatestCreatorLevel(31);
-      if (result.error) return null;
-      creatorLevel = toRuntimeCreatorLevel(result.data);
-      if (creatorLevel) runtimeLevels.push(creatorLevel);
-      return creatorLevel;
+    async function loadCreatorLevels() {
+      const results = await Promise.all([31, 32, 33, 34, 35].map(async academyLevel => ({
+        academyLevel,
+        result: await loadLatestCreatorLevel(academyLevel),
+      })));
+      results.forEach(({ academyLevel, result }) => {
+        if (result.error || !result.data) return;
+        const level = toRuntimeCreatorLevel(result.data, academyLevel);
+        creatorLevels.set(academyLevel, level);
+        creatorRuntimeIndexes.set(academyLevel, runtimeLevels.length);
+        runtimeLevels.push(level);
+      });
     }
 
     async function selectLevel(index) {
-      if (index === 'creator-31') {
+      if (typeof index === 'string' && index.startsWith('creator-')) {
+        const academyLevel = Number(index.slice('creator-'.length));
         if (!window.StemGamePlatform?.isCreatorUnlocked?.()) {
           triggerMessage('Complete Level 30 to unlock Creator Academy.', 'error');
           return;
         }
-        if (!creatorLevel) {
-          triggerMessage('Design and save your Level 31 in Creator Academy first.', 'error');
-          window.location.href = 'creator.html?academyLevel=31';
+        const selectedCreatorLevel = creatorLevels.get(academyLevel);
+        if (!selectedCreatorLevel) {
+          triggerMessage(`Design and save Creator Academy Level ${academyLevel} first.`, 'error');
+          window.location.href = `creator.html?academyLevel=${academyLevel}`;
           return;
         }
+        creatorLevel = selectedCreatorLevel;
+        creatorLevelNumber = academyLevel;
         creatorMode = true;
         window.RoboMazeCreatorMode.isActive = () => creatorMode;
-        window.changeLevel(30);
+        window.changeLevel(creatorRuntimeIndexes.get(academyLevel));
         return;
       }
       creatorMode = false;
@@ -356,7 +369,7 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
       gameId: 'robo_maze',
       levels: runtimeLevels,
       loadLevel(levelNumber) {
-        selectLevel(levelNumber === 31 ? 'creator-31' : levelNumber - 1);
+        selectLevel(levelNumber >= 31 ? `creator-${levelNumber}` : levelNumber - 1);
       },
       reset() {
         resetLevel();
@@ -373,7 +386,7 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
     window.onload = () => {
       if (window.StemGameAuth) {
         window.StemGameAuth.init("robo_maze", { requireSession: true }).then(async () => {
-          await loadCreatorLevel();
+          await loadCreatorLevels();
           bindCreatorPickerState();
           window.RoboMazeModule.loadLevel(1);
         });
@@ -383,10 +396,13 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
     };
 
     const bindCreatorPickerState = () => {
-      const option = document.querySelector('[data-creator-level="31"]');
-      if (option) option.textContent = creatorLevel
-        ? `🛠️ Creator Academy: Level 31 — ${creatorLevel.title.replace(/^Level 31:\s*/, '')}`
-        : '🛠️ Creator Academy: Level 31 — design first';
+      [31, 32, 33, 34, 35].forEach(academyLevel => {
+        const option = document.querySelector(`[data-creator-level="${academyLevel}"]`);
+        const level = creatorLevels.get(academyLevel);
+        if (option) option.textContent = level
+          ? `🛠️ Creator Academy: Level ${academyLevel} — ${level.title.replace(new RegExp(`^Level ${academyLevel}:\\s*`), '')}`
+          : `🔒 Creator Academy: Level ${academyLevel} — design first`;
+      });
     };
 
   bindRoboMazeEvents({ changeLevel: selectLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate });

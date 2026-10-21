@@ -18,7 +18,12 @@ const renderSummary = () => {
   const result = validateDraft(state.draft, state.academyLevel);
   $('wallCount').textContent = result.walls;
   $('validationList').replaceChildren();
-  (result.errors.length ? result.errors : ['Ready to test and save this maze.']).forEach(error => {
+  const messages = result.errors.length ? result.errors : [
+    result.maxCommands < 40
+      ? `Maze ready. Solve it in fewer than 10 commands for Level ${state.academyLevel}.`
+      : 'Ready to test and save this maze.'
+  ];
+  messages.forEach(error => {
     const item = document.createElement('li');
     item.textContent = error;
     $('validationList').append(item);
@@ -45,8 +50,9 @@ const renderGrid = () => {
   }
 };
 const render = () => {
-  $('academyTitle').textContent = 'Level ' + state.academyLevel + ': ' + CREATOR_LEVELS.find(level => level.number === state.academyLevel).title;
-  $('academyHint').textContent = CREATOR_LEVELS.find(level => level.number === state.academyLevel).hint;
+  const level = CREATOR_LEVELS.find(item => item.number === state.academyLevel);
+  $('academyTitle').textContent = 'Level ' + state.academyLevel + ': ' + level.title;
+  $('academyHint').textContent = level.hint;
   renderGrid();
   renderSummary();
 };
@@ -95,6 +101,11 @@ window.addEventListener('load', async () => {
     setStatus('Complete RoboMaze Level 30 to unlock Creator Academy.', 'error');
     setTimeout(() => { window.location.href = 'index.html'; }, 1200);
     return;
+  }
+  const requestedLevel = Number(new URLSearchParams(window.location.search).get('academyLevel'));
+  if (requestedLevel >= 31 && requestedLevel <= 35) {
+    state.academyLevel = requestedLevel;
+    $('academyLevel').value = String(requestedLevel);
   }
   render();
 });

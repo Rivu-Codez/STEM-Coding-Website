@@ -134,3 +134,17 @@ test('creator validation fix qualifies recursive walk columns', () => {
   assert.match(source, /walk\.x = goal_x/);
   assert.match(source, /walk\.x \+ 1, walk\.y/);
 });
+
+test('creator challenge constraints are enforced by the database trigger', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '017_creator_challenge_constraints.sql'),
+    'utf8',
+  );
+  const page = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'index.html'), 'utf8');
+  assert.match(source, /enforce_creator_level_constraints/);
+  assert.match(source, /Level 33 requires at least 1 wall obstacle/);
+  assert.match(source, /Level 34 requires at least 3 wall obstacles/);
+  for (const level of [31, 32, 33, 34, 35]) {
+    assert.match(page, new RegExp(`data-creator-level="${level}"`));
+  }
+});
