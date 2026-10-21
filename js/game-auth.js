@@ -90,6 +90,7 @@
     getCurrentUser: () => platform().getSession()?.user || null,
     updateStudentProfile: name => auth().updateProfile(name),
     getDashboardStats: gameId => progress().getDashboardStats(gameId),
+    getGameProgress: gameId => progress().getGameProgress(gameId),
     signOut,
     async init(gameId, options = {}) {
       platform().configure(gameId);

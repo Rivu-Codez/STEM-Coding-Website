@@ -11,6 +11,7 @@ const requiredFiles = [
   'login.html',
   'PhysicsSim/index.html',
   'RoboMaze/index.html',
+  'SubmarineMath/index.html',
   'RoboMaze/creator.html',
 ];
 

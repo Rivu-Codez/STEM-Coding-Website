@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+    <title>Submarine Math Expedition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <!-- Google Fonts: Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+        }
+    input{-webkit-user-select:text;user-select:text}
+    button:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
+        @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+    .fa-solid{display:inline-block;width:1em;height:1em;background-color:currentColor;-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat;vertical-align:-0.125em}
+.fa-star{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpolygon%20points=%2212%202%2015.09%208.26%2022%209.27%2017%2014.14%2018.18%2021.02%2012%2017.77%205.82%2021.02%207%2014.14%202%209.27%208.91%208.26%22/%3E%3C/svg%3E")}
+.fa-trophy{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M6%209H4.5a2.5%202.5%200%200%201%200-5H6M18%209h1.5a2.5%202.5%200%200%200%200-5H18M4%2022h16M10%2014.66V17c0%20.55-.47.98-.97%201.21C7.85%2018.75%207%2020.24%207%2022M14%2014.66V17c0%20.55.47.98.97%201.21C16.15%2018.75%2017%2020.24%2017%2022M18%202H6v7a6%206%200%200%200%2012%200V2Z%22/%3E%3C/svg%3E")}
+.fa-volume-high{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpolygon%20points=%2211%205%206%209%202%209%202%2015%206%2015%2011%2019%2011%205%22/%3E%3Cpath%20d=%22M15.54%208.46a5%205%200%200%201%200%207.07M19.07%204.93a10%2010%200%200%201%200%2014.14%22/%3E%3C/svg%3E")}
+.fa-volume-xmark{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpolygon%20points=%2211%205%206%209%202%209%202%2015%206%2015%2011%2019%2011%205%22/%3E%3Cpath%20d=%22M22%209l-6%206M16%209l6%206%22/%3E%3C/svg%3E")}
+.fa-map-location-dot{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M3%206l6-3%206%203%206-3v15l-6%203-6-3-6%203zM9%203v15M15%206v15%22/%3E%3C/svg%3E")}
+.fa-xmark{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M18%206%206%2018M6%206l12%2012%22/%3E%3C/svg%3E")}
+.fa-arrow-right{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M5%2012h14M12%205l7%207-7%207%22/%3E%3C/svg%3E")}
+.fa-lightbulb{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M15%2014c.2-1%20.7-1.7%201.5-2.5%201-.9%201.5-2.2%201.5-3.5A6%206%200%200%200%206%208c0%201%20.2%202.2%201.5%203.5.7.7%201.3%201.5%201.5%202.5M9%2018h6M10%2022h4%22/%3E%3C/svg%3E")}
+.fa-circle-arrow-right{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Ccircle%20cx=%2212%22%20cy=%2212%22%20r=%2210%22/%3E%3Cpath%20d=%22M8%2012h8M12%2016l4-4-4-4%22/%3E%3C/svg%3E")}
+.fa-circle-info{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Ccircle%20cx=%2212%22%20cy=%2212%22%20r=%2210%22/%3E%3Cpath%20d=%22M12%2016v-4M12%208h.01%22/%3E%3C/svg%3E")}
+.fa-circle-check{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Ccircle%20cx=%2212%22%20cy=%2212%22%20r=%2210%22/%3E%3Cpath%20d=%22m9%2012%202%202%204-4%22/%3E%3C/svg%3E")}
+.fa-triangle-exclamation{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22m21.73%2018-8-14a2%202%200%200%200-3.48%200l-8%2014A2%202%200%200%200%204%2021h16a2%202%200%200%200%201.73-3ZM12%209v4M12%2017h.01%22/%3E%3C/svg%3E")}
+.fa-water-lower{--ic:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22black%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M2%208c.6.5%201.2%201%202.5%201C7%209%207%207%209.5%207c2.6%200%202.4%202%205%202%202.5%200%202.5-2%205-2%201.3%200%201.9.5%202.5%201M2%2015c.6.5%201.2%201%202.5%201%202.5%200%202.5-2%205-2%202.6%200%202.4%202%205%202%202.5%200%202.5-2%205-2%201.3%200%201.9.5%202.5%201%22/%3E%3C/svg%3E")}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/game-registry.js"></script>
+    <script src="../js/game-platform.js"></script>
+    <script src="../js/auth-api.js"></script>
+    <script src="../js/progress-api.js"></script>
+    <script src="../js/achievement-api.js"></script>
+    <script src="../js/mistake-api.js"></script>
+    <script src="../js/tutor-api.js"></script>
+    <script src="../js/game-auth.js"></script>
+    <script src="../js/game-adapter.js"></script>
+    <script src="levels.js"></script>
+    <script src="adapter.js"></script>
+    <script src="progress-service.js"></script>
+    <script src="auth.js" defer></script>
+    <script src="game.js" defer></script>
+</head>
+<body hidden class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100">
+
+    <!-- TOP HEADER / NAV BAR -->
+    <a href="../dashboard.html" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-cyan-600 focus:px-4 focus:py-2 focus:text-white">Back to dashboard</a>
+    <header class="w-full bg-slate-900/45 border-b border-cyan-500/20 backdrop-blur-md px-4 py-3 sticky top-0 z-40 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-water-lower text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base md:text-lg font-bold font-orbitron tracking-wider text-cyan-400 flex items-center gap-2">
+                    SUBMARINE MATH <span class="text-amber-400 font-extrabold">EXPEDITION</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 md:space-x-3">
+            <!-- Score & Stars -->
+            <div class="bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center space-x-2 text-xs md:text-sm">
+                <i class="fa-solid fa-star text-amber-400"></i>
+                <span id="total-stars" class="font-orbitron font-bold text-slate-200">0/90</span>
+            </div>
+            <div class="bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center space-x-2 text-xs md:text-sm">
+                <i class="fa-solid fa-trophy text-cyan-400"></i>
+                <span id="total-score" class="font-orbitron font-bold text-slate-200">0</span>
+            </div>
+
+
+
+            <!-- Audio Toggle -->
+            <button id="btn-sound" data-action="toggle-sound" class="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-cyan-400 hover:bg-slate-700/80 transition">
+                <i id="sound-icon" class="fa-solid fa-volume-high text-sm"></i>
+            </button>
+            <!-- Level Select Modal Button -->
+            <button id="btn-level-menu" data-action="open-map" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs md:text-sm flex items-center space-x-2 transition shadow-md shadow-cyan-600/20">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span class="hidden sm:inline font-orbitron font-bold">Map</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN GAME WORKSPACE -->
+    <main class="flex-1 w-full max-w-7xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- CANVAS & VISUAL DISPLAY AREA (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col space-y-2">
+            <!-- Canvas HUD Status Bar -->
+            <div class="glass-panel rounded-t-2xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm">
+                <div class="flex items-center space-x-2.5">
+                    <span class="px-2.5 py-1 rounded-lg bg-cyan-950/80 text-cyan-400 font-bold border border-cyan-800/80 font-orbitron text-[11px]" id="hud-section-tag">SEC 1</span>
+                    <span class="font-semibold text-slate-200 truncate max-w-[180px] sm:max-w-xs" id="hud-level-title">Level 1</span>
+                </div>
+                <div class="flex items-center space-x-4 font-orbitron text-xs">
+                    <div>HULL: <span id="hud-hull" class="inline-flex items-center gap-1 align-middle"></span></div>
+                    <div>DEPTH: <span id="hud-depth" class="text-cyan-400 font-bold">0m</span></div>
+                    <div>TARGET: <span id="hud-target" class="text-amber-400 font-bold">0m</span></div>
+                </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative w-full aspect-[4/3] sm:aspect-[16/10] bg-slate-950 rounded-b-2xl border border-slate-800/80 overflow-hidden shadow-2xl">
+                <canvas id="gameCanvas" aria-label="Submarine depth navigation" class="w-full h-full block cursor-crosshair"></canvas>
+
+                <!-- Surface Breaker Splash Overlay -->
+                <div id="splash-overlay" class="absolute inset-0 bg-cyan-400/20 pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
+                <div id="hit-overlay" class="absolute inset-0 bg-rose-600/30 pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
+            </div>
+        </div>
+
+        <!-- CONTROL PANEL & CLEAN INPUT DASHBOARD (5 cols) -->
+        <div class="lg:col-span-5 glass-panel rounded-2xl p-5 flex flex-col justify-between space-y-5 shadow-2xl min-h-[380px]">
+
+            <!-- Question Prompt Only -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                    <span id="level-indicator" class="text-xs text-slate-400 font-medium whitespace-nowrap">Level 1 of 15</span><div class="flex-1 ml-3 h-1.5 rounded-full bg-slate-800 overflow-hidden"><div id="progress-bar" class="h-full bg-cyan-500 transition-all duration-500" style="width:0%"></div></div>
+                </div>
+                <h3 id="question-text" class="text-slate-100 font-medium text-lg md:text-xl leading-relaxed min-h-[72px]">
+                    Loading question...
+                </h3>
+            </div>
+
+            <!-- COMPARISON QUICK-SELECT BUTTONS (<, =, >) -->
+            <div id="comparison-btn-group" class="hidden grid-cols-3 gap-3 my-1">
+                <button type="button" data-symbol=">" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
+                    <span>&gt;</span>
+                    <span class="text-[10px] font-sans font-normal text-slate-400">Greater Than</span>
+                </button>
+                <button type="button" data-symbol="=" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
+                    <span>=</span>
+                    <span class="text-[10px] font-sans font-normal text-slate-400">Equal To</span>
+                </button>
+                <button type="button" data-symbol="<" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
+                    <span>&lt;</span>
+                    <span class="text-[10px] font-sans font-normal text-slate-400">Less Than</span>
+                </button>
+            </div>
+
+            <!-- NATIVE HTML FORM INPUT -->
+            <div id="answer-form" class="space-y-3">
+                <div class="relative flex items-center">
+                    <input
+                        id="native-user-input"
+                        type="text"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        autofocus
+                        placeholder="Type your answer"
+                        class="w-full bg-slate-950/80 border-2 border-slate-700/80 focus:border-cyan-400 rounded-xl py-3.5 px-4 font-orbitron font-bold text-xl text-cyan-300 placeholder:text-slate-600 placeholder:font-sans placeholder:text-sm focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition shadow-inner"
+                    />
+                    <button
+                        type="button"
+                        data-action="clear-input"
+                        class="absolute right-3.5 text-slate-500 hover:text-slate-300 p-1 text-sm transition"
+                        title="Clear input"
+                    >
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button
+                    type="button"
+                    id="btn-submit"
+                    data-action="submit-answer"
+                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-sm border border-cyan-400/30 shadow-lg shadow-cyan-600/25 active:scale-[0.99] transition flex items-center justify-center space-x-2"
+                >
+                    <span>Check answer</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Feedback Message Box -->
+            <div id="feedback-box" class="p-3.5 rounded-xl bg-slate-950/50 border border-slate-800/80 min-h-[50px] flex items-center space-x-3 transition-all">
+                <i id="feedback-icon" class="fa-solid fa-circle-info text-cyan-400 text-lg flex-shrink-0"></i>
+                <p id="feedback-text" class="text-xs sm:text-sm text-slate-300 leading-snug"></p>
+            </div>
+
+            <!-- Teaching panel: rule + step-by-step worked solution -->
+            <div id="lesson-box" class="hidden rounded-xl border border-amber-500/30 bg-amber-950/30 p-4 space-y-3">
+                <div class="flex items-center space-x-2 text-amber-300 font-orbitron text-xs font-bold">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span id="lesson-title">Let's work it out</span>
+                </div>
+                <p id="lesson-rule" class="text-sm text-slate-100 leading-snug"></p>
+                <ol id="lesson-steps" class="space-y-2 text-sm text-slate-300"></ol>
+                <button id="lesson-more" type="button" data-action="reveal-step" class="hidden px-3.5 py-2 rounded-xl bg-amber-600/80 hover:bg-amber-500 text-white text-xs font-semibold transition">Show step-by-step</button>
+            </div>
+
+            <!-- Footer Controls -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                <button id="btn-hint" data-action="show-hint" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 text-xs flex items-center space-x-2 border border-slate-700/60 transition">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                    <span>Hint</span>
+                </button>
+                <button id="btn-next" data-action="next-level" class="hidden px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-orbitron font-semibold text-xs flex items-center space-x-2 shadow-lg shadow-emerald-600/25 transition">
+                    <span>Next Level</span>
+                    <i class="fa-solid fa-circle-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+
+
+    <!-- LEVEL SELECTION MODAL -->
+    <div id="level-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-map-location-dot text-cyan-400"></i>
+                    <h2 class="text-base md:text-lg font-bold font-orbitron text-slate-100">15-Level Mission Map</h2>
+                </div>
+                <button id="btn-close-modal" data-action="close-map" class="text-slate-400 hover:text-white text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Levels Grid -->
+            <div id="levels-grid-container" class="p-4 overflow-y-auto space-y-5"></div>
+        </div>
+    </div>
+
+    <!-- GAME OVER MODAL -->
+    <div id="gameover-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-rose-500/50 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+            <h2 class="font-orbitron font-bold text-rose-400 text-lg">HULL BREACHED</h2>
+            <p class="text-sm text-slate-300">All 3 hull points are gone.</p>
+            <p id="gameover-answer" class="text-sm text-amber-300"></p>
+            <div class="flex flex-col gap-2">
+                <button data-action="retry-level" class="py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition">Retry this level (full hull)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO SYSTEM SCRIPT -->
+
+
+    <!-- PURE MATH CURRICULUM SCRIPT -->
+
+</body>
+</html>

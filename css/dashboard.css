@@ -39,13 +39,16 @@ h3 { margin-bottom: 9px; font-size: 1.25rem; }
 .game-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgb(31 53 89 / 12%); }
 .physics-card { border-top: 3px solid var(--blue); }
 .coding-card { border-top: 3px solid var(--green); }
+.submarine-card { border-top: 3px solid #0891b2; }
 .game-icon { display: grid; place-items: center; flex: 0 0 50px; width: 50px; height: 50px; border-radius: 15px; background: var(--blue-soft); color: var(--blue); font-size: 1.55rem; }
 .coding-card .game-icon { background: #e7f8f2; color: var(--green); }
+.submarine-card .game-icon { background: #e0f7fb; color: #0891b2; }
 .coming-card { background: #fbfcfe; }
 .coming-card .game-icon { background: #f0f2f6; color: #8290a8; }
 .game-label { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; font-size: .75rem; font-weight: 850; letter-spacing: .08em; }
 .physics-label { color: var(--blue); }
 .coding-label { color: var(--green); }
+.submarine-label { color: #0891b2; }
 .coming-label { color: #8290a8; }
 .game-content { flex: 1; min-width: 0; }
 .game-content > p:not(.eyebrow) { min-height: 48px; margin-bottom: 18px; }

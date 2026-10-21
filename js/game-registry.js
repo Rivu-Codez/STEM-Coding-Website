@@ -21,6 +21,16 @@
       icon: "▦"
     },
     {
+      gameId: "submarine_math",
+      displayName: "Submarine Math Expedition",
+      description: "Use integers and number operations to navigate a submarine through 15 deep-sea levels.",
+      route: "SubmarineMath/index.html",
+      enabled: true,
+      levelCount: 15,
+      validator: "submarine_math",
+      icon: "⚓"
+    },
+    {
       gameId: "chemistry",
       displayName: "Chemistry Lab",
       description: "Experiment with reactions, matter, and the building blocks of chemistry.",
