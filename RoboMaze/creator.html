@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+  <title>RoboLogic Creator Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="../css/creator.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-platform.js"></script>
+  <script src="../js/auth-api.js"></script>
+  <script src="../js/progress-api.js"></script>
+  <script src="../js/achievement-api.js"></script>
+  <script src="../js/mistake-api.js"></script>
+  <script src="../js/tutor-api.js"></script>
+  <script src="../js/game-auth.js"></script>
+</head>
+<body>
+  <header><a href="../dashboard.html" class="brand">RoboLogic <span>Creator Academy</span></a><nav><a href="index.html">Back to Maze</a></nav></header>
+  <main>
+    <section class="panel intro-panel">
+      <p class="eyebrow">BUILD • TEST • SHARE</p>
+      <h1 id="academyTitle">Level 31: The Trap Master</h1>
+      <p id="academyHint" class="hint"></p>
+      <label for="academyLevel">Academy challenge</label>
+      <select id="academyLevel">
+        <option value="31">31 - Trap Master</option><option value="32">32 - Efficiency Challenge</option><option value="33">33 - Dynamic Trajectory</option><option value="34">34 - Impossible Maze</option><option value="35">35 - Masterpiece</option>
+      </select>
+      <label for="creatorTitle">Challenge title</label>
+      <input id="creatorTitle" maxlength="80" placeholder="Give your maze a memorable name">
+      <label for="creatorDescription">Description</label>
+      <textarea id="creatorDescription" maxlength="500" rows="3" placeholder="What should another student notice?"></textarea>
+      <div id="creatorStatus" class="creator-status" role="status" aria-live="polite">New draft ready.</div>
+    </section>
+    <section class="panel editor-panel">
+      <div class="panel-heading"><div><h2>Design your 8×8 maze</h2><p>Click a cell to cycle: empty → wall → start → exit.</p></div><strong><span id="wallCount">0</span> walls</strong></div>
+      <div id="creatorGrid" class="creator-grid" role="grid" aria-label="Creator maze grid"></div>
+      <div class="legend"><span><i class="empty"></i>Empty</span><span><i class="wall"></i>Wall</span><span><i class="start"></i>Start</span><span><i class="goal"></i>Exit</span></div>
+      <div class="validation"><strong id="validationSummary">Maze needs attention</strong><ul id="validationList"></ul></div>
+      <div class="actions"><button id="resetGrid" class="secondary">Reset</button><button id="saveDraft">Save draft</button><button id="publishDraft" class="primary" disabled>Publish & get code</button></div>
+      <div id="sharePanel" class="share-panel" hidden><span>Share code</span><strong id="shareCode"></strong><button id="copyCode" class="secondary">Copy</button></div>
+    </section>
+  </main>
+  <script type="module" src="creator/creator-controller.js"></script>
+</body>
+</html>

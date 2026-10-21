@@ -102,3 +102,10 @@ test('creator migration protects drafts and validates published mazes', () => {
   assert.match(source, /share_code/);
   assert.match(source, /revoke all on function public\.publish_creator_level/);
 });
+
+test('creator academy page and modules are present', () => {
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator.html')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-controller.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-grid.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js')), true);
+});

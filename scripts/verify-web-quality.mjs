@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html'];
+const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html', 'RoboMaze/creator.html'];
 const pinnedSupabase = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
 
 function resolveLocalReference(page, reference) {
