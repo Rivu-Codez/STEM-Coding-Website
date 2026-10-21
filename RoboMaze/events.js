@@ -1,8 +1,9 @@
-export function bindRoboMazeEvents({ changeLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate }) {
+export function bindRoboMazeEvents({ changeLevel, loadSharedLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate }) {
   document.getElementById('creatorAcademyLink')?.addEventListener('click', (event) => {
     if (!window.StemGamePlatform?.isCreatorUnlocked?.()) event.preventDefault();
   });
   document.querySelector('[data-action="change-level"]')?.addEventListener('change', (event) => changeLevel(event.target.value));
+  document.getElementById('playSharedLevel')?.addEventListener('click', () => loadSharedLevel(document.getElementById('sharedLevelCode').value.trim()));
   document.querySelectorAll('[data-command]').forEach((button) => {
     button.addEventListener('click', () => addCommand(button.dataset.command));
   });

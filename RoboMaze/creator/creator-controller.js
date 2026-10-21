@@ -1,11 +1,12 @@
 import { CREATOR_LEVELS } from './creator-levels.js';
 import { createInitialDraft, cycleCell, validateDraft } from './creator-grid.js';
 import { publishDraft, saveDraft } from './creator-api.js';
+import { formatCreatorProgram, parseCreatorProgram, runCreatorProgram } from './creator-program.js';
 
-const state = { draft: createInitialDraft(), id: null, academyLevel: 31, busy: false };
+const state = { draft: createInitialDraft(), id: null, academyLevel: 31, busy: false, program: [] };
 
 const $ = id => document.getElementById(id);
-const definition = () => ({ grid: state.draft.grid, start: state.draft.start, goal: state.draft.goal });
+const definition = () => ({ grid: state.draft.grid, start: state.draft.start, goal: state.draft.goal, program: state.program });
 const setStatus = (text, kind = '') => {
   $('creatorStatus').textContent = text;
   $('creatorStatus').className = 'creator-status ' + kind;
@@ -13,6 +14,27 @@ const setStatus = (text, kind = '') => {
 const setButtonState = () => {
   $('saveDraft').disabled = state.busy;
   $('publishDraft').disabled = state.busy || !validateDraft(state.draft, state.academyLevel).valid;
+};
+const testProgram = () => {
+  const parsed = parseCreatorProgram($('creatorProgram').value);
+  state.program = parsed.commands;
+  if (parsed.errors.length) {
+    $('programStatus').textContent = parsed.errors.join(' ');
+    $('programStatus').className = 'program-status error';
+    return false;
+  }
+  const result = runCreatorProgram(state.draft, state.program);
+  const limit = state.academyLevel === 32 ? ' Level 32 requires fewer than 10 commands.' : '';
+  const withinLimit = state.academyLevel !== 32 || state.program.length < 10;
+  $('programStatus').textContent = result.solved && withinLimit
+    ? `Solution confirmed in ${result.steps} steps.${limit}`
+    : result.solved && !withinLimit
+      ? 'The route works, but Level 32 needs fewer than 10 commands.'
+      : result.halted
+        ? `The robot hit a wall after ${result.steps} steps. Fix the route and test again.`
+        : `The route ended after ${result.steps} steps without reaching the exit.`;
+  $('programStatus').className = result.solved && withinLimit ? 'program-status success' : 'program-status error';
+  return result.solved && withinLimit;
 };
 const renderSummary = () => {
   const result = validateDraft(state.draft, state.academyLevel);
@@ -61,6 +83,10 @@ const reset = () => {
   state.id = null;
   $('creatorTitle').value = '';
   $('creatorDescription').value = '';
+  state.program = [];
+  $('creatorProgram').value = '';
+  $('programStatus').textContent = 'Add commands, then test your route.';
+  $('programStatus').className = 'program-status';
   setStatus('New draft ready.');
   render();
 };
@@ -72,13 +98,16 @@ const withBusy = async action => {
 };
 $('academyLevel').addEventListener('change', event => { state.academyLevel = Number(event.target.value); reset(); });
 $('resetGrid').addEventListener('click', reset);
+$('checkProgram').addEventListener('click', testProgram);
 $('saveDraft').addEventListener('click', () => withBusy(async () => {
+  testProgram();
   const result = await saveDraft({ id: state.id, academyLevel: state.academyLevel, title: $('creatorTitle').value.trim() || 'Untitled RoboMaze', description: $('creatorDescription').value.trim(), definition: definition() });
   if (result.error) throw result.error;
   state.id = result.data.creator_level_id;
   setStatus('Draft saved securely.');
 }));
 $('publishDraft').addEventListener('click', () => withBusy(async () => {
+  if (!testProgram()) throw new Error('Test a working solution before publishing this challenge.');
   if (!validateDraft(state.draft, state.academyLevel).valid) return;
   if (!state.id) {
     const saved = await saveDraft({ id: null, academyLevel: state.academyLevel, title: $('creatorTitle').value.trim() || 'Untitled RoboMaze', description: $('creatorDescription').value.trim(), definition: definition() });
@@ -91,6 +120,14 @@ $('publishDraft').addEventListener('click', () => withBusy(async () => {
   $('sharePanel').hidden = false;
   setStatus('Published! Your level is ready to share.', 'success');
 }));
+$('playShared').addEventListener('click', () => {
+  const code = $('sharedCode').value.trim();
+  if (!/^\d{6}$/.test(code)) {
+    setStatus('Enter a valid 6-digit share code.', 'error');
+    return;
+  }
+  window.location.href = `index.html?share=${code}`;
+});
 $('copyCode').addEventListener('click', async () => {
   await navigator.clipboard.writeText($('shareCode').textContent);
   setStatus('Share code copied.', 'success');
@@ -106,6 +143,15 @@ window.addEventListener('load', async () => {
   if (requestedLevel >= 31 && requestedLevel <= 35) {
     state.academyLevel = requestedLevel;
     $('academyLevel').value = String(requestedLevel);
+  }
+  const existing = await loadLatestCreatorLevel(state.academyLevel);
+  if (!existing.error && existing.data?.status === 'draft' && existing.data.definition?.grid) {
+    state.id = existing.data.id;
+    state.draft = existing.data.definition;
+    $('creatorTitle').value = existing.data.title || '';
+    $('creatorDescription').value = existing.data.description || '';
+    state.program = Array.isArray(state.draft.program) ? state.draft.program : [];
+    $('creatorProgram').value = formatCreatorProgram(state.program);
   }
   render();
 });

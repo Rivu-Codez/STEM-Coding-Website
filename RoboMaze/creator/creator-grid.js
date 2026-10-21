@@ -35,7 +35,7 @@ export function validateDraft(draft, academyLevel) {
   if (inBounds(start) && draft.grid[start.y][start.x] === 1) errors.push('The start cell cannot be a wall.');
   if (inBounds(goal) && draft.grid[goal.y][goal.x] === 1) errors.push('The goal cell cannot be a wall.');
   if (academyLevel === 31 && walls < 3) errors.push('Level 31 needs at least 3 wall tiles.');
-  if (academyLevel === 33 && walls < 1) errors.push('Level 33 needs at least 1 wall obstacle behind the target route.');
+  if (academyLevel === 33 && walls < 1) errors.push('Level 33 needs at least 1 wall obstacle on the route.');
   if (academyLevel === 34 && walls < 3) errors.push('Level 34 needs at least 3 walls for a meaningful debugging challenge.');
   if (!errors.length) {
     const queue = [[start.x, start.y]];

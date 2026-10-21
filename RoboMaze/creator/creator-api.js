@@ -5,6 +5,11 @@ export async function loadLatestCreatorLevel(academyLevel = 31) {
   return { ...result, data: result.data || null };
 }
 
+export async function loadPublishedCreatorLevel(shareCode) {
+  const result = await client().rpc('get_published_creator_level', { p_share_code: shareCode });
+  return { ...result, data: result.data || null };
+}
+
 export async function submitCreatorAttempt(creatorLevelId, program) {
   const attemptId = window.crypto?.randomUUID?.();
   if (!attemptId) return { ok: false, error: 'Attempt ID unavailable.' };

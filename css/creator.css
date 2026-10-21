@@ -23,5 +23,8 @@ input,textarea,select { width: 100%; padding: 11px 12px; border-radius: 9px; bor
 .validation { padding: 12px; border-radius: 10px; background: #0b1222; } .validation strong { color: #fca5a5; } .validation strong.valid { color: #6ee7b7; } .validation ul { margin: 8px 0 0; padding-left: 20px; color: #cbd5e1; line-height: 1.5; }
 .actions { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; margin-top: 14px; } button { font: inherit; font-weight: 800; border: 0; border-radius: 9px; padding: 11px 12px; cursor: pointer; background: #0284c7; color: white; } button:disabled { opacity: .45; cursor: not-allowed; } button.primary { background: #10b981; } button.secondary { background: #475569; }
 .creator-status { padding: 10px; border-radius: 9px; background: #263650; color: #cbd5e1; } .creator-status.error { background: #881337; color: #fecdd3; } .creator-status.success { background: #065f46; color: #a7f3d0; }
+.program-status { padding: 9px 10px; border-radius: 9px; background: #263650; color: #cbd5e1; font-size: .88rem; line-height: 1.4; }
+.program-status.error { background: #881337; color: #fecdd3; } .program-status.success { background: #065f46; color: #a7f3d0; }
+.share-entry { display: grid; grid-template-columns: 1fr auto; gap: 8px; } .share-entry button { padding-inline: 16px; }
 .share-panel { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 12px; border-radius: 10px; background: #064e3b; color: #d1fae5; } .share-panel strong { font-size: 1.4rem; letter-spacing: .18em; }
 @media (max-width: 800px) { main { grid-template-columns: 1fr; } .actions { grid-template-columns: 1fr; } }

@@ -108,6 +108,10 @@ test('creator academy page and modules are present', () => {
   assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-controller.js')), true);
   assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-grid.js')), true);
   assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-program.js')), true);
+  const creatorLevels = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-levels.js'), 'utf8');
+  assert.match(creatorLevels, /Obstacle Geometry/);
+  assert.doesNotMatch(creatorLevels, /Dynamic Trajectory/);
 });
 
 test('integrated creator player uses the owner-read RPC', () => {
@@ -124,6 +128,11 @@ test('integrated creator player uses the owner-read RPC', () => {
   assert.match(migration, /grant execute on function public\.get_my_creator_level\(integer\) to authenticated/);
   assert.match(api, /rpc\('get_my_creator_level'/);
   assert.match(page, /data-creator-level="31"/);
+});
+
+test('all creator levels bypass the legacy canonical-level lock after academy unlock', () => {
+  const ui = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'ui.js'), 'utf8');
+  assert.match(ui, /isActive\?\.\(\) && nextIndex >= 30/);
 });
 
 test('creator validation fix qualifies recursive walk columns', () => {
@@ -147,4 +156,15 @@ test('creator challenge constraints are enforced by the database trigger', () =>
   for (const level of [31, 32, 33, 34, 35]) {
     assert.match(page, new RegExp(`data-creator-level="${level}"`));
   }
+});
+
+test('creator debugging requires a failed Level 34 attempt before success', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '018_creator_debug_gate.sql'),
+    'utf8',
+  );
+  assert.match(source, /enforce_creator_debug_gate/);
+  assert.match(source, /NEW\.result <> 'success'/);
+  assert.match(source, /prior_attempt\.result in \('collision', 'miss'\)/);
+  assert.match(source, /Level 34 requires a failed debugging attempt before success/);
 });

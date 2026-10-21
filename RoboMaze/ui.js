@@ -200,7 +200,7 @@ function resetLevel() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  const creatorLevelSelected = window.RoboMazeCreatorMode?.isActive?.() && nextIndex === 30;
+  const creatorLevelSelected = window.RoboMazeCreatorMode?.isActive?.() && nextIndex >= 30;
   if (!creatorLevelSelected && !RoboMazeProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;

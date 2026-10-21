@@ -1,5 +1,5 @@
 -- Read-only backend verification.
--- Run this in Supabase Dashboard > SQL Editor after migrations 001-017 are applied.
+-- Run this in Supabase Dashboard > SQL Editor after migrations 001-018 are applied.
 -- This file must not contain INSERT, UPDATE, DELETE, or ALTER statements.
 
 -- 1. Required authoritative functions should exist.

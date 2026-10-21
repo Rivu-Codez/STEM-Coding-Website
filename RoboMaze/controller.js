@@ -3,7 +3,7 @@ import { RoboMazeSimulation } from './simulation.js';
 import { createRoboMazeRenderer } from './renderer.js';
 import { bindRoboMazeEvents } from './events.js';
 import { createGamePersistence } from '../js/game-persistence.js';
-import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-api.js';
+import { loadLatestCreatorLevel, loadPublishedCreatorLevel, submitCreatorAttempt } from './creator/creator-api.js';
 
 // --- B. GAME STATE VARIABLES ---
     let currentLevelIndex = 0;
@@ -323,6 +323,7 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
         instruction: `<strong>Creator Academy:</strong> Navigate the maze you designed. Your solution is validated securely by the server.`,
         grid,
         start: { ...definition.start },
+        creatorProgram: Array.isArray(definition.program) ? definition.program : [],
       };
     }
 
@@ -358,11 +359,44 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
         creatorMode = true;
         window.RoboMazeCreatorMode.isActive = () => creatorMode;
         window.changeLevel(creatorRuntimeIndexes.get(academyLevel));
+        studentProgram = selectedCreatorLevel.creatorProgram || [];
+        renderProgramWorkspace();
+        updatePythonCode();
         return;
       }
       creatorMode = false;
       window.RoboMazeCreatorMode.isActive = () => creatorMode;
       changeLevel(index);
+    }
+
+    async function loadSharedLevel(code) {
+      if (!/^\d{6}$/.test(code)) {
+        triggerMessage('Enter a valid 6-digit share code.', 'error');
+        return;
+      }
+      const result = await loadPublishedCreatorLevel(code);
+      if (result.error || !result.data) {
+        triggerMessage('That shared level was not found or is no longer published.', 'error');
+        return;
+      }
+      const academyLevel = Number(result.data.academy_level);
+      const level = toRuntimeCreatorLevel(result.data, academyLevel);
+      if (!level) {
+        triggerMessage('The shared level has an invalid definition.', 'error');
+        return;
+      }
+      creatorLevels.set(academyLevel, level);
+      creatorRuntimeIndexes.set(academyLevel, runtimeLevels.length);
+      runtimeLevels.push(level);
+      creatorLevel = level;
+      creatorLevelNumber = academyLevel;
+      creatorMode = true;
+      window.RoboMazeCreatorMode.isActive = () => creatorMode;
+      window.changeLevel(creatorRuntimeIndexes.get(academyLevel));
+      studentProgram = level.creatorProgram || [];
+      renderProgramWorkspace();
+      updatePythonCode();
+      triggerMessage(`Shared Creator Academy Level ${academyLevel} loaded.`, 'success');
     }
 
     window.RoboMazeModule = window.StemGameModule.create({
@@ -389,6 +423,8 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
           await loadCreatorLevels();
           bindCreatorPickerState();
           window.RoboMazeModule.loadLevel(1);
+          const sharedCode = new URLSearchParams(window.location.search).get('share');
+          if (sharedCode) await loadSharedLevel(sharedCode);
         });
       } else {
         window.RoboMazeModule.loadLevel(1);
@@ -405,4 +441,4 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
       });
     };
 
-  bindRoboMazeEvents({ changeLevel: selectLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate });
+  bindRoboMazeEvents({ changeLevel: selectLevel, loadSharedLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate });
