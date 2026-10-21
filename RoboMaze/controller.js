@@ -333,6 +333,10 @@ import { loadLatestCreatorLevel, submitCreatorAttempt } from './creator/creator-
 
     async function selectLevel(index) {
       if (index === 'creator-31') {
+        if (!window.StemGamePlatform?.isCreatorUnlocked?.()) {
+          triggerMessage('Complete Level 30 to unlock Creator Academy.', 'error');
+          return;
+        }
         if (!creatorLevel) {
           triggerMessage('Design and save your Level 31 in Creator Academy first.', 'error');
           window.location.href = 'creator.html?academyLevel=31';

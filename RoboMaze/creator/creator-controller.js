@@ -89,4 +89,12 @@ $('copyCode').addEventListener('click', async () => {
   await navigator.clipboard.writeText($('shareCode').textContent);
   setStatus('Share code copied.', 'success');
 });
-window.addEventListener('load', () => { window.StemGameAuth.init('robo_maze', { requireSession: true }); render(); });
+window.addEventListener('load', async () => {
+  await window.StemGameAuth.init('robo_maze', { requireSession: true });
+  if (!window.StemGamePlatform.isCreatorUnlocked()) {
+    setStatus('Complete RoboMaze Level 30 to unlock Creator Academy.', 'error');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+    return;
+  }
+  render();
+});

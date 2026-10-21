@@ -16,10 +16,13 @@
       return;
     }
     const unlocked = [1];
+    let level30Completed = false;
     (result.data || []).forEach(row => {
       if (["completed", "unlocked"].includes(row.status)) unlocked.push(row.level_number);
+      if (row.level_number === 30 && row.status === "completed") level30Completed = true;
     });
     platform().setUnlocked(unlocked);
+    platform().setCreatorUnlocked(level30Completed);
   }
 
   window.StemProgressApi = {
