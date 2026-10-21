@@ -1,0 +1,204 @@
+/* AIMORA Expo visual system: bright, friendly, and consistent across the platform. */
+:root {
+  --aimora-indigo: #5964e8;
+  --aimora-violet: #8b5cf6;
+  --aimora-pink: #d946ef;
+  --aimora-orange: #ff9d5c;
+  --aimora-ink: #242449;
+  --aimora-muted: #6f7394;
+  --aimora-line: rgba(104, 93, 203, .18);
+  --aimora-card: rgba(255, 255, 255, .96);
+  --aimora-shadow: 0 18px 50px rgba(53, 45, 125, .16);
+}
+
+body {
+  color: var(--aimora-ink) !important;
+  background: linear-gradient(135deg, #5665ed 0%, #845df1 52%, #d85ce8 100%) !important;
+  font-family: "Nunito", "Manrope", sans-serif !important;
+}
+
+h1, h2, h3, h4, button, .brand, .btn-nav, .level-select, .game-label, .stat-pill, .eyebrow, strong {
+  font-weight: 800 !important;
+}
+.level-header h2, .panel-heading h2 { font-weight: 900 !important; letter-spacing: -.025em; }
+.instruction-card, .status-toast, .validation, .program-status { font-weight: 600; }
+.btn-action, .btn-block, .button, .shared-level-entry button { font-weight: 800 !important; }
+
+button, input, textarea, select { font-family: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid rgba(255, 157, 92, .65) !important;
+  outline-offset: 3px;
+}
+
+/* Authentication */
+.auth-card {
+  width: min(920px, 100%) !important;
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 34px;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 28px !important;
+  background: var(--aimora-card) !important;
+  box-shadow: var(--aimora-shadow) !important;
+}
+.auth-card::before {
+  content: "AIMORA\A Learn. Build. Explore.";
+  white-space: pre;
+  display: flex;
+  align-items: flex-end;
+  min-height: 540px;
+  padding: 38px;
+  color: #fff;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1.12;
+  background: radial-gradient(circle at 78% 22%, rgba(255,255,255,.22) 0 8%, transparent 8.5%), linear-gradient(155deg, #5465ed, #8e5df4 55%, #d957e7);
+}
+.auth-card > section { padding: 42px 42px 38px 0; }
+.auth-card .brand { color: var(--aimora-indigo); letter-spacing: .04em; }
+.auth-card h1 { color: var(--aimora-ink); font-size: clamp(2rem, 4vw, 2.7rem); letter-spacing: -.04em; }
+.auth-card p { color: var(--aimora-muted); }
+.auth-form input, .auth-card button { border-radius: 12px !important; }
+.auth-form input { border-color: var(--aimora-line) !important; background: #faf9ff !important; }
+.auth-card button:not(.secondary) { background: linear-gradient(135deg, var(--aimora-orange), #ff865d) !important; box-shadow: 0 8px 18px rgba(255, 141, 92, .26); }
+.auth-card button.secondary { color: var(--aimora-indigo) !important; }
+
+/* Dashboard */
+.dashboard-shell { width: min(1180px, 100%) !important; padding-top: 28px !important; }
+.dashboard-header { border-bottom: 0 !important; }
+.brand-line { color: #fff !important; }
+.brand-home { text-decoration: none !important; cursor: pointer; font-size: clamp(1.4rem, 2.4vw, 1.8rem) !important; }
+.brand-home:hover { filter: brightness(1.12); }
+.brand-mark { background: rgba(255,255,255,.18) !important; color: #fff !important; }
+.eyebrow { color: var(--aimora-indigo) !important; }
+.dashboard-header .eyebrow, .dashboard-header h1, .dashboard-header .intro { color: #fff !important; }
+.dashboard-header .brand-line { font-size: clamp(1.08rem, 2vw, 1.38rem) !important; letter-spacing: .08em; }
+.dashboard-header h1 { font-size: clamp(2.25rem, 4.4vw, 3.6rem) !important; }
+.profile-card, .game-card { border: 0 !important; border-radius: 24px !important; box-shadow: var(--aimora-shadow) !important; }
+.profile-card { border-top: 0 !important; }
+.avatar { background: linear-gradient(135deg, #e7d9ff, #f7d8ff) !important; color: var(--aimora-violet) !important; }
+.game-card { transition: transform .2s ease, box-shadow .2s ease; }
+.game-card::after { background: linear-gradient(135deg, rgba(89,100,232,.14), rgba(217,70,239,.1)) !important; }
+.game-card:hover { transform: translateY(-6px) !important; box-shadow: 0 24px 55px rgba(53,45,125,.22) !important; }
+.physics-card, .coding-card { border-top: 0 !important; }
+.game-icon { background: linear-gradient(135deg, #e7e3ff, #f6dfff) !important; color: var(--aimora-indigo) !important; }
+.coding-card .game-icon { background: linear-gradient(135deg, #ffe1cf, #ffe9ba) !important; color: #ec7b42 !important; }
+.game-label, .physics-label, .coding-label { color: var(--aimora-indigo) !important; }
+.coding-label { color: #e87945 !important; }
+.progress-track { background: #eeeaff !important; }
+.progress-track span { background: linear-gradient(90deg, var(--aimora-indigo), var(--aimora-pink)) !important; }
+.coding-card .progress-track span { background: linear-gradient(90deg, var(--aimora-orange), #f973a8) !important; }
+.stat-grid div { background: #faf8ff !important; }
+.button { border-radius: 12px !important; background: linear-gradient(135deg, var(--aimora-indigo), var(--aimora-violet)) !important; }
+.button-quiet { background: rgba(255,255,255,.16) !important; border-color: rgba(255,255,255,.42) !important; color: #fff !important; }
+.dashboard-shell .button-quiet { color: var(--aimora-indigo) !important; background: #fff !important; border-color: var(--aimora-line) !important; }
+.button-disabled { background: #e8e5f3 !important; color: #9290aa !important; }
+
+/* Games and Creator Academy */
+body:has(#gameCanvas), body:has(#creatorGrid) { color: var(--aimora-ink) !important; background: linear-gradient(145deg, #5966ed 0%, #8d5cf3 52%, #d95ee8 100%) !important; }
+body:has(#gameCanvas) header, body:has(#creatorGrid) header { background: transparent !important; border-bottom-color: rgba(255,255,255,.24) !important; }
+body:has(#gameCanvas) main, body:has(#creatorGrid) main { width: 100% !important; max-width: 1240px !important; }
+body:has(#gameCanvas) main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+body:has(#gameCanvas) main > .panel, body:has(#creatorGrid) main > .panel { min-width: 0 !important; }
+body:has(#pythonEditor) .level-header { display: grid !important; grid-template-columns: minmax(170px, .7fr) minmax(260px, 1.3fr) !important; align-items: center !important; }
+body:has(#pythonEditor) .level-header .shared-level-entry { grid-column: 1 / -1; min-width: 0; }
+body:has(#pythonEditor) .level-select { min-width: 0; width: 100%; }
+body:has(#pythonEditor) .toolbox { min-width: 0; }
+body:has(#pythonEditor) .btn-block { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+body:has(#angleSlider) main { grid-template-columns: 1.3fr 1fr !important; }
+body:has(#angleSlider) .control-group { background: #111832 !important; border-color: #3d4774 !important; color: #fff !important; }
+body:has(#angleSlider) .control-header { color: #fff !important; }
+body:has(#angleSlider) #speedSubtext { color: #c4c9e7 !important; }
+body:has(#angleSlider) .metric-card { background: #f1efff !important; border-color: #bbb5e8 !important; }
+body:has(#angleSlider) .metric-card span { color: #68658e !important; }
+body:has(#angleSlider) .metric-card strong { color: var(--aimora-ink) !important; }
+body:has(#angleSlider) .review-panel { background: #111832 !important; color: #fff !important; }
+body:has(#angleSlider) .tutor-hint,
+body:has(#angleSlider) #tutorHint {
+  background: #fff5df !important;
+  border-left-color: #f59e0b !important;
+  color: #4b356e !important;
+  box-shadow: 0 8px 20px rgba(61,45,115,.12) !important;
+}
+body:has(#angleSlider) .tutor-hint strong,
+body:has(#angleSlider) #tutorHint strong { color: #4b356e !important; }
+body:has(#angleSlider) .tutor-hint button,
+body:has(#angleSlider) #tutorHint button {
+  background: #a95716 !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+}
+body:has(#gameCanvas) canvas { max-width: 100%; height: auto; }
+body:has(#gameCanvas) .panel, body:has(#creatorGrid) .panel {
+  border: 1px solid rgba(255,255,255,.32) !important;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.94) !important;
+  color: var(--aimora-ink) !important;
+  box-shadow: 0 20px 60px rgba(31, 25, 105, .28) !important;
+  backdrop-filter: blur(12px);
+}
+body:has(#gameCanvas) .panel h2, body:has(#gameCanvas) .panel h3, body:has(#creatorGrid) .panel h1, body:has(#creatorGrid) .panel h2 { color: var(--aimora-ink) !important; }
+body:has(#gameCanvas) .brand, body:has(#creatorGrid) .brand { color: #fff !important; }
+body:has(#gameCanvas) .brand-home:hover { color: #fff !important; }
+body:has(#gameCanvas) .btn-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,.58) !important;
+  border-radius: 12px;
+  background: rgba(39,36,104,.48);
+  color: #fff !important;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition: transform .15s ease, background .15s ease, filter .15s ease;
+}
+body:has(#gameCanvas) .btn-nav:hover { background: rgba(255,255,255,.2); filter: brightness(1.08); transform: translateY(-1px); }
+body:has(#gameCanvas) .btn-nav.is-locked { color: #f1edff !important; opacity: .86; }
+body:has(#gameCanvas) .btn-nav, body:has(#creatorGrid) nav a { color: #fff !important; border-color: rgba(255,255,255,.58) !important; }
+body:has(#gameCanvas) .stat-pill { background: rgba(39, 36, 104, .55) !important; border-color: rgba(255,255,255,.25) !important; color: #fff !important; }
+body:has(#gameCanvas) .level-select, body:has(#gameCanvas) input, body:has(#gameCanvas) textarea, body:has(#gameCanvas) select,
+body:has(#creatorGrid) input, body:has(#creatorGrid) textarea, body:has(#creatorGrid) select { border-color: rgba(255,255,255,.28) !important; background: rgba(12, 16, 46, .58) !important; color: #fff !important; }
+body:has(#gameCanvas) .level-select option {
+  background: #111832;
+  color: #fff;
+}
+body:has(#gameCanvas) .level-select option:disabled,
+body:has(#gameCanvas) .level-select option[disabled] {
+  background: #3d4668;
+  color: #d8dcf2;
+}
+body:has(#gameCanvas) .level-select option:checked {
+  background: #256bd4;
+  color: #fff;
+}
+body:has(#gameCanvas) .instruction-card { background: linear-gradient(135deg, #eee9ff, #f7e7ff) !important; border-left-color: var(--aimora-violet) !important; color: #514c91 !important; }
+body:has(#gameCanvas) .canvas-container { background: rgba(8, 12, 35, .7) !important; border-color: rgba(255,255,255,.2) !important; }
+body:has(#gameCanvas) .status-toast { border-radius: 14px !important; background: #eeeaff !important; color: #514c91 !important; }
+body:has(#gameCanvas) .btn-block, body:has(#gameCanvas) .btn-action, body:has(#creatorGrid) button { border-radius: 13px !important; }
+body:has(#gameCanvas) .btn-run, body:has(#gameCanvas) .btn-fire, body:has(#creatorGrid) button.primary { background: linear-gradient(135deg, #ffac69, #ff7e69) !important; }
+body:has(#gameCanvas) .btn-step { background: linear-gradient(135deg, #746df4, #a855f7) !important; }
+body:has(#gameCanvas) .btn-reset { background: #4f5878 !important; color: #fff !important; box-shadow: 0 5px 0 #353c59 !important; }
+body:has(#creatorGrid) button.secondary { background: #4f5878 !important; color: #fff !important; }
+body:has(#gameCanvas) .program-area, body:has(#gameCanvas) .python-code-box { border-color: rgba(255,255,255,.22) !important; background: rgba(8, 12, 35, .7) !important; }
+body:has(#gameCanvas) .program-empty, body:has(#gameCanvas) .python-code-box { color: #d9d8f4 !important; }
+body:has(#gameCanvas) .program-empty br + *, body:has(#gameCanvas) .py-comment { color: #aaa8cf !important; }
+body:has(#gameCanvas) .modal-card, body:has(#gameCanvas) .learning-gate { border: 1px solid rgba(255,255,255,.28) !important; border-radius: 22px !important; box-shadow: var(--aimora-shadow) !important; }
+body:has(#creatorGrid) .panel { color: var(--aimora-ink) !important; }
+body:has(#creatorGrid) .hint, body:has(#creatorGrid) label { color: #5d5a92 !important; }
+body:has(#creatorGrid) .creator-status, body:has(#creatorGrid) .validation, body:has(#creatorGrid) .program-status { background: #f0ecff !important; color: #514c91 !important; }
+body:has(#creatorGrid) .creator-grid { background: rgba(8, 12, 35, .72) !important; border-color: rgba(255,255,255,.24) !important; }
+body:has(#creatorGrid) .creator-cell { background: rgba(255,255,255,.1) !important; border-radius: 10px !important; }
+body:has(#creatorGrid) .creator-cell.wall { background: #59657c !important; }
+body:has(#creatorGrid) .creator-cell.start { background: #21a9e8 !important; }
+body:has(#creatorGrid) .creator-cell.goal { background: var(--aimora-orange) !important; }
+body:has(#creatorGrid) .share-panel { background: linear-gradient(135deg, #695ee7, #bb5de8) !important; }
+
+@media (max-width: 760px) {
+  .auth-card { grid-template-columns: 1fr; gap: 0; }
+  .auth-card::before { min-height: 180px; align-items: center; padding: 28px; }
+  .auth-card > section { padding: 30px 28px; }
+}

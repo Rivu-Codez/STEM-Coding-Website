@@ -83,3 +83,88 @@ test('tutor reliability contract includes retry states and quota refund', () => 
   }
   assert.match(quotaMigration, /refund_tutor_quota/);
 });
+
+test('creator migration protects drafts and validates published mazes', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '014_creator_levels.sql'),
+    'utf8',
+  );
+  assert.match(source, /create table public\.creator_levels/);
+  assert.match(source, /create table public\.creator_level_attempts/);
+  assert.match(source, /create table public\.creator_level_progress/);
+  assert.match(source, /alter table public\.creator_levels enable row level security/);
+  assert.match(source, /validate_creator_level/);
+  assert.match(source, /Grid must be exactly 8 by 8/);
+  assert.match(source, /goal must be reachable/i);
+  assert.match(source, /publish_creator_level/);
+  assert.match(source, /submit_creator_level_attempt/);
+  assert.match(source, /server_validated/);
+  assert.match(source, /share_code/);
+  assert.match(source, /revoke all on function public\.publish_creator_level/);
+});
+
+test('creator academy page and modules are present', () => {
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator.html')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-controller.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-grid.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js')), true);
+  assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-program.js')), true);
+  const creatorLevels = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-levels.js'), 'utf8');
+  assert.match(creatorLevels, /Obstacle Geometry/);
+  assert.doesNotMatch(creatorLevels, /Dynamic Trajectory/);
+});
+
+test('integrated creator player uses the owner-read RPC', () => {
+  const migration = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '015_creator_level_read_rpc.sql'),
+    'utf8',
+  );
+  const api = fs.readFileSync(
+    path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js'),
+    'utf8',
+  );
+  const page = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'index.html'), 'utf8');
+  assert.match(migration, /create or replace function public\.get_my_creator_level/);
+  assert.match(migration, /grant execute on function public\.get_my_creator_level\(integer\) to authenticated/);
+  assert.match(api, /rpc\('get_my_creator_level'/);
+  assert.match(page, /data-creator-level="31"/);
+});
+
+test('all creator levels bypass the legacy canonical-level lock after academy unlock', () => {
+  const ui = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'ui.js'), 'utf8');
+  assert.match(ui, /isActive\?\.\(\) && nextIndex >= 30/);
+});
+
+test('creator validation fix qualifies recursive walk columns', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '016_fix_creator_validation_walk.sql'),
+    'utf8',
+  );
+  assert.match(source, /walk\.x = goal_x/);
+  assert.match(source, /walk\.x \+ 1, walk\.y/);
+});
+
+test('creator challenge constraints are enforced by the database trigger', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '017_creator_challenge_constraints.sql'),
+    'utf8',
+  );
+  const page = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'index.html'), 'utf8');
+  assert.match(source, /enforce_creator_level_constraints/);
+  assert.match(source, /Level 33 requires at least 1 wall obstacle/);
+  assert.match(source, /Level 34 requires at least 3 wall obstacles/);
+  for (const level of [31, 32, 33, 34, 35]) {
+    assert.match(page, new RegExp(`data-creator-level="${level}"`));
+  }
+});
+
+test('creator debugging requires a failed Level 34 attempt before success', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '018_creator_debug_gate.sql'),
+    'utf8',
+  );
+  assert.match(source, /enforce_creator_debug_gate/);
+  assert.match(source, /NEW\.result <> 'success'/);
+  assert.match(source, /prior_attempt\.result in \('collision', 'miss'\)/);
+  assert.match(source, /Level 34 requires a failed debugging attempt before success/);
+});

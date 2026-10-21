@@ -8,7 +8,7 @@
   <title>RoboLogic: STEM Coding Maze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     /* ==========================================================================
        1. CORE THEME & RESPONSIVE LAYOUT (Clean, Kid-Friendly, Zero Dependencies)
@@ -50,6 +50,7 @@
       gap: 6px;
     }
     .btn-nav:hover { background: #475569; }
+    .btn-nav.is-locked { color: #94a3b8; opacity: .72; cursor: not-allowed; }
     .stats-bar { display: flex; gap: 10px; font-size: 0.9rem; font-weight: 600; }
     .stat-pill { background: rgba(51,65,85,.72); border: 1px solid #475569; padding: 7px 13px; border-radius: 9999px; display: flex; align-items: center; gap: 6px; }
     .stat-xp { color: #fbbf24; }
@@ -90,6 +91,9 @@
       font-weight: 600;
       cursor: pointer;
     }
+    .shared-level-entry { display: flex; gap: 6px; width: 100%; margin-top: 6px; }
+    .shared-level-entry input { flex: 1; min-width: 0; background: #0f172a; color: #f8fafc; border: 1px solid #475569; padding: 8px 10px; border-radius: 8px; }
+    .shared-level-entry button { background: #0ea5e9; color: white; border: 0; border-radius: 8px; padding: 8px 10px; font-weight: 700; cursor: pointer; }
     .instruction-card {
       background: rgba(56, 189, 248, 0.12);
       border-left: 4px solid #38bdf8;
@@ -334,6 +338,7 @@
   <script src="progress-service.js"></script>
   <script src="learning-gate.js"></script>
   <script src="ui.js"></script>
+  <link rel="stylesheet" href="../css/aimora-theme.css">
 </head>
 <body>
 
@@ -341,8 +346,10 @@
        2. UI HEADER & WORKSPACE
        ========================================================================== -->
   <header>
-    <div class="brand">🤖 <span>RoboLogic</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">| STEM Coding Maze</span></div>
+    <a class="brand brand-home" href="../dashboard.html" aria-label="RoboLogic dashboard">🤖 <span>RoboLogic</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">| STEM Coding Maze</span></a>
     <div class="nav-links">
+      <a class="btn-nav" href="../dashboard.html">Dashboard</a>
+      <a class="btn-nav is-locked" id="creatorAcademyLink" href="#" aria-disabled="true" title="Complete Level 30 to unlock Creator Academy">🔒 Creator Academy</a>
       <div class="stats-bar">
         <div class="stat-pill"><span class="stat-xp">⭐</span> <span id="xpCount">100 XP</span></div>
         <div class="stat-pill"><span class="stat-streak">🔥</span> <span id="streakCount">3 Days</span></div>
@@ -386,7 +393,16 @@
           <option value="27">Level 28: Compact Program</option>
           <option value="28">Level 29: Advanced Conditionals</option>
           <option value="29">Level 30: Final Logic Maze</option>
+          <option value="creator-31" data-creator-level="31" disabled>🔒 Creator Academy: Unlock after Level 30</option>
+          <option value="creator-32" data-creator-level="32" disabled>🔒 Creator Academy: Level 32</option>
+          <option value="creator-33" data-creator-level="33" disabled>🔒 Creator Academy: Level 33</option>
+          <option value="creator-34" data-creator-level="34" disabled>🔒 Creator Academy: Level 34</option>
+          <option value="creator-35" data-creator-level="35" disabled>🔒 Creator Academy: Level 35</option>
         </select>
+        <div class="shared-level-entry" aria-label="Play a shared Creator Academy level">
+          <input id="sharedLevelCode" inputmode="numeric" maxlength="6" placeholder="6-digit share code" aria-label="Shared level code">
+          <button id="playSharedLevel" type="button">Play shared level</button>
+        </div>
       </div>
 
       <div class="instruction-card" id="levelInstruction">

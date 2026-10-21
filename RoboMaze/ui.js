@@ -144,7 +144,9 @@ function loadPythonProgram() {
 
 function validateProgramRules() {
   const level = LEVELS[currentLevelIndex];
-  const maxBlocks = level.maxBlocks || (currentLevelIndex >= 10 ? 12 : Infinity);
+  const maxBlocks = window.RoboMazeCreatorMode?.isActive?.()
+    ? 40
+    : (level.maxBlocks || (currentLevelIndex >= 10 ? 12 : Infinity));
   if (studentProgram.length > maxBlocks) {
     triggerMessage(`This level allows at most ${maxBlocks} blocks. Simplify your program.`, 'error');
     return false;
@@ -158,6 +160,7 @@ function conceptRequirementMet() {
 }
 
 async function restoreLearningCheckpoint() {
+  if (window.RoboMazeCreatorMode?.isActive?.()) return;
   const state = await RoboMazeProgress.restoreCheckpoint(currentLevelIndex);
   if (!state || state.failures.length < 3) return;
   RoboMazeLearningGateInstance.restore(state.failures[state.failures.length - 1].category);
@@ -197,7 +200,8 @@ function resetLevel() {
 
 function changeLevel(index) {
   const nextIndex = parseInt(index, 10);
-  if (!RoboMazeProgress.isLevelUnlocked(nextIndex)) {
+  const creatorLevelSelected = window.RoboMazeCreatorMode?.isActive?.() && nextIndex >= 30;
+  if (!creatorLevelSelected && !RoboMazeProgress.isLevelUnlocked(nextIndex)) {
     document.getElementById('levelPicker').value = currentLevelIndex;
     return;
   }

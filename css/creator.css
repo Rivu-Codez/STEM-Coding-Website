@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; font-family: Manrope, sans-serif; color: #f8fafc; background: radial-gradient(circle at 80% 0, #23336a, transparent 35%), #080e1d; }
+header { min-height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 14px 4vw; border-bottom: 1px solid #334155; background: rgba(15,23,42,.95); }
+a { color: #7dd3fc; text-decoration: none; font-weight: 700; }
+.brand { color: #f8fafc; font-size: 1.2rem; }
+.brand span { color: #38bdf8; margin-left: 8px; }
+nav { display: flex; gap: 16px; }
+main { width: min(1180px, 92vw); margin: 24px auto; display: grid; grid-template-columns: .8fr 1.2fr; gap: 20px; }
+.panel { padding: 22px; border: 1px solid #334155; border-radius: 18px; background: linear-gradient(145deg,#1e293b,#0f172a); box-shadow: 0 16px 34px rgba(0,0,0,.28); }
+.intro-panel { display: flex; flex-direction: column; gap: 10px; }
+.eyebrow { color: #fbbf24; font-weight: 800; letter-spacing: .12em; font-size: .75rem; }
+h1,h2,p { margin: 0; } h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); } h2 { font-size: 1.25rem; } .hint { color: #bae6fd; line-height: 1.5; }
+label { color: #cbd5e1; font-weight: 700; margin-top: 10px; }
+input,textarea,select { width: 100%; padding: 11px 12px; border-radius: 9px; border: 1px solid #475569; background: #0b1222; color: #f8fafc; font: inherit; }
+.panel-heading { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 16px; }
+.panel-heading strong { color: #fbbf24; white-space: nowrap; }
+.creator-grid { width: min(100%, 520px); aspect-ratio: 1; margin: 0 auto; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 4px; padding: 6px; background: #070b14; border: 1px solid #475569; border-radius: 14px; }
+.creator-cell { border: 0; border-radius: 6px; min-width: 0; min-height: 0; width: 100%; height: 100%; background: #1e293b; color: #f8fafc; font-size: clamp(1rem, 3vw, 1.6rem); cursor: pointer; box-shadow: inset 0 0 0 1px #334155; }
+.creator-cell:hover, .creator-cell:focus-visible { outline: 3px solid #38bdf8; outline-offset: 1px; }
+.creator-cell.wall { background: #475569; color: #cbd5e1; } .creator-cell.start { background: #0284c7; } .creator-cell.goal { background: #d97706; color: #fff7ed; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 14px 0; color: #cbd5e1; font-size: .85rem; }
+.legend span { display: flex; align-items: center; gap: 5px; } .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; background: #1e293b; } .legend .wall { background: #475569; } .legend .start { background: #0284c7; } .legend .goal { background: #d97706; }
+.validation { padding: 12px; border-radius: 10px; background: #0b1222; } .validation strong { color: #fca5a5; } .validation strong.valid { color: #6ee7b7; } .validation ul { margin: 8px 0 0; padding-left: 20px; color: #cbd5e1; line-height: 1.5; }
+.actions { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; margin-top: 14px; } button { font: inherit; font-weight: 800; border: 0; border-radius: 9px; padding: 11px 12px; cursor: pointer; background: #0284c7; color: white; } button:disabled { opacity: .45; cursor: not-allowed; } button.primary { background: #10b981; } button.secondary { background: #475569; }
+.creator-status { padding: 10px; border-radius: 9px; background: #263650; color: #cbd5e1; } .creator-status.error { background: #881337; color: #fecdd3; } .creator-status.success { background: #065f46; color: #a7f3d0; }
+.program-status { padding: 9px 10px; border-radius: 9px; background: #263650; color: #cbd5e1; font-size: .88rem; line-height: 1.4; }
+.program-status.error { background: #881337; color: #fecdd3; } .program-status.success { background: #065f46; color: #a7f3d0; }
+.share-entry { display: grid; grid-template-columns: 1fr auto; gap: 8px; } .share-entry button { padding-inline: 16px; }
+.share-panel { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 12px; border-radius: 10px; background: #064e3b; color: #d1fae5; } .share-panel strong { font-size: 1.4rem; letter-spacing: .18em; }
+@media (max-width: 800px) { main { grid-template-columns: 1fr; } .actions { grid-template-columns: 1fr; } }

@@ -1,6 +1,6 @@
 (function () {
   const config = window.STEM_SUPABASE_CONFIG || {};
-  const state = { client: null, session: null, gameId: null, unlocked: new Set([1]) };
+  const state = { client: null, session: null, gameId: null, unlocked: new Set([1]), creatorUnlocked: false };
 
   function showStatus(message) {
     const target = document.getElementById("statusMessage") || document.getElementById("loginMessage");
@@ -26,10 +26,21 @@
 
   function applyLevelAccess() {
     const picker = document.getElementById("levelPicker");
-    if (!picker) return;
-    [...picker.options].forEach(option => {
+    if (picker) [...picker.options].forEach(option => {
+      if (option.dataset?.creatorLevel) {
+        option.disabled = !state.creatorUnlocked;
+        return;
+      }
       option.disabled = !state.unlocked.has(Number(option.value) + 1);
     });
+    const link = document.getElementById("creatorAcademyLink");
+    if (link) {
+      link.classList.toggle("is-locked", !state.creatorUnlocked);
+      link.textContent = state.creatorUnlocked ? "🛠️ Creator Academy" : "🔒 Creator Academy";
+      link.title = state.creatorUnlocked ? "Open Creator Academy" : "Complete Level 30 to unlock Creator Academy";
+      link.setAttribute("aria-disabled", String(!state.creatorUnlocked));
+      link.href = state.creatorUnlocked ? "creator.html" : "#";
+    }
   }
 
   window.StemGamePlatform = {
@@ -39,6 +50,8 @@
     getGameId() { return state.gameId; },
     setSession(session) { state.session = session; },
     setUnlocked(levels) { state.unlocked = new Set(levels); applyLevelAccess(); },
+    setCreatorUnlocked(value) { state.creatorUnlocked = Boolean(value); applyLevelAccess(); },
+    isCreatorUnlocked() { return state.creatorUnlocked; },
     isUnlocked(levelNumber) { return state.unlocked.has(levelNumber); },
     applyLevelAccess,
     initClient,

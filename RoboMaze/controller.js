@@ -3,6 +3,7 @@ import { RoboMazeSimulation } from './simulation.js';
 import { createRoboMazeRenderer } from './renderer.js';
 import { bindRoboMazeEvents } from './events.js';
 import { createGamePersistence } from '../js/game-persistence.js';
+import { loadLatestCreatorLevel, loadPublishedCreatorLevel, submitCreatorAttempt } from './creator/creator-api.js';
 
 // --- B. GAME STATE VARIABLES ---
     let currentLevelIndex = 0;
@@ -16,11 +17,31 @@ import { createGamePersistence } from '../js/game-persistence.js';
     let lastProgramSignature = '';
     const rewardedLevels = new Set();
     let lastReward = 0;
+    let creatorMode = false;
+    let creatorLevel = null;
+    let creatorLevelNumber = null;
+    const creatorLevels = new Map();
+    const creatorRuntimeIndexes = new Map();
+    const runtimeLevels = [...LEVELS];
+    window.LEVELS = runtimeLevels;
+    window.RoboMazeCreatorMode = { isActive: () => creatorMode };
     const persistence = createGamePersistence({
       gameId: 'robo_maze',
       auth: window.StemGameAuth,
       progress: window.RoboMazeProgress,
     });
+    const submitAttempt = (levelIndex, outcome, category, details) => creatorMode
+      ? submitCreatorAttempt(creatorLevel.id, details.program || studentProgram)
+      : persistence.submitAttempt(levelIndex, outcome, category, details);
+    const recordMistake = (levelIndex, category, details) => creatorMode
+      ? Promise.resolve({ ok: true })
+      : persistence.recordMistake(levelIndex, category, details);
+    const analyzeMistake = (levelIndex, category, details) => creatorMode
+      ? Promise.resolve(null)
+      : persistence.analyzeMistake(levelIndex, category, details);
+    const recordAchievement = (levelIndex) => creatorMode
+      ? Promise.resolve({ ok: true, data: { stars: 3, xp: 0, awarded: false } })
+      : persistence.recordAchievement(levelIndex);
 
     // ui.js is still a classic script, so expose its shared state explicitly.
     const exposeState = (name, read, write) => Object.defineProperty(window, name, {
@@ -47,14 +68,14 @@ import { createGamePersistence } from '../js/game-persistence.js';
     const resetLevel = (...args) => window.resetLevel(...args);
     const changeLevel = (...args) => window.changeLevel(...args);
     const learningGate = window.RoboMazeLearningGate.create({
-      getLevel: () => LEVELS[currentLevelIndex],
+      getLevel: () => runtimeLevels[currentLevelIndex],
       setLocked(locked) {
         learningLocked = locked;
         updateProgrammingMode();
       },
       triggerMessage,
       onReflection(selected) {
-        if (window.StemGameAuth) persistence.recordMistake(currentLevelIndex, 'reflection_completed', { selected });
+        if (window.StemGameAuth) recordMistake(currentLevelIndex, 'reflection_completed', { selected });
       },
     });
     window.RoboMazeLearningGateInstance = learningGate;
@@ -62,7 +83,7 @@ import { createGamePersistence } from '../js/game-persistence.js';
     const canvas = document.getElementById('gameCanvas');
     const drawGame = createRoboMazeRenderer({
       canvas,
-      levels: LEVELS,
+      levels: runtimeLevels,
       getLevelIndex: () => currentLevelIndex,
       getRobot: () => robot,
     });
@@ -74,7 +95,7 @@ import { createGamePersistence } from '../js/game-persistence.js';
 
     function executeSingleStep(stepObj) {
       // Directions: 0=UP, 1=RIGHT, 2=DOWN, 3=LEFT
-      const grid = LEVELS[currentLevelIndex].grid;
+      const grid = runtimeLevels[currentLevelIndex].grid;
 
       // 1.1 Conditional Evaluation
       if (stepObj.action === 'IF_PATH_CLEAR') {
@@ -90,8 +111,8 @@ import { createGamePersistence } from '../js/game-persistence.js';
         drawGame();
         if (grid[robot.y][robot.x] === 2) {
           if (!conceptRequirementMet()) {
-            if (window.StemGameAuth) persistence.recordMistake(currentLevelIndex, 'concept_not_applied', {
-              requiredBlock: LEVELS[currentLevelIndex].requiredBlock
+            if (window.StemGameAuth) recordMistake(currentLevelIndex, 'concept_not_applied', {
+              requiredBlock: runtimeLevels[currentLevelIndex].requiredBlock
             });
             resetLevel();
             triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
@@ -126,16 +147,16 @@ import { createGamePersistence } from '../js/game-persistence.js';
         if (RoboMazeSimulation.isBlocked(grid, next)) {
           triggerMessage("⚠️ Ouch! The robot bumped into a wall. Check your code!", "error");
           if (window.StemGameAuth) {
-            persistence.recordMistake(currentLevelIndex, "wall_collision", {
+            recordMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             });
             if (window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision");
-            persistence.analyzeMistake(currentLevelIndex, "wall_collision", {
+            analyzeMistake(currentLevelIndex, "wall_collision", {
               command: stepObj.action, position: { x: robot.x, y: robot.y }
             }).then(insight => {
               if (insight && window.StemTutor) window.StemTutor.show("robo_maze", "wall_collision", insight);
             });
-            persistence.submitAttempt(currentLevelIndex, "collision", "wall_collision", {
+            submitAttempt(currentLevelIndex, "collision", "wall_collision", {
               command: stepObj.action, program: studentProgram
             });
           }
@@ -153,12 +174,12 @@ import { createGamePersistence } from '../js/game-persistence.js';
       drawGame();
 
       // Check Victory Condition
-      if (LEVELS[currentLevelIndex].grid[robot.y][robot.x] === 2) {
+      if (runtimeLevels[currentLevelIndex].grid[robot.y][robot.x] === 2) {
         if (!conceptRequirementMet()) {
           triggerMessage('Goal reached, but this level requires the highlighted concept. Revise your program.', 'error');
           if (window.StemGameAuth) {
-            persistence.recordMistake(currentLevelIndex, 'concept_not_applied', {
-              requiredBlock: LEVELS[currentLevelIndex].requiredBlock
+            recordMistake(currentLevelIndex, 'concept_not_applied', {
+              requiredBlock: runtimeLevels[currentLevelIndex].requiredBlock
             });
           }
           resetLevel();
@@ -179,7 +200,7 @@ import { createGamePersistence } from '../js/game-persistence.js';
       if (!loadPythonProgram()) return;
       if (studentProgram.length === 0 || isExecuting || learningLocked) return;
       if (!validateProgramRules()) return;
-      if (window.StemGameAuth && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
+      if (window.StemGameAuth && !creatorMode && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       isExecuting = true;
       document.getElementById('btnRun').disabled = true;
       triggerMessage("Robot executing program...", "");
@@ -205,16 +226,16 @@ import { createGamePersistence } from '../js/game-persistence.js';
       const failureCategory = signature === lastProgramSignature ? "unchanged_program" : "program_incomplete";
       lastProgramSignature = signature;
       if (window.StemGameAuth) {
-        persistence.recordMistake(currentLevelIndex, failureCategory, {
+        recordMistake(currentLevelIndex, failureCategory, {
           steps: steps.length
         });
         if (window.StemTutor) window.StemTutor.show("robo_maze", failureCategory);
-        persistence.analyzeMistake(currentLevelIndex, failureCategory, {
+        analyzeMistake(currentLevelIndex, failureCategory, {
           steps: steps.length, program: studentProgram
         }).then(insight => {
           if (insight && window.StemTutor) window.StemTutor.show("robo_maze", failureCategory, insight);
         });
-        persistence.submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
+        submitAttempt(currentLevelIndex, "miss", "goal_not_reached", {
           steps: steps.length, program: studentProgram
         });
       }
@@ -229,7 +250,7 @@ import { createGamePersistence } from '../js/game-persistence.js';
       if (!loadPythonProgram()) return;
       if (studentProgram.length === 0 || learningLocked) return;
       if (!validateProgramRules()) return;
-      if (window.StemGameAuth && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
+      if (window.StemGameAuth && !creatorMode && !window.StemGameAuth.allowLevel(currentLevelIndex + 1)) return;
       const steps = expandProgramToSteps(studentProgram);
       if (currentStepIndex >= steps.length) {
         triggerMessage("Program ended. Tap 'Reset' to step again.", "");
@@ -248,18 +269,18 @@ import { createGamePersistence } from '../js/game-persistence.js';
     // Victory Modal Handlers
     async function showVictoryModal() {
       const modal = document.getElementById('victoryModal');
-      const level = LEVELS[currentLevelIndex];
+      const level = runtimeLevels[currentLevelIndex];
       let stars = 0;
       let reward = 0;
       if (window.StemGameAuth) {
-        const attempt = await persistence.submitAttempt(currentLevelIndex, "success", null, {
+        const attempt = await submitAttempt(currentLevelIndex, "success", null, {
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
           triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
           return;
         }
-        const achievement = await persistence.recordAchievement(currentLevelIndex);
+        const achievement = await recordAchievement(currentLevelIndex);
         if (!achievement?.ok) {
           triggerMessage('The solution was confirmed, but the reward could not be saved. Please refresh and retry.', 'error');
           return;
@@ -272,27 +293,117 @@ import { createGamePersistence } from '../js/game-persistence.js';
           userXP += reward;
           document.getElementById('xpCount').textContent = `${userXP} XP`;
         }
-        persistence.recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
+        recordMistake(currentLevelIndex, 'level_completed', { steps: studentProgram.length });
       }
       document.getElementById('modalTitle').textContent = `${level.title} Passed! ${'⭐'.repeat(stars)} (+${reward} XP)`;
       modal.style.display = 'flex';
     }
     function closeModalAndNext() {
       document.getElementById('victoryModal').style.display = 'none';
-      if (currentLevelIndex < LEVELS.length - 1) {
+      if (!creatorMode && currentLevelIndex < runtimeLevels.length - 1) {
         changeLevel(currentLevelIndex + 1);
         document.getElementById('levelPicker').value = currentLevelIndex;
       } else {
-        alert("🎉 Congratulations! You have completed all 30 levels in the RoboLogic Maze!");
+        alert(creatorMode
+          ? `🎉 Your Creator Academy Level ${creatorLevelNumber} is complete!`
+          : "🎉 Congratulations! You have completed all 30 levels in the RoboLogic Maze!");
         resetLevel();
       }
     }
 
+    function toRuntimeCreatorLevel(row, academyLevel) {
+      const definition = row?.definition;
+      if (!row?.id || !definition?.grid || !definition.start || !definition.goal) return null;
+      const grid = definition.grid.map((line, y) => line.map((cell, x) => (
+        x === definition.goal.x && y === definition.goal.y ? 2 : cell
+      )));
+      return {
+        id: row.id,
+        title: `Level ${academyLevel}: ${row.title || 'Creator Challenge'}`,
+        instruction: `<strong>Creator Academy:</strong> Navigate the maze you designed. Your solution is validated securely by the server.`,
+        grid,
+        start: { ...definition.start },
+        creatorProgram: Array.isArray(definition.program) ? definition.program : [],
+      };
+    }
+
+    async function loadCreatorLevels() {
+      const results = await Promise.all([31, 32, 33, 34, 35].map(async academyLevel => ({
+        academyLevel,
+        result: await loadLatestCreatorLevel(academyLevel),
+      })));
+      results.forEach(({ academyLevel, result }) => {
+        if (result.error || !result.data) return;
+        const level = toRuntimeCreatorLevel(result.data, academyLevel);
+        creatorLevels.set(academyLevel, level);
+        creatorRuntimeIndexes.set(academyLevel, runtimeLevels.length);
+        runtimeLevels.push(level);
+      });
+    }
+
+    async function selectLevel(index) {
+      if (typeof index === 'string' && index.startsWith('creator-')) {
+        const academyLevel = Number(index.slice('creator-'.length));
+        if (!window.StemGamePlatform?.isCreatorUnlocked?.()) {
+          triggerMessage('Complete Level 30 to unlock Creator Academy.', 'error');
+          return;
+        }
+        const selectedCreatorLevel = creatorLevels.get(academyLevel);
+        if (!selectedCreatorLevel) {
+          triggerMessage(`Design and save Creator Academy Level ${academyLevel} first.`, 'error');
+          window.location.href = `creator.html?academyLevel=${academyLevel}`;
+          return;
+        }
+        creatorLevel = selectedCreatorLevel;
+        creatorLevelNumber = academyLevel;
+        creatorMode = true;
+        window.RoboMazeCreatorMode.isActive = () => creatorMode;
+        window.changeLevel(creatorRuntimeIndexes.get(academyLevel));
+        studentProgram = selectedCreatorLevel.creatorProgram || [];
+        renderProgramWorkspace();
+        updatePythonCode();
+        return;
+      }
+      creatorMode = false;
+      window.RoboMazeCreatorMode.isActive = () => creatorMode;
+      changeLevel(index);
+    }
+
+    async function loadSharedLevel(code) {
+      if (!/^\d{6}$/.test(code)) {
+        triggerMessage('Enter a valid 6-digit share code.', 'error');
+        return;
+      }
+      const result = await loadPublishedCreatorLevel(code);
+      if (result.error || !result.data) {
+        triggerMessage('That shared level was not found or is no longer published.', 'error');
+        return;
+      }
+      const academyLevel = Number(result.data.academy_level);
+      const level = toRuntimeCreatorLevel(result.data, academyLevel);
+      if (!level) {
+        triggerMessage('The shared level has an invalid definition.', 'error');
+        return;
+      }
+      creatorLevels.set(academyLevel, level);
+      creatorRuntimeIndexes.set(academyLevel, runtimeLevels.length);
+      runtimeLevels.push(level);
+      creatorLevel = level;
+      creatorLevelNumber = academyLevel;
+      creatorMode = true;
+      window.RoboMazeCreatorMode.isActive = () => creatorMode;
+      window.changeLevel(creatorRuntimeIndexes.get(academyLevel));
+      studentProgram = level.creatorProgram || [];
+      renderProgramWorkspace();
+      updatePythonCode();
+      triggerMessage(`Shared Creator Academy Level ${academyLevel} loaded.`, 'success');
+    }
+
     window.RoboMazeModule = window.StemGameModule.create({
       gameId: 'robo_maze',
-      levels: LEVELS,
+      levels: runtimeLevels,
       loadLevel(levelNumber) {
-        changeLevel(levelNumber - 1);
+        selectLevel(levelNumber >= 31 ? `creator-${levelNumber}` : levelNumber - 1);
       },
       reset() {
         resetLevel();
@@ -308,10 +419,26 @@ import { createGamePersistence } from '../js/game-persistence.js';
     // Start on window load
     window.onload = () => {
       if (window.StemGameAuth) {
-        window.StemGameAuth.init("robo_maze", { requireSession: true }).then(() => window.RoboMazeModule.loadLevel(1));
+        window.StemGameAuth.init("robo_maze", { requireSession: true }).then(async () => {
+          await loadCreatorLevels();
+          bindCreatorPickerState();
+          window.RoboMazeModule.loadLevel(1);
+          const sharedCode = new URLSearchParams(window.location.search).get('share');
+          if (sharedCode) await loadSharedLevel(sharedCode);
+        });
       } else {
         window.RoboMazeModule.loadLevel(1);
       }
     };
 
-  bindRoboMazeEvents({ changeLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate });
+    const bindCreatorPickerState = () => {
+      [31, 32, 33, 34, 35].forEach(academyLevel => {
+        const option = document.querySelector(`[data-creator-level="${academyLevel}"]`);
+        const level = creatorLevels.get(academyLevel);
+        if (option) option.textContent = level
+          ? `🛠️ Creator Academy: Level ${academyLevel} — ${level.title.replace(new RegExp(`^Level ${academyLevel}:\\s*`), '')}`
+          : `🔒 Creator Academy: Level ${academyLevel} — design first`;
+      });
+    };
+
+  bindRoboMazeEvents({ changeLevel: selectLevel, loadSharedLevel, addCommand, addLoopPrompt, switchView, runProgram, stepSingleCommand, resetLevel, closeModalAndNext, removeCommand, learningGate });
