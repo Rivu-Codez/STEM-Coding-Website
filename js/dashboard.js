@@ -1,7 +1,10 @@
 (function () {
+  const registry = () => window.StemGameRegistry;
+  const physicsDefinition = () => registry().get("physics");
+  const roboDefinition = () => registry().get("robo_maze");
   const games = {
-    physics: { id: "physics", href: "PhysicsSim/index.html", prefix: "physics" },
-    robo: { id: "robo_maze", href: "RoboMaze/index.html", prefix: "robo" }
+    physics: { prefix: "physics", definition: physicsDefinition },
+    robo: { prefix: "robo", definition: roboDefinition }
   };
 
   const $ = id => document.getElementById(id);
@@ -30,17 +33,19 @@
     if (!ready) return;
     const profile = await window.StemGameAuth.getStudentProfile();
     renderProfile(profile, window.StemGameAuth.getCurrentUser());
+    const physicsGame = games.physics.definition();
+    const roboGame = games.robo.definition();
     const [physics, robo] = await Promise.all([
-      window.StemGameAuth.getDashboardStats(games.physics.id),
-      window.StemGameAuth.getDashboardStats(games.robo.id)
+      window.StemGameAuth.getDashboardStats(physicsGame.gameId),
+      window.StemGameAuth.getDashboardStats(roboGame.gameId)
     ]);
     renderStats(games.physics.prefix, physics);
     renderStats(games.robo.prefix, robo);
   }
 
   function bindEvents() {
-    $("physicsGameButton").onclick = () => { window.location.href = games.physics.href; };
-    $("roboGameButton").onclick = () => { window.location.href = games.robo.href; };
+    $("physicsGameButton").onclick = () => { window.location.href = games.physics.definition().route; };
+    $("roboGameButton").onclick = () => { window.location.href = games.robo.definition().route; };
     $("logoutButton").onclick = () => window.StemGameAuth.signOut();
     $("editProfileButton").onclick = () => {
       $("profileForm").hidden = false;

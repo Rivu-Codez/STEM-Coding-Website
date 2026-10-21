@@ -84,6 +84,46 @@ test('tutor reliability contract includes retry states and quota refund', () => 
   assert.match(quotaMigration, /refund_tutor_quota/);
 });
 
+test('Phase 8 game registry preserves existing games and keeps new games disabled', () => {
+  const source = ['019_game_registry.sql', '020_common_attempt_boundary.sql']
+    .map(file => fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', file), 'utf8'))
+    .join('\n');
+  assert.match(source, /alter type public\.game_id add value if not exists 'chemistry'/);
+  assert.match(source, /alter type public\.game_id add value if not exists 'biology'/);
+  assert.match(source, /create table if not exists public\.games/);
+  assert.match(source, /'physics'.*true/s);
+  assert.match(source, /'robo_maze'.*true/s);
+  assert.match(source, /'chemistry'.*false/s);
+  assert.match(source, /'biology'.*false/s);
+});
+
+test('Phase 8 exposes one common attempt boundary over existing validators', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '020_common_attempt_boundary.sql'),
+    'utf8',
+  );
+  assert.match(source, /submit_game_attempt_idempotent/);
+  assert.match(source, /submit_robo_maze_attempt_idempotent/);
+  assert.match(source, /submit_physics_attempt_idempotent/);
+  assert.match(source, /No authoritative validator is enabled/);
+});
+
+test('frontend game registry exposes stable routes and feature flags', () => {
+  const source = fs.readFileSync(path.join(repositoryRoot, 'js', 'game-registry.js'), 'utf8');
+  assert.match(source, /gameId: "physics"/);
+  assert.match(source, /gameId: "robo_maze"/);
+  assert.match(source, /gameId: "chemistry"/);
+  assert.match(source, /gameId: "biology"/);
+  assert.match(source, /enabled: false/);
+  assert.match(source, /levelCount\(gameId\)/);
+});
+
+test('game modules support optional tutor and mistake adapters', () => {
+  const source = fs.readFileSync(path.join(repositoryRoot, 'js', 'game-module.js'), 'utf8');
+  assert.match(source, /getMistakeCategory/);
+  assert.match(source, /buildTutorContext/);
+});
+
 test('creator migration protects drafts and validates published mazes', () => {
   const source = fs.readFileSync(
     path.join(repositoryRoot, 'supabase', 'migrations', '014_creator_levels.sql'),

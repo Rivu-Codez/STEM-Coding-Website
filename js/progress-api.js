@@ -1,6 +1,11 @@
 (function () {
-  const GAME_LEVEL_LIMITS = { physics: 15, robo_maze: 15 };
+  const legacyDefinitions = {
+    physics: { gameId: "physics", enabled: true, levelCount: 15, validator: "physics" },
+    robo_maze: { gameId: "robo_maze", enabled: true, levelCount: 15, validator: "robo_maze" }
+  };
   function platform() { return window.StemGamePlatform; }
+  function registry() { return window.StemGameRegistry; }
+  function gameDefinition(gameId) { return registry()?.get(gameId) || legacyDefinitions[gameId] || null; }
   function client() { return platform().getClient(); }
   function session() { return platform().getSession(); }
   function createAttemptId() {
@@ -8,6 +13,8 @@
   }
 
   async function load(gameId) {
+    const game = gameDefinition(gameId);
+    if (!game || !game.enabled) return;
     platform().setUnlocked([1]);
     if (!session()) return;
     const result = await client().from("level_progress")
@@ -17,7 +24,7 @@
       return;
     }
     const unlocked = [1];
-    const finalLevel = GAME_LEVEL_LIMITS[gameId] || 30;
+    const finalLevel = game.levelCount;
     let finalLevelCompleted = false;
     (result.data || []).forEach(row => {
       if (["completed", "unlocked"].includes(row.status)) unlocked.push(row.level_number);
@@ -41,12 +48,13 @@
       return true;
     },
     async getDashboardStats(gameId) {
-      if (!session()) return { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1 };
+      const game = gameDefinition(gameId);
+      const maxLevels = game?.levelCount || 0;
+      if (!session() || !game || !game.enabled) return { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1, maxLevels };
       const progress = await client().from("level_progress")
         .select("level_number,status,best_result").eq("game_id", gameId);
       const achievements = await client().from("student_achievements")
         .select("level_number,stars,xp").eq("game_id", gameId);
-      const maxLevels = GAME_LEVEL_LIMITS[gameId] || 30;
       const completed = (progress.data || []).filter(row => row.status === "completed" && row.level_number <= maxLevels);
       const records = achievements.error ? [] : (achievements.data || []);
       const fallback = completed.map(row => row.best_result || {});
@@ -63,6 +71,8 @@
     async recordAttempt(levelNumber, result, mistakeCode, attemptData) {
       if (!client() || !session()) return { ok: false, error: "Authentication required" };
       const gameId = platform().getGameId();
+      const game = gameDefinition(gameId);
+      if (!game?.enabled || !game.validator) return { ok: false, error: "This game is not enabled for submissions" };
       const isRoboMaze = gameId === "robo_maze" && Array.isArray(attemptData?.program);
       const isPhysics = gameId === "physics" && attemptData &&
         Number.isFinite(Number(attemptData.angle)) && Number.isFinite(Number(attemptData.speed));
@@ -75,13 +85,12 @@
         platform().showStatus("Your browser cannot create a safe attempt ID. Please refresh and retry.");
         return { ok: false, error: "Attempt ID unavailable" };
       }
-      const response = isRoboMaze
-        ? await client().rpc("submit_robo_maze_attempt_idempotent", {
-          p_attempt_id: attemptId, p_level_number: levelNumber, p_program: attemptData.program
-        })
-        : await client().rpc("submit_physics_attempt_idempotent", {
-          p_attempt_id: attemptId, p_level_number: levelNumber, p_attempt_data: attemptData
-        });
+      const response = await client().rpc("submit_game_attempt_idempotent", {
+        p_game_id: gameId,
+        p_attempt_id: attemptId,
+        p_level_number: levelNumber,
+        p_attempt_data: isRoboMaze ? { program: attemptData.program } : attemptData
+      });
       if (response.error) {
         platform().showStatus("Progress could not be saved. Please retry this attempt.");
         return { ok: false, error: response.error.message };
