@@ -1,148 +1,17 @@
 window.SubmarineMathLevels = [
-            // SECTION 1: COMPARING (Levels 1-3)
-            {
-                id: 1, section: 1, title: "Greater Than with Negatives",
-                isComparison: true,
-                startDepth: -70, compareVal1: -30, compareVal2: -70,
-                targetDepth: -30,
-                question: "Compare depths: -30 [ ? ] -70",
-                correctAnswer: ">",
-                numericVal: -30,
-                hint: "-30 is higher up (closer to 0) than -70, so -30 > -70."
-            },
-            {
-                id: 2, section: 1, title: "Less Than with Negatives",
-                isComparison: true,
-                startDepth: -45, compareVal1: -80, compareVal2: -45,
-                targetDepth: -80,
-                question: "Compare depths: -80 [ ? ] -45",
-                correctAnswer: "<",
-                numericVal: -80,
-                hint: "-80 is deeper down (further below zero), so -80 < -45."
-            },
-            {
-                id: 3, section: 1, title: "Zero vs a Negative",
-                isComparison: true,
-                startDepth: -60, compareVal1: 0, compareVal2: -60,
-                targetDepth: 0,
-                question: "Compare sea level to depth -60: 0 [ ? ] -60",
-                correctAnswer: ">",
-                numericVal: 0,
-                hint: "Zero is above any negative depth, so 0 > -60."
-            },
-
-            // SECTION 2: ADDING & SUBTRACTING (Levels 4-6)
-            {
-                id: 4, section: 2, kind: "pos", title: "Adding a Positive (-60 + 25)",
-                startDepth: -60, targetDepth: -35,
-                question: "Start at -60 and move UP by +25. Calculate: -60 + 25 =",
-                correctAnswer: "-35",
-                numericVal: -35,
-                hint: "Adding a positive moves up toward 0. -60 + 25 = -35."
-            },
-            {
-                id: 5, section: 2, kind: "pos", title: "Subtracting a Positive (-20 - 35)",
-                startDepth: -20, targetDepth: -55,
-                ghostPreview: true,
-                question: "Start at -20 and dive DOWN 35. Calculate: -20 - 35 =",
-                correctAnswer: "-55",
-                numericVal: -55,
-                hint: "Subtracting a positive moves deeper into the negatives. -20 - 35 = -55."
-            },
-            {
-                id: 6, section: 2, kind: "pos", title: "Subtracting a Negative (-40 - (-25))",
-                startDepth: -40, targetDepth: -15,
-                question: "Subtracting a negative turns into addition! Calculate: -40 - (-25) =",
-                correctAnswer: "-15",
-                numericVal: -15,
-                hint: "Two minus signs together become addition: -40 - (-25) = -40 + 25 = -15."
-            },
-
-            // SECTION 3: CROSSING ZERO (Levels 7-9)
-            {
-                id: 7, section: 3, kind: "pos", title: "Crossing Zero Upward (-25 + 40)",
-                startDepth: -25, targetDepth: 15,
-                hasHelicarrier: true,
-                question: "Start at depth -25. Ascend +40 toward the helipad. Calculate: -25 + 40 =",
-                correctAnswer: "15",
-                numericVal: 15,
-                hint: "25 units get you to zero, plus 15 more into the positives = +15."
-            },
-            {
-                id: 8, section: 3, kind: "pos", title: "Crossing Zero Downward (30 - 55)",
-                startDepth: 30, targetDepth: -25,
-                hasHelicarrier: true,
-                question: "Start at +30 altitude and drop down 55. Calculate: 30 - 55 =",
-                correctAnswer: "-25",
-                numericVal: -25,
-                hint: "30 down to zero, plus 25 more into negative depths = -25."
-            },
-            {
-                id: 9, section: 3, title: "Comparing Across Zero",
-                isComparison: true,
-                startDepth: -35, compareVal1: -35, compareVal2: 20,
-                targetDepth: 20,
-                question: "Compare sub depth (-35m) to the surface platform (+20m): -35 [ ? ] +20",
-                correctAnswer: "<",
-                numericVal: 20,
-                hint: "Any negative value is less than any positive value!"
-            },
-
-            // SECTION 4: ABSOLUTE VALUE (Levels 10-11)
-            {
-                id: 10, section: 4, title: "Absolute Value |-45|",
-                startDepth: 0, targetDepth: -45,
-                question: "What is the distance from sea level (0) to depth -45? Calculate: |-45| =",
-                correctAnswer: "45",
-                numericVal: -45,
-                hint: "Absolute value measures pure distance from 0 and is always positive!"
-            },
-            {
-                id: 11, section: 4, plot: [-80, 35], labels: ['|-80| = 80', '|+35| = 35'], title: "Comparing Absolute Values",
-                isComparison: true,
-                startDepth: 35, compareVal1: 80, compareVal2: 35,
-                targetDepth: -80,
-                question: "Which location is further from zero? Compare |-80| [ ? ] |+35|",
-                correctAnswer: ">",
-                numericVal: -80,
-                hint: "|-80| = 80 and |+35| = 35. 80 is greater than 35."
-            },
-
-            // SECTION 5: NET CHANGE VS TOTAL DISTANCE (Levels 12-13)
-            {
-                id: 12, section: 5, title: "Multi-Step Net Change",
-                startDepth: -20, targetDepth: -60,
-                question: "The sub starts at -20, then goes down 30, up 15, and down 25. What is its final depth?",
-                correctAnswer: "-60",
-                numericVal: -60,
-                hint: "-20 - 30 + 15 - 25 = -60."
-            },
-            {
-                id: 13, section: 5, plot: [-45, -75], labels: ['Net: 45', 'Total: 75'], title: "Net vs Total Distance",
-                isComparison: true,
-                startDepth: 0, compareVal1: 45, compareVal2: 75,
-                targetDepth: -45,
-                question: "The sub starts at 0, then goes down 40, up 15, and down 20. Compare NET distance from the start with TOTAL distance traveled: Net [ ? ] Total",
-                correctAnswer: "<",
-                numericVal: -45,
-                hint: "Net: 0 - 40 + 15 - 20 = -45, so 45 from the start. Total: 40 + 15 + 20 = 75. 45 < 75."
-            },
-
-            // SECTION 6: MULTIPLY & DIVIDE (Levels 14-15)
-            {
-                id: 14, section: 6, title: "Negative × Negative = Positive!",
-                startDepth: -90, targetDepth: 48,
-                question: "Multiply two negative numbers: (-12) × (-4) =",
-                correctAnswer: "48",
-                numericVal: 48,
-                hint: "Rule: NEGATIVE × NEGATIVE = POSITIVE! 12 × 4 = 48."
-            },
-            {
-                id: 15, section: 6, title: "Negative ÷ Positive = Negative",
-                startDepth: 0, targetDepth: -12,
-                question: "Divide a negative by a positive: (-84) ÷ 7 =",
-                correctAnswer: "-12",
-                numericVal: -12,
-                hint: "Rule: NEGATIVE ÷ POSITIVE = NEGATIVE! 84 ÷ 7 = 12, so the answer is -12."
-            }
-        ];
+  { id: 1, section: 1, title: 'Target Practice', startDepth: -20, moves: [10], checkpoints: [-10], targetDepth: -10, numericVal: -10, question: 'Move the submarine from -20m to the target at -10m. Enter the signed move.', hint: 'The target is 10m higher than the submarine. Write one positive move.', lessonRule: 'A positive move sends the submarine closer to the surface.', lessonSteps: ['Start at -20m.', 'The target is -10m.', 'The change is -10 - (-20) = +10m.', 'Enter +10 to hit the target.'] },
+  { id: 2, section: 1, title: 'Two-Buoy Target Run', startDepth: -40, moves: [20], checkpoints: [-20], targetDepth: -20, numericVal: -20, question: 'Move the submarine from -40m to the target at -20m. How far must it move?', hint: 'Find the difference between -20m and -40m. This is one positive move.', lessonRule: 'Subtract the starting depth from the target depth to find the move.', lessonSteps: ['Start at -40m.', 'Target: -20m.', 'The change is -20 - (-40) = +20m.', 'Enter +20 to reach the target.'] },
+  { id: 3, section: 1, title: 'Surface Target Run', startDepth: -60, moves: [30, 30], checkpoints: [-30, 0], surfaceObjective: true, targetDepth: 0, numericVal: 0, question: 'Move the submarine from -60m to the surface at 0m. It must pass the buoy at -30m.', hint: 'Find the move from -60m to -30m, then the move from -30m to 0m.', lessonRule: 'Break a long route into smaller target-to-target moves.', lessonSteps: ['Start at -60m; first buoy is -30m.', '-30 - (-60) = +30m.', 'Surface is 0m; 0 - (-30) = +30m.', 'Enter +30,+30.'] },
+  { id: 4, section: 2, title: 'Current Correction', startDepth: -45, moves: [30, -20, 15], checkpoints: [-15, -35, -20], targetDepth: -20, numericVal: -20, maxMoves: 3, question: 'Move the submarine from -45m to the target at -20m. It must pass -15m, then -35m.', hint: 'Calculate each change: -45 to -15, -15 to -35, then -35 to -20.', lessonRule: 'A route can change direction several times before reaching its target.', lessonSteps: ['-15 - (-45) = +30m.', '-35 - (-15) = -20m.', '-20 - (-35) = +15m.', 'Enter the three signed moves in order.'] },
+  { id: 5, section: 2, title: 'Deep Trench Turn', startDepth: -20, moves: [-35, 20, 15], checkpoints: [-55, -35, -20], targetDepth: -20, numericVal: -20, maxMoves: 3, question: 'Move the submarine from -20m back to -20m. Visit -55m and -35m first.', hint: 'Find the change from -20 to -55, then -55 to -35, then back to -20.', lessonRule: 'A negative signed move sends the submarine deeper.', lessonSteps: ['-55 - (-20) = -35m.', '-35 - (-55) = +20m.', '-20 - (-35) = +15m.', 'The route returns to the starting depth.'] },
+  { id: 6, section: 2, title: 'Four-Move Current Maze', startDepth: -70, moves: [25, 20, -15, 10], checkpoints: [-45, -25, -40, -30], targetDepth: -30, numericVal: -30, maxMoves: 4, question: 'Move the submarine from -70m to -30m through these targets: -45m, -25m, and -40m.', hint: 'Calculate the difference between each pair of depths, in order.', lessonRule: 'Longer routes are solved by recording every waypoint.', lessonSteps: ['-45 - (-70) = +25m.', '-25 - (-45) = +20m.', '-40 - (-25) = -15m.', '-30 - (-40) = +10m.'] },
+  { id: 7, section: 3, title: 'Surface-and-Return Drill', startDepth: -50, moves: [30, 20, -10], checkpoints: [-20, 0, -10], surfaceObjective: true, targetDepth: -10, numericVal: -10, question: 'Move the submarine from -50m to -10m. It must touch the surface after reaching -20m.', hint: 'Find the changes from -50 to -20, -20 to 0, and 0 to -10.', lessonRule: 'Reaching 0m is allowed; any positive waypoint is an overshoot.', lessonSteps: ['-20 - (-50) = +30m.', '0 - (-20) = +20m.', '-10 - 0 = -10m.', 'The submarine surfaces, then returns below water.'] },
+  { id: 8, section: 3, title: 'Floodgate Recovery', startDepth: -15, moves: [15, -25, 10], checkpoints: [0, -25, -15], surfaceObjective: true, targetDepth: -15, numericVal: -15, question: 'Move the submarine from -15m back to -15m. Touch 0m, then visit -25m.', hint: 'Calculate the change between each target depth. Never go above 0m.', lessonRule: 'The route may touch the surface more than once, but never cross it.', lessonSteps: ['0 - (-15) = +15m.', '-25 - 0 = -25m.', '-15 - (-25) = +10m.', 'The submarine returns to -15m.'] },
+  { id: 9, section: 3, title: 'Blackwater Checkpoints', startDepth: -80, moves: [35, 30, -20, 15], checkpoints: [-45, -15, -35, -20], targetDepth: -20, numericVal: -20, maxMoves: 4, question: 'Move the submarine from -80m to -20m. Visit -45m, -15m, and -35m in order.', hint: 'Work out the difference between each pair of depths.', lessonRule: 'Checkpoint missions reward accurate intermediate calculations.', lessonSteps: ['-45 - (-80) = +35m.', '-15 - (-45) = +30m.', '-35 - (-15) = -20m.', '-20 - (-35) = +15m.'] },
+  { id: 10, section: 4, title: 'Rescue Dock Run', startDepth: -55, moves: [20, 15, -10, 30], checkpoints: [-35, -20, -30, 0], surfaceObjective: true, targetDepth: 0, numericVal: 0, hazards: [{ min: -18, max: -12 }], question: 'Move the submarine from -55m to the surface dock. Visit -35m, -20m, and -30m. Avoid the hazard band.', hint: 'Find each signed change between the listed depths. Do not enter the marked band.', lessonRule: 'A rescue route must reach its checkpoint in order and end at the dock.', lessonSteps: ['-35 - (-55) = +20m.', '-20 - (-35) = +15m.', '-30 - (-20) = -10m.', '0 - (-30) = +30m.'] },
+  { id: 11, section: 4, title: 'Minefield Rescue', startDepth: -90, moves: [30, 25, 20, -15], checkpoints: [-60, -35, -15, -30], targetDepth: -30, numericVal: -30, hazards: [{ min: -55, max: -45 }], question: 'Move the submarine from -90m to -30m. Visit -60m, -35m, and -15m. Avoid the mine band.', hint: 'Calculate each change. The mine band is shown in red; stay clear of it.', lessonRule: 'Hazards make the path matter, not just the final depth.', lessonSteps: ['-60 - (-90) = +30m.', '-35 - (-60) = +25m.', '-15 - (-35) = +20m.', '-30 - (-15) = -15m.'] },
+  { id: 12, section: 5, title: 'Fuel-Efficient Patrol', startDepth: -40, moves: [20, -10, 15], checkpoints: [-20, -30, -15], targetDepth: -15, numericVal: -15, maxDistance: 45, question: 'Move the submarine from -40m to -15m through -20m and -30m. Use 45m of fuel or less.', hint: 'Calculate each signed change, then add the absolute distances. Keep the total at or below 45m.', lessonRule: 'Efficiency uses absolute distance: direction does not make a move free.', lessonSteps: ['-20 - (-40) = +20m.', '-30 - (-20) = -10m.', '-15 - (-30) = +15m.', 'Total fuel: 20 + 10 + 15 = 45m.'] },
+  { id: 13, section: 5, title: 'Long-Range Survey', startDepth: -75, moves: [25, 15, -20, 10], checkpoints: [-50, -35, -55, -45], targetDepth: -45, numericVal: -45, maxDistance: 70, question: 'Move the submarine from -75m to -45m through -50m, -35m, and -55m. Use 70m or less.', hint: 'Find every signed change, then check that the total distance is no more than 70m.', lessonRule: 'A route is correct only when it satisfies both destination and fuel limit.', lessonSteps: ['-50 - (-75) = +25m.', '-35 - (-50) = +15m.', '-55 - (-35) = -20m.', '-45 - (-55) = +10m.'] },
+  { id: 14, section: 6, title: 'Engine Boost Calculations', startDepth: -90, moves: [24, 18, 30, -12], checkpoints: [-66, -48, -18, -30], targetDepth: -30, numericVal: -30, maxMoves: 4, question: 'Move the submarine from -90m to -30m through -66m, -48m, and -18m. Calculate each engine boost before entering the route.', hint: 'The changes are found with target minus current depth. Use multiplication or division to calculate each boost.', lessonRule: 'Multiplication and division produce movement distance; the sign controls direction.', lessonSteps: ['-66 - (-90) = +24m.', '-48 - (-66) = +18m.', '-18 - (-48) = +30m.', '-30 - (-18) = -12m.'] },
+  { id: 15, section: 6, title: 'Final Surface Mission', startDepth: -30, moves: [-24, 18, 12, 24], checkpoints: [-54, -36, -24, 0], surfaceObjective: true, targetDepth: 0, numericVal: 0, maxMoves: 4, question: 'Move the submarine from -30m to the surface. Visit -54m, -36m, and -24m, then dock at 0m.', hint: 'Calculate each signed change. Use the engine operations to work out the four moves.', lessonRule: 'The final mission combines signed movement, multiplication, division, and precise docking.', lessonSteps: ['-54 - (-30) = -24m.', '-36 - (-54) = +18m.', '-24 - (-36) = +12m.', '0 - (-24) = +24m.'] }
+];

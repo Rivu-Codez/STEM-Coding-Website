@@ -42,7 +42,8 @@ function cleanInstruction(value) {
 function normalizedFrontend(gameId, level, index) {
   if (gameId === 'submarine_math') {
     return { gameId, levelNumber: level.id, title: level.title,
-      instruction: cleanInstruction(level.question), configuration: Object.fromEntries(Object.entries(level).filter(([key]) => key !== 'correctAnswer')) };
+      instruction: cleanInstruction(level.question), configuration: Object.fromEntries(Object.entries(level)
+        .filter(([key]) => !['correctAnswer', 'question', 'hint', 'lessonRule', 'lessonSteps'].includes(key))) };
   }
   if (gameId === 'physics') {
     const { title, instruction, targetDistance, lockSpeed, lockDrag, fixedSpeed, wall, dragMode,

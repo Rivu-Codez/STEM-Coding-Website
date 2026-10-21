@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <!-- Google Fonts: Inter & Orbitron -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/submarine.css?v=2">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -72,12 +73,13 @@
     <script src="../js/game-auth.js"></script>
     <script src="../js/game-adapter.js"></script>
     <script src="levels.js"></script>
+    <script src="mission-engine.js"></script>
     <script src="adapter.js"></script>
     <script src="progress-service.js"></script>
     <script src="auth.js" defer></script>
     <script src="game.js" defer></script>
 </head>
-<body hidden class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100">
+<body hidden class="submarine-page min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100">
 
     <!-- TOP HEADER / NAV BAR -->
     <a href="../dashboard.html" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-cyan-600 focus:px-4 focus:py-2 focus:text-white">Back to dashboard</a>
@@ -94,6 +96,10 @@
         </div>
 
         <div class="flex items-center space-x-2 md:space-x-3">
+            <a href="../dashboard.html" class="submarine-dashboard-link" aria-label="Return to RoboLogic dashboard">
+                <span aria-hidden="true">⌂</span>
+                <span>Dashboard</span>
+            </a>
             <!-- Score & Stars -->
             <div class="bg-slate-950/60 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center space-x-2 text-xs md:text-sm">
                 <i class="fa-solid fa-star text-amber-400"></i>
@@ -159,20 +165,14 @@
                 </h3>
             </div>
 
-            <!-- COMPARISON QUICK-SELECT BUTTONS (<, =, >) -->
-            <div id="comparison-btn-group" class="hidden grid-cols-3 gap-3 my-1">
-                <button type="button" data-symbol=">" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
-                    <span>&gt;</span>
-                    <span class="text-[10px] font-sans font-normal text-slate-400">Greater Than</span>
-                </button>
-                <button type="button" data-symbol="=" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
-                    <span>=</span>
-                    <span class="text-[10px] font-sans font-normal text-slate-400">Equal To</span>
-                </button>
-                <button type="button" data-symbol="<" class="py-3 bg-slate-800 hover:bg-cyan-600 border border-slate-700 rounded-xl text-cyan-300 hover:text-white font-orbitron font-bold text-xl transition flex flex-col items-center justify-center">
-                    <span>&lt;</span>
-                    <span class="text-[10px] font-sans font-normal text-slate-400">Less Than</span>
-                </button>
+            <!-- MISSION ROUTE BUILDER -->
+            <div id="mission-controls" class="space-y-2 my-1">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-slate-500">ROUTE BUILDER</span>
+                    <span id="route-status" class="text-xs text-slate-500">Calculate the route, then add signed moves</span>
+                </div>
+                <p class="text-xs text-slate-500">Use your keyboard to enter signed moves separated by commas. Example: <span class="font-bold text-slate-700">+30,+30</span></p>
+                <p id="route-preview" class="route-preview" aria-live="polite">Route preview: waiting for your first move</p>
             </div>
 
             <!-- NATIVE HTML FORM INPUT -->
@@ -186,7 +186,7 @@
                         autocapitalize="off"
                         spellcheck="false"
                         autofocus
-                        placeholder="Type your answer"
+                        placeholder="Type signed route, e.g. +30,+30"
                         class="w-full bg-slate-950/80 border-2 border-slate-700/80 focus:border-cyan-400 rounded-xl py-3.5 px-4 font-orbitron font-bold text-xl text-cyan-300 placeholder:text-slate-600 placeholder:font-sans placeholder:text-sm focus:outline-none focus:ring-4 focus:ring-cyan-500/10 transition shadow-inner"
                     />
                     <button

@@ -134,7 +134,7 @@ class SoundFX {
 const CURRICULUM = window.SubmarineMathLevels;
 
         // --- TEACHING CONTENT: rule, worked steps, and common-mistake messages per level ---
-        const LESSONS = {
+        const LEGACY_LESSONS = {
             1: { rule: "On the depth line, HIGHER means GREATER. For negatives, the number closer to 0 is the greater one.",
                  steps: ["Picture the depth line: 0 is the surface and numbers get smaller as you go down.", "-30 is 30 m below the surface. -70 is 70 m below the surface.", "-30 is closer to the surface, so it sits higher up.", "Higher means greater, so -30 > -70."],
                  traps: { "<": "70 looks bigger than 30, but -70 is DEEPER, and deeper means smaller." } },
@@ -183,7 +183,13 @@ const CURRICULUM = window.SubmarineMathLevels;
         };
 
 
-// --- GAME STATE ---
+        const LESSONS = Object.fromEntries(CURRICULUM.map(level => [level.id, {
+            rule: level.lessonRule,
+            steps: level.lessonSteps,
+            traps: {}
+        }]));
+
+        // --- GAME STATE ---
         const MISSILE_SECONDS = { 1: 25, 2: 25, 3: 25, 4: 25, 5: 20, 6: 18 }; // slow early, faster in sections 5 and 6
         let hull = 3, gameOver = false;
         let missile = { state: 'none', start: 0, duration: 0, pausedAt: null, aimDepth: 0, x: 0, y: 0 };
@@ -193,6 +199,7 @@ const CURRICULUM = window.SubmarineMathLevels;
         let starsEarned = new Array(CURRICULUM.length).fill(0);
         let subDepth = 0;
         let ghostSubDepth = null;
+        let routePositions = [];
         let levelSolved = false, attempts = 0, usedHint = false, animTimer = null;
 
         const fishes = [
@@ -255,7 +262,7 @@ const CURRICULUM = window.SubmarineMathLevels;
         }
         function showGameOver() {
             const level = CURRICULUM[currentLevelIdx];
-            document.getElementById('gameover-answer').innerText = `Level ${level.id} answer: ${level.correctAnswer}`;
+            document.getElementById('gameover-answer').innerText = `Mission route: ${level.moves.map(value => `${value > 0 ? '+' : ''}${value}`).join(',')}`;
             const m = document.getElementById('gameover-modal');
             m.classList.remove('hidden'); m.classList.add('flex');
         }
@@ -442,7 +449,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             const level = CURRICULUM[currentLevelIdx];
 
             const minMeters = -110;
-            const maxMeters = 60;
+            const maxMeters = 15;
             function metersToY(m) {
                 const ratio = (maxMeters - m) / (maxMeters - minMeters);
                 return ratio * (height - 40) + 20;
@@ -485,20 +492,30 @@ const CURRICULUM = window.SubmarineMathLevels;
             ctx.stroke();
             ctx.setLineDash([]);
 
-            ctx.fillStyle = '#bae6fd';
-            ctx.font = 'bold 10px Orbitron, sans-serif';
-            ctx.fillText('SEA LEVEL (0m)', 65, surfaceY - 6);
+            function drawReadableLabel(text, x, y, color = '#f8fafc') {
+                ctx.font = 'bold 10px Orbitron, sans-serif';
+                ctx.textAlign = 'left';
+                const paddingX = 5;
+                const paddingY = 4;
+                const labelWidth = ctx.measureText(text).width;
+                ctx.fillStyle = 'rgba(2, 6, 23, .78)';
+                ctx.fillRect(x - paddingX, y - 10 - paddingY, labelWidth + paddingX * 2, 14 + paddingY * 2);
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
+            }
+
+            drawReadableLabel('SEA LEVEL (0m)', 65, surfaceY - 6);
 
             // Vertical Depth Ruler
             const axisX = 45;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
             ctx.moveTo(axisX, 20);
             ctx.lineTo(axisX, height - 20);
             ctx.stroke();
 
-            for (let m = 50; m >= -100; m -= 25) {
+            for (let m = 0; m >= -100; m -= 25) {
                 const y = metersToY(m);
                 ctx.beginPath();
                 ctx.moveTo(axisX - 4, y);
@@ -507,69 +524,41 @@ const CURRICULUM = window.SubmarineMathLevels;
                 ctx.lineWidth = (m === 0) ? 2.5 : 1;
                 ctx.stroke();
 
-                ctx.fillStyle = (m === 0) ? '#f59e0b' : '#94a3b8';
                 ctx.font = '9px Orbitron, monospace';
-                ctx.fillText(`${m > 0 ? '+' : ''}${m}m`, axisX - 38, y + 3);
+                const axisLabel = `${m > 0 ? '+' : ''}${m}m`;
+                ctx.fillStyle = 'rgba(2, 6, 23, .72)';
+                ctx.fillRect(axisX - 43, y - 7, ctx.measureText(axisLabel).width + 8, 12);
+                ctx.fillStyle = (m === 0) ? '#fbbf24' : '#f8fafc';
+                ctx.fillText(axisLabel, axisX - 38, y + 3);
             }
 
-            // COMPARISON VISUAL INDICATOR
-            if (level.isComparison && level.compareVal1 !== undefined && level.compareVal2 !== undefined) {
-                const pts = level.plot || [level.compareVal1, level.compareVal2];
-                const lbl = level.labels || [level.compareVal1 + 'm', level.compareVal2 + 'm'];
-                const y1 = metersToY(pts[0]);
-                const y2 = metersToY(pts[1]);
-                if (level.plot) {
-                    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([3, 3]);
-                    [y1, y2].forEach(yy => { ctx.beginPath(); ctx.moveTo(width * 0.32, surfaceY); ctx.lineTo(width * 0.32, yy); ctx.stroke(); });
-                    ctx.setLineDash([]);
-                }
-
-                ctx.fillStyle = '#38bdf8';
-                ctx.beginPath();
-                ctx.arc(width * 0.32, y1, 7, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.font = 'bold 11px Orbitron';
-                ctx.fillText(lbl[0], width * 0.32 + 12, y1 + 4);
-
-                ctx.fillStyle = '#f59e0b';
-                ctx.beginPath();
-                ctx.arc(width * 0.32, y2, 7, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillText(lbl[1], width * 0.32 + 12, y2 + 4);
-
-                ctx.strokeStyle = '#10b981';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(width * 0.23, height - 80);
-                ctx.lineTo(width * 0.23, 50);
-                ctx.stroke();
-
-                ctx.fillStyle = '#10b981';
-                ctx.beginPath();
-                ctx.moveTo(width * 0.23, 42);
-                ctx.lineTo(width * 0.23 - 5, 52);
-                ctx.lineTo(width * 0.23 + 5, 52);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.font = 'bold 9px Orbitron';
-                ctx.fillText('HIGHER = GREATER', width * 0.23 - 32, 32);
-            }
-
-            // Helicarrier Pad
-            if (level.hasHelicarrier) {
-                const padM = Math.max(level.startDepth, level.targetDepth);
-                const padY = metersToY(padM);
-                ctx.fillStyle = '#334155';
-                ctx.fillRect(width * 0.38, padY - 6, 130, 10);
-                ctx.fillStyle = '#f59e0b';
-                ctx.fillRect(width * 0.38 + 10, padY - 8, 110, 2);
-                ctx.fillStyle = '#38bdf8';
-                ctx.font = 'bold 9px Orbitron';
-                ctx.fillText(`RESCUE HELIPAD (+${padM}m)`, width * 0.38, padY - 12);
-            }
+            // Mission checkpoints and hazard bands
+            (level.checkpoints || []).forEach((checkpoint, index) => {
+                const checkpointY = metersToY(checkpoint);
+                ctx.strokeStyle = index < Math.floor(routePositions.length) ? '#34d399' : 'rgba(255,255,255,.25)';
+                ctx.lineWidth = index < Math.floor(routePositions.length) ? 2 : 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.moveTo(axisX + 10, checkpointY); ctx.lineTo(width - 35, checkpointY); ctx.stroke();
+                ctx.setLineDash([]);
+                drawReadableLabel(
+                    `CHECKPOINT ${index + 1}: ${checkpoint}m`,
+                    width - 170,
+                    checkpointY - 5,
+                    index < Math.floor(routePositions.length) ? '#6ee7b7' : '#f8fafc'
+                );
+            });
+            (level.hazards || []).forEach(hazard => {
+                const top = metersToY(hazard.max);
+                const bottom = metersToY(hazard.min);
+                ctx.fillStyle = 'rgba(244, 63, 94, .16)';
+                ctx.fillRect(0, top, width, bottom - top);
+                drawReadableLabel('HAZARD BAND', 65, top + 13, '#fda4af');
+            });
+            const dockY = metersToY(0);
+            const dockX = width * .46;
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(dockX, dockY - 4, 100, 5);
+            drawReadableLabel(level.surfaceObjective ? 'SURFACE DOCK 0m' : 'SEA LEVEL 0m', dockX, dockY - 10, '#fde68a');
 
             // Ocean Floor
             ctx.fillStyle = '#020617';
@@ -597,27 +586,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             ctx.beginPath();
             ctx.arc(width * 0.65, targetY, 6, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 9px Orbitron';
-            ctx.fillText(`TARGET ${level.targetDepth}m`, width * 0.65 + 10, targetY + 3);
-            }
-
-            // Ghost Sub Preview
-            if (level.ghostPreview && ghostSubDepth !== null) {
-                const ghostY = metersToY(ghostSubDepth);
-                ctx.save();
-                ctx.globalAlpha = 0.4;
-                drawSubmarine(width * 0.5, ghostY, '#06b6d4', true);
-                ctx.restore();
-
-                const subY = metersToY(subDepth);
-                ctx.strokeStyle = '#06b6d4';
-                ctx.setLineDash([3, 3]);
-                ctx.beginPath();
-                ctx.moveTo(width * 0.5, subY);
-                ctx.lineTo(width * 0.5, ghostY);
-                ctx.stroke();
-                ctx.setLineDash([]);
+            drawReadableLabel(`TARGET ${level.targetDepth}m`, width * 0.65 + 10, targetY + 3, '#fde68a');
             }
 
             // Main Submarine
@@ -738,33 +707,43 @@ const CURRICULUM = window.SubmarineMathLevels;
             if (e.key === 'Enter') { e.preventDefault(); submitDirectAnswer(); }
         });
 
+        function updateRoutePreview() {
+            const level = CURRICULUM[currentLevelIdx];
+            const parsed = window.SubmarineMissionEngine.parseRoute(nativeInput.value);
+            const preview = document.getElementById('route-preview');
+            const status = document.getElementById('route-status');
+            routePositions = [];
+            let depth = level.startDepth;
+            if (parsed.ok) {
+                parsed.moves.forEach(move => { depth += move; routePositions.push(depth); });
+                preview.innerText = `Route preview: ${parsed.normalized} → ${depth}m`;
+                status.innerText = `${parsed.moves.length}/${level.moves.length} moves added`;
+            } else {
+                preview.innerText = nativeInput.value.trim() ? `Route preview: ${parsed.message}` : 'Route preview: waiting for your first move';
+                status.innerText = 'Add signed moves in order';
+            }
+        }
+
         nativeInput.addEventListener('input', () => {
             sfx.playKeyTap();
             if (missile.state === 'armed') launchMissile();
-            const level = CURRICULUM[currentLevelIdx];
-
-            if (level.ghostPreview) {
-                const val = parseFloat(nativeInput.value.trim());
-                if (!isNaN(val)) {
-                    ghostSubDepth = val;
-                } else {
-                    ghostSubDepth = level.startDepth;
-                }
-            }
+            updateRoutePreview();
         });
 
-        function setComparisonSymbol(sym) {
-            nativeInput.value = sym;
+        function addMissionMove(move) {
+            const current = nativeInput.value.trim();
+            nativeInput.value = current ? `${current},${move}` : move;
             nativeInput.focus();
             if (missile.state === 'armed') launchMissile();
+            updateRoutePreview();
             sfx.playKeyTap();
         }
 
         function clearInput() {
             nativeInput.value = "";
             nativeInput.focus();
-            const level = CURRICULUM[currentLevelIdx];
-            if (level.ghostPreview) ghostSubDepth = level.startDepth;
+            routePositions = [];
+            updateRoutePreview();
             sfx.playKeyTap();
         }
 
@@ -772,20 +751,7 @@ const CURRICULUM = window.SubmarineMathLevels;
         let lessonStepsShown = 0;
 
         function diagnoseMistake(level, userStr) {
-            const lesson = LESSONS[level.id] || {};
-            const v = /^[+-]?\d*\.?\d+$/.test(userStr) ? parseFloat(userStr) : NaN;
-            const key = isNaN(v) ? userStr : String(v);
-            if (lesson.traps && lesson.traps[key]) return lesson.traps[key];
-
-            if (level.isComparison) {
-                if (!['<', '>', '='].includes(userStr)) return "Answer with one of the symbols >, < or =. Tap a button above the answer box.";
-                if (userStr === '=') return "These two values are not equal. Look at where each one sits on the depth line.";
-                return "That symbol points the wrong way. The greater number is the one that is higher up on the depth line.";
-            }
-            if (isNaN(v)) return "Type a number, for example -250 or 300.";
-            const c = parseFloat(level.correctAnswer);
-            if (c !== 0 && v === -c) return "You have the right size but the wrong sign. Ask yourself: is the answer above or below zero?";
-            return "Not quite. Let's work through it together.";
+            return window.SubmarineMissionEngine.validateRoute(level, userStr).message || 'Not quite. Recalculate the route one waypoint at a time.';
         }
 
         function hideLesson() {
@@ -861,10 +827,10 @@ const CURRICULUM = window.SubmarineMathLevels;
             if (gameOver) return;
             if (levelSolved) { nextLevel(); return; }
             const level = CURRICULUM[currentLevelIdx];
-            const userStr = nativeInput.value.trim().replace(/[\u2212\u2013]/g, '-').replace(/\s+/g, '');
+            const userStr = nativeInput.value.trim().replace(/[\u2212\u2013]/g, '-');
 
             if (!userStr) {
-                showFeedback(false, "Enter an answer to execute command.");
+                showFeedback(false, "Enter a route, for example +25,-10,+15.");
                 nativeInput.focus();
                 return;
             }
@@ -880,9 +846,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             if (isCorrect) {
                 sfx.playSuccess();
 
-                const targetDepthToAnimate = level.numericVal !== undefined
-                    ? level.numericVal
-                    : level.targetDepth;
+                const targetDepthToAnimate = level.targetDepth;
 
                 const hadMissile = missile.state === 'flying';
                 if (hadMissile) missile.state = 'evaded'; else if (missile.state === 'armed') missile.state = 'none';
@@ -905,12 +869,7 @@ const CURRICULUM = window.SubmarineMathLevels;
                 if (attempts > 0 || usedHint) showRecapLesson(level); else hideLesson();
             } else {
                 sfx.playError();
-                const userVal = parseFloat(userStr);
-                const pos = level.kind === 'chg' ? level.startDepth + userVal : userVal;
-                let msg = diagnoseMistake(level, userStr);
-                if (level.kind && !isNaN(userVal) && pos > (level.hasHelicarrier ? 50 : 10)) {
-                    msg = `Overshot sea level! You would end up at +${pos}m. ` + msg;
-                }
+                const msg = diagnoseMistake(level, userStr);
                 {
                     hitByMissile();
                     if (gameOver) { showFeedback(false, 'Direct hit! The hull is breached.'); return; }
@@ -997,14 +956,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             nativeInput.value = "";
             nativeInput.focus();
 
-            const compGroup = document.getElementById('comparison-btn-group');
-            if (level.isComparison) {
-                compGroup.classList.remove('hidden');
-                compGroup.classList.add('grid');
-            } else {
-                compGroup.classList.add('hidden');
-                compGroup.classList.remove('grid');
-            }
+            routePositions = [];
 
             document.getElementById('hud-section-tag').innerText = `SEC ${level.section}`;
             document.getElementById('hud-level-title').innerText = `L${level.id}: ${level.title}`;
@@ -1012,6 +964,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             document.getElementById('hud-target').innerText = '?';
             document.getElementById('level-indicator').innerText = `Level ${level.id} of ${CURRICULUM.length}`;
             document.getElementById('question-text').innerText = level.question;
+            updateRoutePreview();
 
             document.getElementById('btn-next').classList.add('hidden');
             hideLesson();
@@ -1057,7 +1010,7 @@ const CURRICULUM = window.SubmarineMathLevels;
 
                 const secHeader = document.createElement('h3');
                 secHeader.className = "text-xs font-orbitron font-bold text-cyan-400 mb-3 flex items-center justify-between";
-                secHeader.innerText = ['Comparing numbers','Adding & subtracting','Crossing zero','Absolute value','Multi-step moves','Multiply & divide'][sec-1] + ` (${secLevels.filter(l=>starsEarned[l.id-1]>0).length}/${secLevels.length})`;
+                secHeader.innerText = ['Surface navigation','Signed-number movement','Surface and return','Rescue checkpoints','Fuel-efficient routes','Engine calculations'][sec-1] + ` (${secLevels.filter(l=>starsEarned[l.id-1]>0).length}/${secLevels.length})`;
                 secBox.appendChild(secHeader);
 
                 const grid = document.createElement('div');
@@ -1121,11 +1074,11 @@ const CURRICULUM = window.SubmarineMathLevels;
         };
 
 document.addEventListener('click', event => {
-    const button = event.target.closest('[data-action], [data-symbol]');
+    const button = event.target.closest('[data-action], [data-move]');
     if (!button) return;
 
-    if (button.dataset.symbol) {
-        setComparisonSymbol(button.dataset.symbol);
+    if (button.dataset.move) {
+        addMissionMove(button.dataset.move);
         return;
     }
 

@@ -25,7 +25,7 @@ async function mockSupabase(page, session = null) {
       return query;
     } }), rpc: async (name, args) => {
       if (name === 'submit_game_attempt_idempotent') {
-        const success = args.p_attempt_data.answer === '>';
+        const success = args.p_attempt_data.answer === '+10';
         if (success) {
           progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number, status: 'completed' });
           if (args.p_level_number < 15) progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number + 1, status: 'unlocked' });
@@ -86,12 +86,15 @@ test('protected Submarine Math page redirects unauthenticated visitors', async (
   await expect(page).toHaveURL(/\/login\.html$/);
 });
 
-test('Submarine Math checks an answer and advances levels', async ({ page }) => {
+test('Submarine Math completes an easy target mission and advances levels', async ({ page }) => {
   await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
   await page.goto('/SubmarineMath/index.html');
 
   await expect(page.locator('#level-indicator')).toHaveText('Level 1 of 15');
-  await page.locator('[data-symbol=">"]') .click();
+  await page.locator('[data-move="+20"]').click();
+  await expect(page.locator('#route-preview')).toContainText('+20');
+  await page.locator('[data-action="clear-input"]').click();
+  await page.locator('[data-move="+10"]').click();
   await page.locator('[data-action="submit-answer"]').click();
   await expect(page.locator('#feedback-text')).toContainText('Correct!');
   await page.locator('[data-action="next-level"]').click();
