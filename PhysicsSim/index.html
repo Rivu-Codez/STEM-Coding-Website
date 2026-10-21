@@ -35,6 +35,10 @@
     }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; font-size: 1.25rem; letter-spacing: .02em; }
     .brand span { color: #38bdf8; }
+    .brand-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+    .brand-name { color: #38bdf8 !important; }
+    .brand-subtitle { color: #c4c9e7 !important; font-size: .78rem; font-weight: 600; letter-spacing: .01em; }
+    .nav-links { display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
     .stats-bar { display: flex; gap: 12px; font-size: 0.9rem; font-weight: 600; }
     .stat-pill { background: rgba(51,65,85,.72); border: 1px solid #475569; padding: 7px 13px; border-radius: 9999px; display: flex; align-items: center; gap: 6px; }
     .stat-xp { color: #fbbf24; }
@@ -281,7 +285,7 @@
        2. UI HEADER & WORKSPACE
        ========================================================================== -->
   <header>
-    <a class="brand brand-home" href="../dashboard.html" aria-label="RoboLogic dashboard">🎯 <span>RoboLogic</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">| Physics Kinematics Lab</span></a>
+    <a class="brand brand-home" href="../dashboard.html" aria-label="RoboLogic dashboard">🎯 <span class="brand-copy"><span class="brand-name">RoboLogic</span><span class="brand-subtitle">Physics Kinematics Lab</span></span></a>
     <div class="nav-links"><a class="btn-nav" href="../dashboard.html">Dashboard</a><div class="stats-bar">
       <div class="stat-pill"><span class="stat-xp">⭐</span> <span id="xpCount">100 XP</span></div>
       <div class="stat-pill"><span class="stat-streak">🔥</span> <span id="streakCount">3 Days</span></div>
@@ -294,36 +298,25 @@
       <div class="level-header">
         <h2 style="font-size: 1.1rem; font-weight: 700;" id="levelTitle">Level 1: The 45° Discovery</h2>
         <select class="level-select" id="levelPicker" data-action="change-level">
-          <option value="0">Level 1: Projectile Motion</option>
-          <option value="1">Level 2: Maximum Range</option>
-          <option value="2">Level 3: Speed & Distance</option>
-          <option value="3">Level 4: Angle & Height</option>
-          <option value="4">Level 5: Match the Target</option>
-          <option value="5">Level 6: Two Valid Angles</option>
-          <option value="6">Level 7: Clear the Wall</option>
-          <option value="7">Level 8: Flight Time</option>
-          <option value="8">Level 9: Apex Height</option>
-          <option value="9">Level 10: Air Resistance</option>
-          <option value="10">Level 11: Drag Comparison</option>
-          <option value="11">Level 12: Compensate with Speed</option>
-          <option value="12">Level 13: Compensate with Angle</option>
-          <option value="13">Level 14: Energy Loss</option>
-          <option value="14">Level 15: Final Trajectory</option>
-          <option value="15">Level 16: Range with Drag</option>
-          <option value="16">Level 17: Drag & Distance</option>
-          <option value="17">Level 18: High-Wall Clearance</option>
-          <option value="18">Level 19: Angle Choice with Drag</option>
-          <option value="19">Level 20: Speed Limit</option>
-          <option value="20">Level 21: Low-Speed Precision</option>
-          <option value="21">Level 22: Bounce Trajectory</option>
-          <option value="22">Level 23: Energy-Loss Landing</option>
-          <option value="23">Level 24: Ideal Calibration</option>
-          <option value="24">Level 25: Drag Calibration</option>
-          <option value="25">Level 26: Wall with Air Resistance</option>
-          <option value="26">Level 27: Maximum Range under Drag</option>
-          <option value="27">Level 28: Apex vs Range</option>
-          <option value="28">Level 29: Tight Accuracy</option>
-          <option value="29">Level 30: Final Trajectory</option>
+          <optgroup label="Core experiments">
+            <option value="0">Level 1: Projectile Motion</option>
+            <option value="1">Level 2: Maximum Range</option>
+            <option value="2">Level 3: Speed & Distance</option>
+            <option value="3">Level 4: Angle & Height</option>
+            <option value="4">Level 5: Match the Target</option>
+            <option value="5">Level 6: Two Valid Angles</option>
+            <option value="6">Level 7: Clear the Wall</option>
+            <option value="7">Level 8: Flight Time</option>
+            <option value="8">Level 9: Apex Height</option>
+            <option value="9">Level 10: Air Resistance</option>
+          </optgroup>
+          <optgroup label="Critical thinking & real-world shots">
+            <option value="10">Level 11: Drag Comparison</option>
+            <option value="11">Level 12: Compensate with Speed</option>
+            <option value="12">Level 13: Compensate with Angle</option>
+            <option value="13">Level 14: Energy Loss</option>
+            <option value="14">Level 15: Final Trajectory</option>
+          </optgroup>
         </select>
       </div>
 

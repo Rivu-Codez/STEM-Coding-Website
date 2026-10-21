@@ -35,6 +35,9 @@
     }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; font-size: 1.25rem; letter-spacing: .02em; }
     .brand span { color: #38bdf8; }
+    .brand-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; }
+    .brand-name { color: #38bdf8 !important; }
+    .brand-subtitle { color: #c4c9e7 !important; font-size: .78rem; font-weight: 600; letter-spacing: .01em; }
     .nav-links { display: flex; align-items: center; gap: 12px; }
     .btn-nav {
       background: rgba(51,65,85,.72);
@@ -346,10 +349,10 @@
        2. UI HEADER & WORKSPACE
        ========================================================================== -->
   <header>
-    <a class="brand brand-home" href="../dashboard.html" aria-label="RoboLogic dashboard">🤖 <span>RoboLogic</span> <span style="font-size:0.75rem; color:#94a3b8; font-weight:500;">| STEM Coding Maze</span></a>
+    <a class="brand brand-home" href="../dashboard.html" aria-label="RoboLogic dashboard">🤖 <span class="brand-copy"><span class="brand-name">RoboLogic</span><span class="brand-subtitle">STEM Coding Maze</span></span></a>
     <div class="nav-links">
       <a class="btn-nav" href="../dashboard.html">Dashboard</a>
-      <a class="btn-nav is-locked" id="creatorAcademyLink" href="#" aria-disabled="true" title="Complete Level 30 to unlock Creator Academy">🔒 Creator Academy</a>
+      <a class="btn-nav is-locked" id="creatorAcademyLink" href="#" aria-disabled="true" title="Complete RoboMaze Level 15 to unlock Creator Academy">🔒 Creator Academy</a>
       <div class="stats-bar">
         <div class="stat-pill"><span class="stat-xp">⭐</span> <span id="xpCount">100 XP</span></div>
         <div class="stat-pill"><span class="stat-streak">🔥</span> <span id="streakCount">3 Days</span></div>
@@ -363,41 +366,30 @@
       <div class="level-header">
         <h2 style="font-size: 1.1rem; font-weight: 700;" id="levelTitle">Level 1: Simple Sequence</h2>
         <select class="level-select" id="levelPicker" data-action="change-level">
-          <option value="0">Level 1: Sequence Steps</option>
-          <option value="1">Level 2: Turning</option>
-          <option value="2">Level 3: Repeat Loops</option>
-          <option value="3">Level 4: Choosing a Turn</option>
-          <option value="4">Level 5: Wall Detection</option>
-          <option value="5">Level 6: Conditional Movement</option>
-          <option value="6">Level 7: Loop + Turn</option>
-          <option value="7">Level 8: Shortest Path</option>
-          <option value="8">Level 9: Avoid the Dead End</option>
-          <option value="9">Level 10: Right-Hand Logic</option>
-          <option value="10">Level 11: Left-Hand Logic</option>
-          <option value="11">Level 12: Multi-Corner Route</option>
-          <option value="12">Level 13: Efficient Navigation</option>
-          <option value="13">Level 14: Advanced Maze</option>
-          <option value="14">Level 15: Final Logic Maze</option>
-          <option value="15">Level 16: Repeated Corners</option>
-          <option value="16">Level 17: Conditional Right Turns</option>
-          <option value="17">Level 18: Conditional Left Turns</option>
-          <option value="18">Level 19: Long Corridor Loop</option>
-          <option value="19">Level 20: Alternating Turns</option>
-          <option value="20">Level 21: Route Choice</option>
-          <option value="21">Level 22: Dead-End Avoidance</option>
-          <option value="22">Level 23: Loop + Conditionals</option>
-          <option value="23">Level 24: Right-Hand Strategy</option>
-          <option value="24">Level 25: Left-Hand Strategy</option>
-          <option value="25">Level 26: Symmetrical Maze</option>
-          <option value="26">Level 27: Multi-Corner Route</option>
-          <option value="27">Level 28: Compact Program</option>
-          <option value="28">Level 29: Advanced Conditionals</option>
-          <option value="29">Level 30: Final Logic Maze</option>
-          <option value="creator-31" data-creator-level="31" disabled>🔒 Creator Academy: Unlock after Level 30</option>
-          <option value="creator-32" data-creator-level="32" disabled>🔒 Creator Academy: Level 32</option>
-          <option value="creator-33" data-creator-level="33" disabled>🔒 Creator Academy: Level 33</option>
-          <option value="creator-34" data-creator-level="34" disabled>🔒 Creator Academy: Level 34</option>
-          <option value="creator-35" data-creator-level="35" disabled>🔒 Creator Academy: Level 35</option>
+          <optgroup label="Normal navigation">
+            <option value="0">Level 1: Sequence Steps</option>
+            <option value="1">Level 2: Turning</option>
+            <option value="2">Level 3: Repeat Loops</option>
+            <option value="3">Level 4: Choosing a Turn</option>
+            <option value="4">Level 5: Wall Detection</option>
+            <option value="5">Level 6: Conditional Movement</option>
+            <option value="6">Level 7: Loop + Turn</option>
+            <option value="7">Level 8: Shortest Path</option>
+            <option value="8">Level 9: Avoid the Dead End</option>
+            <option value="9">Level 10: Right-Hand Logic</option>
+          </optgroup>
+          <optgroup label="Coding challenges">
+            <option value="10">Level 11: Left-Hand Logic</option>
+            <option value="11">Level 12: Multi-Corner Route</option>
+            <option value="12">Level 13: Efficient Navigation</option>
+            <option value="13">Level 14: Advanced Maze</option>
+            <option value="14">Level 15: Final Logic Maze</option>
+          </optgroup>
+          <option value="creator-31" data-creator-level="31" disabled>🔒 Creator Academy: Level 16</option>
+          <option value="creator-32" data-creator-level="32" disabled>🔒 Creator Academy: Level 17</option>
+          <option value="creator-33" data-creator-level="33" disabled>🔒 Creator Academy: Level 18</option>
+          <option value="creator-34" data-creator-level="34" disabled>🔒 Creator Academy: Level 19</option>
+          <option value="creator-35" data-creator-level="35" disabled>🔒 Creator Academy: Level 20</option>
         </select>
         <div class="shared-level-entry" aria-label="Play a shared Creator Academy level">
           <input id="sharedLevelCode" inputmode="numeric" maxlength="6" placeholder="6-digit share code" aria-label="Shared level code">

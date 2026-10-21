@@ -1,4 +1,5 @@
 (function () {
+  const GAME_LEVEL_LIMITS = { physics: 15, robo_maze: 15 };
   function platform() { return window.StemGamePlatform; }
   function client() { return platform().getClient(); }
   function session() { return platform().getSession(); }
@@ -16,13 +17,14 @@
       return;
     }
     const unlocked = [1];
-    let level30Completed = false;
+    const finalLevel = GAME_LEVEL_LIMITS[gameId] || 30;
+    let finalLevelCompleted = false;
     (result.data || []).forEach(row => {
       if (["completed", "unlocked"].includes(row.status)) unlocked.push(row.level_number);
-      if (row.level_number === 30 && row.status === "completed") level30Completed = true;
+      if (row.level_number === finalLevel && row.status === "completed") finalLevelCompleted = true;
     });
     platform().setUnlocked(unlocked);
-    platform().setCreatorUnlocked(level30Completed);
+    platform().setCreatorUnlocked(gameId === "robo_maze" && finalLevelCompleted);
   }
 
   window.StemProgressApi = {
@@ -44,7 +46,8 @@
         .select("level_number,status,best_result").eq("game_id", gameId);
       const achievements = await client().from("student_achievements")
         .select("level_number,stars,xp").eq("game_id", gameId);
-      const completed = (progress.data || []).filter(row => row.status === "completed");
+      const maxLevels = GAME_LEVEL_LIMITS[gameId] || 30;
+      const completed = (progress.data || []).filter(row => row.status === "completed" && row.level_number <= maxLevels);
       const records = achievements.error ? [] : (achievements.data || []);
       const fallback = completed.map(row => row.best_result || {});
       const starsFromRecords = records.reduce((total, row) => total + (row.stars || 0), 0);
@@ -55,7 +58,7 @@
       const xp = records.length
         ? records.reduce((total, row) => total + (row.xp || 0), 0)
         : fallback.reduce((total, row) => total + (row.xp || 0), 0);
-      return { completedLevels: completed.length, stars, xp, nextLevel: Math.min(30, completed.length + 1) };
+      return { completedLevels: completed.length, stars, xp, nextLevel: Math.min(maxLevels, completed.length + 1), maxLevels };
     },
     async recordAttempt(levelNumber, result, mistakeCode, attemptData) {
       if (!client() || !session()) return { ok: false, error: "Authentication required" };

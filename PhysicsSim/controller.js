@@ -314,7 +314,7 @@ import { createGamePersistence } from '../js/game-persistence.js';
         changeLevel(currentLevelIndex + 1);
         document.getElementById('levelPicker').value = currentLevelIndex;
       } else {
-        alert("🎉 Congratulations! You have completed all 30 STEM Kinematics levels!");
+        alert("🎉 Congratulations! You have completed all 15 STEM Kinematics levels!");
         resetShot();
       }
     }

@@ -11,8 +11,8 @@ function loadFrontendLevels(relativePath) {
   const context = {};
   context.window = context;
   vm.createContext(context);
-  vm.runInContext(`${source}\n;globalThis.__levels = LEVELS;`, context);
-  return context.__levels;
+  vm.runInContext(`${source}\n;globalThis.__levels = LEVELS; globalThis.__allLevels = typeof ALL_LEVELS === 'undefined' ? LEVELS : ALL_LEVELS;`, context);
+  return context.__allLevels;
 }
 
 function parseSeedRows() {

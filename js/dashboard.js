@@ -16,8 +16,9 @@
   }
 
   function renderStats(prefix, stats) {
-    const percent = Math.round((stats.completedLevels / 30) * 100);
-    setText(prefix + "Completed", `${stats.completedLevels}/30`);
+    const maxLevels = stats.maxLevels || 30;
+    const percent = Math.round((stats.completedLevels / maxLevels) * 100);
+    setText(prefix + "Completed", `${stats.completedLevels}/${maxLevels}`);
     setText(prefix + "Stars", stats.stars);
     setText(prefix + "Xp", stats.xp);
     setText(prefix + "Progress", `${percent}%`);

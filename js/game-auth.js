@@ -167,8 +167,11 @@
       document.getElementById("authForm").onsubmit = event => { event.preventDefault(); submit(); };
       modeToggle.onclick = () => { mode = mode === "login" ? "signup" : "login"; updateMode(); };
       document.getElementById("togglePassword").onclick = () => {
-        password.type = password.type === "password" ? "text" : "password";
-        document.getElementById("togglePassword").textContent = password.type === "password" ? "Show" : "Hide";
+        const visible = password.type === "password";
+        password.type = visible ? "text" : "password";
+        document.getElementById("togglePassword").textContent = visible ? "Hide" : "Show";
+        document.getElementById("togglePassword").setAttribute("aria-pressed", String(visible));
+        password.focus({ preventScroll: true });
       };
       updateMode();
       const current = await auth().getSession();

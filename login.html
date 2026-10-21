@@ -24,7 +24,7 @@
 <body>
   <main class="auth-card">
     <section id="loginPanel">
-      <div class="brand">⚙ ROBOLOGIC STEM LAB</div>
+      <div class="brand">⚙ ROBO LOGIC STEM LAB</div>
       <h1 id="authTitle">Welcome back</h1>
       <p id="authDescription">Log in to continue your learning journey.</p>
       <form id="authForm" class="auth-form">
@@ -37,7 +37,7 @@
         <label for="loginPassword">Password</label>
         <div class="password-wrap">
           <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
-          <button id="togglePassword" type="button">Show</button>
+          <button id="togglePassword" type="button" aria-controls="loginPassword" aria-pressed="false">Show</button>
         </div>
         <p id="passwordRules" class="password-rules" hidden>Use at least 6 characters.</p>
         <div id="confirmRow" hidden>

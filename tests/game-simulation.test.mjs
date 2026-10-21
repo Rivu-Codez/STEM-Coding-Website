@@ -24,8 +24,8 @@ const roboLevels = loadClassicScript('RoboMaze/levels.js', 'LEVELS');
 const robo = loadClassicScript('RoboMaze/simulation.js', 'RoboMazeSimulation');
 const physics = loadClassicScript('PhysicsSim/simulation.js', 'PhysicsSimulation');
 
-test('RoboMaze contains 30 canonical levels', () => {
-  assert.equal(roboLevels.length, 30);
+test('RoboMaze exposes the compact 15-level expo path', () => {
+  assert.equal(roboLevels.length, 15);
   assert.deepEqual(plain(roboLevels[0].start), { x: 1, y: 1, dir: 1 });
 });
 
