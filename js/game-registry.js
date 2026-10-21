@@ -1,0 +1,56 @@
+(function () {
+  const definitions = [
+    {
+      gameId: "physics",
+      displayName: "Physics Kinematics Lab",
+      description: "Explore speed, angles, distance, and trajectory through experiments.",
+      route: "PhysicsSim/index.html",
+      enabled: true,
+      levelCount: 15,
+      validator: "physics",
+      icon: "⚡"
+    },
+    {
+      gameId: "robo_maze",
+      displayName: "RoboLogic Maze",
+      description: "Plan routes, practise logic, and teach a robot to solve the maze.",
+      route: "RoboMaze/index.html",
+      enabled: true,
+      levelCount: 15,
+      validator: "robo_maze",
+      icon: "▦"
+    },
+    {
+      gameId: "chemistry",
+      displayName: "Chemistry Lab",
+      description: "Experiment with reactions, matter, and the building blocks of chemistry.",
+      route: "Chemistry/index.html",
+      enabled: false,
+      levelCount: 0,
+      validator: null,
+      icon: "⚗"
+    },
+    {
+      gameId: "biology",
+      displayName: "Biology & Environment Lab",
+      description: "Discover living systems, ecosystems, and practical environmental science.",
+      route: "Biology/index.html",
+      enabled: false,
+      levelCount: 0,
+      validator: null,
+      icon: "✦"
+    }
+  ];
+
+  const byId = new Map(definitions.map(game => [game.gameId, Object.freeze({ ...game })]));
+  const registry = Object.freeze({
+    get(gameId) { return byId.get(gameId) || null; },
+    all() { return definitions.map(game => byId.get(game.gameId)); },
+    enabled() { return definitions.filter(game => game.enabled).map(game => byId.get(game.gameId)); },
+    isKnown(gameId) { return byId.has(gameId); },
+    isEnabled(gameId) { return byId.get(gameId)?.enabled === true; },
+    levelCount(gameId) { return byId.get(gameId)?.levelCount || 0; }
+  });
+
+  window.StemGameRegistry = registry;
+})();

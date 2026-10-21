@@ -19,14 +19,18 @@
       }
     });
 
-    return Object.freeze({
+    const module = {
       gameId: config.gameId,
       levels: Object.freeze([...config.levels]),
       loadLevel: config.loadLevel,
       reset: config.reset,
       getAttemptPayload: config.getAttemptPayload,
       renderFeedback: config.renderFeedback
+    };
+    ["getMistakeCategory", "buildTutorContext"].forEach(name => {
+      if (typeof config[name] === "function") module[name] = config[name];
     });
+    return Object.freeze(module);
   }
 
   window.StemGameModule = Object.freeze({ create });
