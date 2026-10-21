@@ -83,3 +83,22 @@ test('tutor reliability contract includes retry states and quota refund', () => 
   }
   assert.match(quotaMigration, /refund_tutor_quota/);
 });
+
+test('creator migration protects drafts and validates published mazes', () => {
+  const source = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '014_creator_levels.sql'),
+    'utf8',
+  );
+  assert.match(source, /create table public\.creator_levels/);
+  assert.match(source, /create table public\.creator_level_attempts/);
+  assert.match(source, /create table public\.creator_level_progress/);
+  assert.match(source, /alter table public\.creator_levels enable row level security/);
+  assert.match(source, /validate_creator_level/);
+  assert.match(source, /Grid must be exactly 8 by 8/);
+  assert.match(source, /goal must be reachable/i);
+  assert.match(source, /publish_creator_level/);
+  assert.match(source, /submit_creator_level_attempt/);
+  assert.match(source, /server_validated/);
+  assert.match(source, /share_code/);
+  assert.match(source, /revoke all on function public\.publish_creator_level/);
+});
