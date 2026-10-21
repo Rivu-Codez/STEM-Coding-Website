@@ -35,11 +35,13 @@ Copy the failing result and the migration number shown in the Supabase error bef
 
 ## Current migration baseline
 
-This verification applies after migrations `001` through `013` and the seed
+This verification applies after migrations `001` through `015` and the seed
 file have been applied. Migrations `011` through `013` revoke legacy
 client-trusted writes, add duplicate-safe attempt receipts, and close the
 compatibility window by revoking direct client access to the authoritative
-submit procedures.
+submit procedures. Migration `014` adds Creator Academy storage and server
+validation. Migration `015` adds the authenticated owner-read RPC used by the
+integrated Level 31 player; direct creator table reads remain revoked.
 
 Clients must call only `submit_robo_maze_attempt_idempotent` and
 `submit_physics_attempt_idempotent`. Repeating the same user, game, and attempt

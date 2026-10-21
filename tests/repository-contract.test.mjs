@@ -109,3 +109,19 @@ test('creator academy page and modules are present', () => {
   assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-grid.js')), true);
   assert.equal(fs.existsSync(path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js')), true);
 });
+
+test('integrated creator player uses the owner-read RPC', () => {
+  const migration = fs.readFileSync(
+    path.join(repositoryRoot, 'supabase', 'migrations', '015_creator_level_read_rpc.sql'),
+    'utf8',
+  );
+  const api = fs.readFileSync(
+    path.join(repositoryRoot, 'RoboMaze', 'creator', 'creator-api.js'),
+    'utf8',
+  );
+  const page = fs.readFileSync(path.join(repositoryRoot, 'RoboMaze', 'index.html'), 'utf8');
+  assert.match(migration, /create or replace function public\.get_my_creator_level/);
+  assert.match(migration, /grant execute on function public\.get_my_creator_level\(integer\) to authenticated/);
+  assert.match(api, /rpc\('get_my_creator_level'/);
+  assert.match(page, /data-creator-level="31"/);
+});

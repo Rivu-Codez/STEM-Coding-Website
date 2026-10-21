@@ -28,6 +28,10 @@
     const picker = document.getElementById("levelPicker");
     if (!picker) return;
     [...picker.options].forEach(option => {
+      if (option.dataset?.creatorLevel) {
+        option.disabled = false;
+        return;
+      }
       option.disabled = !state.unlocked.has(Number(option.value) + 1);
     });
   }

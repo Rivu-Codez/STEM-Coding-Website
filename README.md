@@ -33,7 +33,7 @@ in `js/supabase-config.js`. Never put a service-role key or Gemini key there.
 ### Dashboard setup
 
 1. Create or open the Supabase project.
-2. In **SQL Editor**, run migrations in filename order: `001` through `013`.
+2. In **SQL Editor**, run migrations in filename order: `001` through `015`.
 3. Run `supabase/seed/001_game_levels.sql` after the migrations.
 4. In **Authentication > Providers > Email**, enable email/password sign-in.
 5. In **Project Settings > API**, copy only the project URL and publishable key
@@ -67,7 +67,7 @@ Expected results are 30 seeded levels for each current game, the authoritative
 validators and idempotent submit wrappers, revoked direct client access to the
 old submit procedures, and `tutor_quota_events` as the table name.
 
-After applying migration `013`, test the server replay with a signed-in user by
+After applying migration `015`, test the server replay with a signed-in user by
 running RoboMaze level 1. A successful run should create a `success` row in
 `level_attempts` and unlock level 2. A wall collision or incomplete program
 must not unlock level 2. Repeating the same attempt ID must return the stored
@@ -141,7 +141,7 @@ SUPABASE_INTEGRATION=1
 Never use a service-role key for browser or integration tests. The integration
 checks are opt-in because they authenticate a real test account and may create
 test-project data. Run them only against a disposable Supabase project after
-applying migrations `001` through `013` and the seed file:
+applying migrations `001` through `015` and the seed file:
 
 ```text
 npm run test:integration
