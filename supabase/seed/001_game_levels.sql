@@ -71,6 +71,26 @@ on conflict (game_id, level_number) do update set
   is_bonus = excluded.is_bonus,
   bonus_number = excluded.bonus_number;
 
+-- Signal Decrypter: canonical 15-level curriculum.
+insert into public.game_levels (game_id, level_number, title, instruction, configuration, is_bonus, bonus_number)
+values
+  ('signal_decrypter', 1, 'Mirror Transmission', 'The message is backwards. Build a decoder that reads it from right to left.', '{"id":1,"signal":"T-A-C","output":"C-A-T","mode":"blocks","operations":[{"type":"reverse"}],"timeLimit":90,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 2, 'Deep Space Beacon', 'The beacon needs a character count. Choose the decoder that measures the whole signal.', '{"id":2,"signal":"E-D-O-C","output":"7","mode":"blocks","operations":[{"type":"length"}],"timeLimit":85,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 3, 'Static Noise Filter', 'Remove the # noise from both ends without damaging the rescue message.', '{"id":3,"signal":"###S-O-S###","output":"S-O-S","mode":"blocks","operations":[{"type":"strip","chars":"#"}],"timeLimit":80,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 4, 'Outpost Beacon', 'The outpost ignores leading zeroes. Remove only the zeroes at the start.', '{"id":4,"signal":"000742","output":"742","mode":"blocks","operations":[{"type":"lstrip","chars":"0"}],"timeLimit":75,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 5, 'Alien Dialect', 'The receiver only understands lowercase text. Convert the signal before sending it.', '{"id":5,"signal":"A-L-I-E-N","output":"a-l-i-e-n","mode":"blocks","operations":[{"type":"lower"}],"timeLimit":75,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 6, 'Command Override', 'The command console is uppercase-only. Convert the complete signal.', '{"id":6,"signal":"launch","output":"LAUNCH","mode":"blocks","operations":[{"type":"upper"}],"timeLimit":70,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 7, 'Target Lock', 'Lock onto the first character only. Do not transmit the rest of the signal.', '{"id":7,"signal":"Z-8-9","output":"Z","mode":"blocks","operations":[{"type":"index","index":0}],"timeLimit":70,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 8, 'Tail End Telemetry', 'The telemetry key is the final character. Select that position directly.', '{"id":8,"signal":"P-R-O-B-E-X","output":"X","mode":"blocks","operations":[{"type":"index","index":-1}],"timeLimit":65,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 9, 'Flipped Frequency', 'Keep only the middle A-L-I-E-N transmission. The outside characters are interference.', '{"id":9,"signal":"X-A-L-I-E-N-Y","output":"A-L-I-E-N","mode":"blocks","operations":[{"type":"slice","start":2,"end":11}],"timeLimit":65,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 10, 'Interleaved Channels', 'The real message uses every other character. Skip the # interference.', '{"id":10,"signal":"S#O#S","output":"SOS","mode":"blocks","operations":[{"type":"slice_step","start":0,"step":2}],"timeLimit":60,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 11, 'Python: Mirror Transmission', 'Write a Python expression that reverses the signal before the countdown ends.', '{"id":11,"signal":"L-U-N-A-R","output":"R-A-N-U-L","mode":"python","operations":[{"type":"reverse"}],"timeLimit":75,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 12, 'Python: Find the Key', 'Find the position of K in the transmission.', '{"id":12,"signal":"A-B-K-Z","output":"4","mode":"python","operations":[{"type":"find","value":"K"}],"timeLimit":70,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 13, 'Python: Count the Pulses', 'Count every 1 pulse in the signal.', '{"id":13,"signal":"1-0-1-1-0-1","output":"4","mode":"python","operations":[{"type":"count","value":"1"}],"timeLimit":65,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 14, 'Python: Repair the Wire', 'Replace every broken-wire marker (*) with a hyphen.', '{"id":14,"signal":"S*O*S","output":"S-O-S","mode":"python","operations":[{"type":"replace","from":"*","to":"-"}],"timeLimit":60,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 15, 'Python: Final Decryption', 'Recover the final transmission: remove #, reverse it, then uppercase it.', '{"id":15,"signal":"##t-c-e-j-b-o##","output":"O-B-J-E-C-T","mode":"python","operations":[{"type":"strip","chars":"#"},{"type":"reverse"},{"type":"upper"}],"timeLimit":55,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null)
+on conflict (game_id, level_number) do update set title = excluded.title, instruction = excluded.instruction, configuration = excluded.configuration;
+
 
 
 -- Submarine Math: canonical 15-level curriculum.

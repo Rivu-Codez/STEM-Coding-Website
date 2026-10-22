@@ -2,10 +2,12 @@
   const registry = () => window.StemGameRegistry;
   const physicsDefinition = () => registry().get("physics");
   const roboDefinition = () => registry().get("robo_maze");
+  const signalDefinition = () => registry().get("signal_decrypter");
   const submarineDefinition = () => registry().get("submarine_math");
   const games = {
     physics: { prefix: "physics", definition: physicsDefinition },
     robo: { prefix: "robo", definition: roboDefinition },
+    signal: { prefix: "signal", definition: signalDefinition },
     submarine: { prefix: "submarine", definition: submarineDefinition }
   };
 
@@ -37,20 +39,24 @@
     renderProfile(profile, window.StemGameAuth.getCurrentUser());
     const physicsGame = games.physics.definition();
     const roboGame = games.robo.definition();
+    const signalGame = games.signal.definition();
     const submarineGame = games.submarine.definition();
-    const [physics, robo, submarine] = await Promise.all([
+    const [physics, robo, signal, submarine] = await Promise.all([
       window.StemGameAuth.getDashboardStats(physicsGame.gameId),
       window.StemGameAuth.getDashboardStats(roboGame.gameId),
+      window.StemGameAuth.getDashboardStats(signalGame.gameId),
       window.StemGameAuth.getDashboardStats(submarineGame.gameId)
     ]);
     renderStats(games.physics.prefix, physics);
     renderStats(games.robo.prefix, robo);
+    renderStats(games.signal.prefix, signal);
     renderStats(games.submarine.prefix, submarine);
   }
 
   function bindEvents() {
     $("physicsGameButton").onclick = () => { window.location.href = games.physics.definition().route; };
     $("roboGameButton").onclick = () => { window.location.href = games.robo.definition().route; };
+    $("signalGameButton").onclick = () => { window.location.href = games.signal.definition().route; };
     $("submarineGameButton").onclick = () => { window.location.href = games.submarine.definition().route; };
     $("logoutButton").onclick = () => window.StemGameAuth.signOut();
     $("editProfileButton").onclick = () => {

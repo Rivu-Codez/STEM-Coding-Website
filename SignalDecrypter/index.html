@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+  <title>Signal Decrypter | RoboLogic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-registry.js"></script>
+  <script src="../js/game-platform.js"></script>
+  <script src="../js/auth-api.js"></script>
+  <script src="../js/progress-api.js"></script>
+  <script src="../js/achievement-api.js"></script>
+  <script src="../js/mistake-api.js"></script>
+  <script src="../js/tutor-api.js"></script>
+  <script src="../js/game-auth.js"></script>
+  <script src="../js/game-adapter.js"></script>
+  <script src="../js/game-module.js"></script>
+  <script src="levels.js"></script>
+  <script src="engine.js"></script>
+  <script src="module.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../dashboard.html" aria-label="Return to dashboard"><span class="brand-icon">📡</span><span><strong>Signal Decrypter</strong><small>Coding transmission lab</small></span></a>
+    <nav class="top-actions"><a class="dashboard-link" href="../dashboard.html">⌂ Dashboard</a><span class="stat-pill">⭐ <span id="starCount">0</span></span><span class="stat-pill">XP <span id="xpCount">0</span></span></nav>
+  </header>
+  <main class="game-layout">
+    <section class="monitor panel" aria-labelledby="monitorTitle">
+      <div class="panel-heading"><div><p class="eyebrow">DEEP SPACE AUDIO MONITOR</p><h1 id="monitorTitle">Transmission received</h1></div><span id="transmissionStatus" class="status-badge">READY</span></div>
+      <div class="waveform" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="signal-card"><span class="signal-label">CORRUPTED SIGNAL</span><code id="signalInput">—</code></div>
+      <div class="decode-arrow" aria-hidden="true">↓</div>
+      <div class="signal-card decoded"><span class="signal-label">DECODED OUTPUT</span><code id="decodedOutput">LOCKED UNTIL RUN</code></div>
+      <div class="mission-monitor" aria-label="Mission status">
+        <div><span>TIME LEFT</span><strong id="timerValue">90s</strong></div>
+        <div><span>INTERFERENCE</span><strong id="interferenceValue">0 / 3</strong></div>
+      </div>
+      <div class="meter-track"><span id="interferenceBar"></span></div>
+      <div class="monitor-footer"><span id="sectionLabel">String basics</span><span id="levelIndicator">Level 1 of 15</span></div>
+    </section>
+    <section class="workspace panel" aria-labelledby="missionTitle">
+      <div class="progress-row"><span id="progressLabel">Level 1 of 15</span><div class="progress-track"><span id="progressBar"></span></div></div>
+      <div class="mission-copy"><p class="eyebrow">MISSION BRIEF</p><h2 id="missionTitle">Mirror Transmission</h2><p id="objectiveText"></p></div>
+      <div class="mission-callout"><strong>Signal to inspect</strong><code id="missionSignal">—</code><span id="objectiveTag">Recover the transmission before interference reaches the limit.</span></div>
+      <div class="mode-heading"><div><p class="eyebrow">SIGNAL WORKSPACE</p><h3 id="modeTitle">Build the operation</h3></div><select id="levelPicker" aria-label="Choose unlocked level"></select></div>
+      <div id="blockWorkspace" class="block-workspace"><p class="workspace-help">Drag decoder modules into the pipeline, then run the signal. You can also use the keyboard: focus a module and press Enter.</p><div id="operationPalette" class="operation-palette" aria-label="Decoder modules"></div><div class="pipeline-heading"><span>DECODER PIPELINE</span><span id="pipelineCount">0 modules</span></div><div id="selectedOperations" class="selected-operations" aria-label="Decoder pipeline"><span class="empty-state">Drop a module here to start.</span></div><div id="tracePanel" class="trace-panel" hidden><strong>Execution trace</strong><ol id="executionTrace"></ol></div></div>
+      <div id="pythonWorkspace" class="python-workspace" hidden><label for="pythonEditor">Write the approved Python-style expression</label><textarea id="pythonEditor" spellcheck="false" placeholder="signal[::-1]"></textarea><p class="editor-help">Only the string operations taught in this level are accepted.</p></div>
+      <div class="route-preview"><span>Mission status</span><code id="outputPreview">Build your pipeline</code></div>
+      <button id="executeButton" class="execute-button" type="button">Execute decryption <span>→</span></button>
+      <p id="feedbackText" class="feedback" aria-live="polite"></p>
+      <div class="hint-box"><strong>💡 Hint</strong><p id="hintText"></p></div>
+      <button id="hintButton" class="hint-button" type="button">Use hint <span id="hintCost">−8s</span></button>
+      <button id="nextButton" class="next-button" type="button" hidden>Continue to next level →</button>
+    </section>
+  </main>
+  <div id="diagnosticOverlay" class="diagnostic-overlay" hidden>
+    <section class="diagnostic-card" role="dialog" aria-modal="true" aria-labelledby="diagnosticTitle">
+      <p class="eyebrow">SIGNAL CHECK</p><h2 id="diagnosticTitle">Pause and review the idea</h2>
+      <p>Which clue will help you solve this transmission?</p>
+      <div id="diagnosticOptions" class="diagnostic-options"></div>
+      <p id="diagnosticFeedback" class="diagnostic-feedback" aria-live="polite"></p>
+      <button id="closeDiagnostic" class="next-button" type="button">Return to workspace</button>
+    </section>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

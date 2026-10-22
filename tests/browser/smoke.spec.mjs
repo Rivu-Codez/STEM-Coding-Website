@@ -25,7 +25,7 @@ async function mockSupabase(page, session = null) {
       return query;
     } }), rpc: async (name, args) => {
       if (name === 'submit_game_attempt_idempotent') {
-        const success = args.p_attempt_data.answer === '+10';
+        const success = args.p_attempt_data.answer === '>';
         if (success) {
           progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number, status: 'completed' });
           if (args.p_level_number < 15) progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number + 1, status: 'unlocked' });
@@ -86,13 +86,45 @@ test('protected Submarine Math page redirects unauthenticated visitors', async (
   await expect(page).toHaveURL(/\/login\.html$/);
 });
 
-test('Submarine Math completes an easy target mission and advances levels', async ({ page }) => {
+test('protected Signal Decrypter page redirects unauthenticated visitors', async ({ page }) => {
+  await mockSupabase(page);
+  await page.goto('/SignalDecrypter/index.html');
+  await expect(page).toHaveURL(/\/login\.html$/);
+});
+
+test('Signal Decrypter completes an easy block mission and advances levels', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockProgressionAuth(page);
+  await page.goto('/SignalDecrypter/index.html');
+
+  await expect(page.locator('#levelIndicator')).toHaveText('Level 1 of 15');
+  await expect(page.locator('#timerValue')).toHaveText('90s');
+  await page.getByRole('button', { name: 'Add Reverse signal to pipeline' }).click();
+  await expect(page.locator('#outputPreview')).toContainText('1 module ready');
+  await expect(page.locator('#decodedOutput')).toHaveText('LOCKED UNTIL RUN');
+  await page.locator('#executeButton').click();
+  await expect(page.locator('#feedbackText')).toContainText('Correct!');
+  await expect(page.locator('#executionTrace')).toContainText('Reverse signal');
+  await page.locator('#nextButton').click();
+  await expect(page.locator('#levelIndicator')).toHaveText('Level 2 of 15');
+});
+
+test('Signal Decrypter wrong decoder increases interference and gives stage feedback', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockProgressionAuth(page);
+  await page.goto('/SignalDecrypter/index.html');
+  await page.getByRole('button', { name: 'Add Make uppercase to pipeline' }).click();
+  await page.locator('#executeButton').click();
+  await expect(page.locator('#feedbackText')).toContainText('Stage 1');
+  await expect(page.locator('#interferenceValue')).toHaveText('1 / 3');
+});
+
+test('Submarine Math checks an answer and advances levels', async ({ page }) => {
   await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
   await page.goto('/SubmarineMath/index.html');
 
   await expect(page.locator('#level-indicator')).toHaveText('Level 1 of 15');
-  await page.locator('#native-user-input').fill('+10');
-  await expect(page.locator('#route-preview')).toContainText('+10');
+  await page.locator('[data-symbol=">"]') .click();
   await page.locator('[data-action="submit-answer"]').click();
   await expect(page.locator('#feedback-text')).toContainText('Correct!');
   await page.locator('[data-action="next-level"]').click();

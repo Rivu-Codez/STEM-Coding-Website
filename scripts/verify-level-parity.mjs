@@ -15,6 +15,10 @@ function loadFrontendLevels(relativePath) {
     vm.runInContext(source, context);
     return JSON.parse(JSON.stringify(context.window.SubmarineMathLevels));
   }
+  if (relativePath === 'SignalDecrypter/levels.js') {
+    vm.runInContext(source, context);
+    return JSON.parse(JSON.stringify(context.window.SignalDecrypterLevels));
+  }
   vm.runInContext(`${source}\n;globalThis.__levels = LEVELS; globalThis.__allLevels = typeof ALL_LEVELS === 'undefined' ? LEVELS : ALL_LEVELS;`, context);
   return context.__allLevels;
 }
@@ -56,6 +60,15 @@ function normalizedFrontend(gameId, level, index) {
         ...(maxAngle === undefined ? {} : { maxAngle }),
         ...(debugSetup === undefined ? {} : { debugSetup }) } };
   }
+  if (gameId === 'signal_decrypter') {
+    const operations = level.operations.filter(operation => operation.role === 'correct' || level.mode === 'python').map(({ type, chars, index, start, end, step, value, from, to }) =>
+      Object.fromEntries(Object.entries({ type, chars, index, start, end, step, value, from, to })
+        .filter(([, operationValue]) => operationValue !== undefined && operationValue !== null)));
+    return { gameId, levelNumber: level.id, title: level.title,
+      instruction: cleanInstruction(level.objective),
+      configuration: { id: level.id, signal: level.signal, output: level.output, mode: level.mode, operations,
+        timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost } };
+  }
   const { title, instruction, grid, start, requiredBlock, maxBlocks } = level;
   return { gameId, levelNumber: index + 1, title, instruction: cleanInstruction(instruction),
     configuration: { grid, start, ...(requiredBlock === undefined ? {} : { requiredBlock }),
@@ -73,6 +86,7 @@ export function verifyLevelParity(repositoryRoot = root) {
     ['physics', 'PhysicsSim/levels.js'],
     ['robo_maze', 'RoboMaze/levels.js'],
     ['submarine_math', 'SubmarineMath/levels.js'],
+    ['signal_decrypter', 'SignalDecrypter/levels.js'],
   ];
   for (const [gameId, file] of games) {
     const frontend = loadFrontendLevels(file).map((level, index) => normalizedFrontend(gameId, level, index));

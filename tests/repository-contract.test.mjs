@@ -114,10 +114,27 @@ test('frontend game registry exposes stable routes and feature flags', () => {
   assert.match(source, /gameId: "physics"/);
   assert.match(source, /gameId: "robo_maze"/);
   assert.match(source, /gameId: "submarine_math"/);
+  assert.match(source, /gameId: "signal_decrypter"/);
   assert.match(source, /gameId: "chemistry"/);
   assert.match(source, /gameId: "biology"/);
   assert.match(source, /enabled: false/);
   assert.match(source, /levelCount\(gameId\)/);
+});
+
+test('Signal Decrypter is registered across the dashboard, module boundary, and authoritative migration', () => {
+  const dashboard = fs.readFileSync(path.join(repositoryRoot, 'dashboard.html'), 'utf8');
+  const dashboardScript = fs.readFileSync(path.join(repositoryRoot, 'js', 'dashboard.js'), 'utf8');
+  const page = fs.readFileSync(path.join(repositoryRoot, 'SignalDecrypter', 'index.html'), 'utf8');
+  const module = fs.readFileSync(path.join(repositoryRoot, 'SignalDecrypter', 'module.js'), 'utf8');
+  const migration = fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', '028_signal_decrypter_game.sql'), 'utf8');
+
+  assert.match(dashboard, /id="signalGameButton"/);
+  assert.match(dashboardScript, /signal_decrypter/);
+  assert.match(page, /Signal Decrypter/);
+  assert.match(module, /StemGameModule.create/);
+  assert.match(migration, /signal_decrypter_answer_keys/);
+  assert.match(migration, /submit_signal_decrypter_attempt_idempotent/);
+  assert.match(migration, /p_game_id = 'signal_decrypter'/);
 });
 
 test('Submarine Math backend validates canonical answers and awards server-owned progress', () => {
