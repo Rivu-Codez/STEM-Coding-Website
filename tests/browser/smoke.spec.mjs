@@ -91,10 +91,8 @@ test('Submarine Math completes an easy target mission and advances levels', asyn
   await page.goto('/SubmarineMath/index.html');
 
   await expect(page.locator('#level-indicator')).toHaveText('Level 1 of 15');
-  await page.locator('[data-move="+20"]').click();
-  await expect(page.locator('#route-preview')).toContainText('+20');
-  await page.locator('[data-action="clear-input"]').click();
-  await page.locator('[data-move="+10"]').click();
+  await page.locator('#native-user-input').fill('+10');
+  await expect(page.locator('#route-preview')).toContainText('+10');
   await page.locator('[data-action="submit-answer"]').click();
   await expect(page.locator('#feedback-text')).toContainText('Correct!');
   await page.locator('[data-action="next-level"]').click();
