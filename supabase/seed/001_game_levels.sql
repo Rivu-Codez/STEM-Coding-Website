@@ -71,6 +71,26 @@ on conflict (game_id, level_number) do update set
   is_bonus = excluded.is_bonus,
   bonus_number = excluded.bonus_number;
 
+-- Signal Decrypter: public question and signal metadata. Answers stay private.
+insert into public.game_levels (game_id, level_number, title, instruction, configuration, is_bonus, bonus_number)
+values
+  ('signal_decrypter', 1, 'World Capitals', 'What is the capital of France?', '{"id":1,"question":"What is the capital of France?","signal":"SIRAP","mode":"blocks","timeLimit":90,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","lower","upper"]}'::jsonb, false, null),
+  ('signal_decrypter', 2, 'Planet Patrol', 'Which planet is the largest in our solar system?', '{"id":2,"question":"Which planet is the largest in our solar system?","signal":"RETIPUJ","mode":"blocks","timeLimit":85,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","lower","remove"]}'::jsonb, false, null),
+  ('signal_decrypter', 3, 'Red Planet Relay', 'Which planet is known as the Red Planet?', '{"id":3,"question":"Which planet is known as the Red Planet?","signal":"SRAM","mode":"blocks","timeLimit":80,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","upper","lower"]}'::jsonb, false, null),
+  ('signal_decrypter', 4, 'Weather Station', 'What is the freezing point of water in Celsius?', '{"id":4,"question":"What is the freezing point of water in Celsius?","signal":"0-C","mode":"blocks","timeLimit":78,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","strip"]}'::jsonb, false, null),
+  ('signal_decrypter', 5, 'Ocean Atlas', 'What is the largest ocean on Earth?', '{"id":5,"question":"What is the largest ocean on Earth?","signal":"CIFICAP","mode":"blocks","timeLimit":75,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","lower","index"]}'::jsonb, false, null),
+  ('signal_decrypter', 6, 'Currency Exchange', 'What is the currency of Japan?', '{"id":6,"question":"What is the currency of Japan?","signal":"NEY","mode":"blocks","timeLimit":72,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","upper","length"]}'::jsonb, false, null),
+  ('signal_decrypter', 7, 'Plant Science', 'Which gas do plants absorb from the air?', '{"id":7,"question":"Which gas do plants absorb from the air?","signal":"#EDIXOIDNOBRAC#","mode":"blocks","timeLimit":70,"interferenceLimit":3,"hintCost":8,"availableOperations":["strip","reverse","lower","remove"]}'::jsonb, false, null),
+  ('signal_decrypter', 8, 'Shape Check', 'How many sides does a triangle have?', '{"id":8,"question":"How many sides does a triangle have?","signal":"3#","mode":"blocks","timeLimit":68,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","length"]}'::jsonb, false, null),
+  ('signal_decrypter', 9, 'Literature Lock', 'What is the surname of the author of Harry Potter?', '{"id":9,"question":"What is the surname of the author of Harry Potter?","signal":"GNILWOR","mode":"blocks","timeLimit":65,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","upper","slice"]}'::jsonb, false, null),
+  ('signal_decrypter', 10, 'Moon Mission', 'Who was the first person to walk on the Moon?', '{"id":10,"question":"Who was the first person to walk on the Moon?","signal":"GNORTSMRALIEN","mode":"blocks","timeLimit":62,"interferenceLimit":3,"hintCost":8,"availableOperations":["reverse","remove","lower"]}'::jsonb, false, null),
+  ('signal_decrypter', 11, 'Python: Capital Search', 'What is the capital of Australia?', '{"id":11,"question":"What is the capital of Australia?","signal":"ARREBNAC","mode":"python","timeLimit":78,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 12, 'Python: Element Symbol', 'What is the chemical symbol for gold?', '{"id":12,"question":"What is the chemical symbol for gold?","signal":"uA","mode":"python","timeLimit":72,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 13, 'Python: DNA Pattern', 'What shape is commonly used to describe DNA?', '{"id":13,"question":"What shape is commonly used to describe DNA?","signal":"#xileh-elbuod#","mode":"python","timeLimit":68,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 14, 'Python: Light Speed', 'What is the approximate speed of light in metres per second?', '{"id":14,"question":"What is the approximate speed of light in metres per second?","signal":"854297992","mode":"python","timeLimit":62,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null),
+  ('signal_decrypter', 15, 'Python: Human Biology', 'What is the largest organ in the human body?', '{"id":15,"question":"What is the largest organ in the human body?","signal":"#n-i-k-s#","mode":"python","timeLimit":58,"interferenceLimit":3,"hintCost":8}'::jsonb, false, null)
+on conflict (game_id, level_number) do update set title = excluded.title, instruction = excluded.instruction, configuration = excluded.configuration;
+
 
 
 -- Submarine Math: canonical 15-level curriculum.

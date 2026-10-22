@@ -21,6 +21,16 @@
       icon: "▦"
     },
     {
+      gameId: "signal_decrypter",
+      displayName: "Signal Decrypter",
+      description: "Clean corrupted transmissions and practise strings, indexing, slicing, and methods.",
+      route: "SignalDecrypter/index.html",
+      enabled: true,
+      levelCount: 15,
+      validator: "signal_decrypter",
+      icon: "📡"
+    },
+    {
       gameId: "submarine_math",
       displayName: "Submarine Math Expedition",
       description: "Use integers and number operations to navigate a submarine through 15 deep-sea levels.",

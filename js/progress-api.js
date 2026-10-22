@@ -91,8 +91,11 @@
       const isPhysics = gameId === "physics" && attemptData &&
         Number.isFinite(Number(attemptData.angle)) && Number.isFinite(Number(attemptData.speed));
       const isSubmarineMath = gameId === "submarine_math" &&
-        typeof attemptData?.answer === "string" && attemptData.answer.length <= 64;
-      if (!isRoboMaze && !isPhysics && !isSubmarineMath) {
+        typeof attemptData?.answer === "string" && attemptData.answer.length <= 32;
+      const isSignalDecrypter = gameId === "signal_decrypter" && attemptData &&
+        ((Array.isArray(attemptData.operations) && attemptData.operations.length <= 12) ||
+         (typeof attemptData.code === "string" && attemptData.code.length <= 800));
+      if (!isRoboMaze && !isPhysics && !isSubmarineMath && !isSignalDecrypter) {
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };
       }

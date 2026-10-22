@@ -15,6 +15,10 @@ function loadFrontendLevels(relativePath) {
     vm.runInContext(source, context);
     return JSON.parse(JSON.stringify(context.window.SubmarineMathLevels));
   }
+  if (relativePath === 'SignalDecrypter/levels.js') {
+    vm.runInContext(source, context);
+    return JSON.parse(JSON.stringify(context.window.SignalDecrypterLevels));
+  }
   vm.runInContext(`${source}\n;globalThis.__levels = LEVELS; globalThis.__allLevels = typeof ALL_LEVELS === 'undefined' ? LEVELS : ALL_LEVELS;`, context);
   return context.__allLevels;
 }
@@ -56,6 +60,14 @@ function normalizedFrontend(gameId, level, index) {
         ...(maxAngle === undefined ? {} : { maxAngle }),
         ...(debugSetup === undefined ? {} : { debugSetup }) } };
   }
+  if (gameId === 'signal_decrypter') {
+    const availableOperations = level.operations.map(operation => operation.type);
+    return { gameId, levelNumber: level.id, title: level.title,
+      instruction: cleanInstruction(level.question),
+      configuration: { id: level.id, question: level.question, signal: level.signal, mode: level.mode,
+        timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost,
+        ...(level.mode === 'blocks' ? { availableOperations } : {}) } };
+  }
   const { title, instruction, grid, start, requiredBlock, maxBlocks } = level;
   return { gameId, levelNumber: index + 1, title, instruction: cleanInstruction(instruction),
     configuration: { grid, start, ...(requiredBlock === undefined ? {} : { requiredBlock }),
@@ -73,6 +85,7 @@ export function verifyLevelParity(repositoryRoot = root) {
     ['physics', 'PhysicsSim/levels.js'],
     ['robo_maze', 'RoboMaze/levels.js'],
     ['submarine_math', 'SubmarineMath/levels.js'],
+    ['signal_decrypter', 'SignalDecrypter/levels.js'],
   ];
   for (const [gameId, file] of games) {
     const frontend = loadFrontendLevels(file).map((level, index) => normalizedFrontend(gameId, level, index));
