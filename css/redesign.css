@@ -115,6 +115,14 @@ body:has(.dashboard-shell) .game-content .progress-row,
 body:has(.dashboard-shell) .game-content .stat-grid span { color: #000000 !important; }
 body:has(.dashboard-shell) .game-content .progress-row strong,
 body:has(.dashboard-shell) .game-content .stat-grid strong { color: #000000 !important; }
+body:has(.dashboard-shell) .subject-grid { align-items: start; }
+body:has(.dashboard-shell) .subject-card { min-height: 0; }
+body:has(.dashboard-shell) .subject-card:not(.is-active) { box-shadow: 0 6px 18px rgba(31,53,89,.06) !important; }
+body:has(.dashboard-shell) .subject-panel { margin-top: 20px; }
+body:has(.dashboard-shell) .subject-panel .subject-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; padding: 0; border: 0; background: transparent !important; }
+body:has(.dashboard-shell) .subject-panel .subject-body[hidden] { display: none; }
+body:has(.dashboard-shell) .subject-panel .subject-body .game-card { margin: 0; }
+body:has(.dashboard-shell) .subject-panel .coming-state { grid-column: 1 / -1; margin-top: 0; }
 
 /* Physics and RoboMaze share .panel, .canvas-container, and .btn-* hooks. */
 body:has(.canvas-container) { min-height: 100vh; color: var(--rl-ink) !important; background: linear-gradient(135deg, #edf2ff 0%, #f7f4ff 48%, #e8f8fb 100%) !important; }
@@ -154,10 +162,12 @@ body:has(.canvas-container) .review-panel .learning-feedback { color: #f8d36d !i
 
 @media (max-width: 900px) {
   body:has(.dashboard-shell) .subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body:has(.dashboard-shell) .subject-panel .subject-body { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   body:has(.dashboard-shell) .dashboard-shell { padding: 22px 16px 44px !important; }
   body:has(.dashboard-shell) .dashboard-header { padding: 26px 22px 28px !important; }
   body:has(.dashboard-shell) .subject-grid { grid-template-columns: 1fr; }
+  body:has(.dashboard-shell) .subject-panel .subject-body { grid-template-columns: 1fr; }
   body:has(.canvas-container) main, .submarine-page > main { padding: 20px 16px 40px !important; }
 }

@@ -32,6 +32,46 @@
     $(prefix + "ProgressBar").style.width = `${percent}%`;
   }
 
+  function bindSubjectAccordion() {
+    const panel = $("subjectPanel");
+    const subjects = [...document.querySelectorAll(".subject-card")].map((subject, index) => ({
+      subject,
+      summary: subject.querySelector("summary"),
+      body: subject.querySelector(".subject-body"),
+      panelId: "subject-panel-" + (index + 1)
+    }));
+    if (!panel || !subjects.length) return;
+
+    subjects.forEach(({ body, summary, panelId }) => {
+      body.id = panelId;
+      body.hidden = true;
+      body.remove();
+      panel.append(body);
+      summary.setAttribute("aria-controls", panelId);
+      summary.setAttribute("aria-expanded", "false");
+    });
+
+    const activate = activeIndex => {
+      subjects.forEach(({ subject, summary, body }, index) => {
+        const active = index === activeIndex;
+        subject.open = active;
+        subject.classList.toggle("is-active", active);
+        summary.setAttribute("aria-expanded", String(active));
+        body.hidden = !active;
+      });
+    };
+
+    subjects.forEach(({ summary }, index) => {
+      summary.addEventListener("click", event => {
+        event.preventDefault();
+        const active = subjects[index].subject.classList.contains("is-active");
+        activate(active ? -1 : index);
+      });
+    });
+
+    activate(0);
+  }
+
   async function load() {
     const ready = await window.StemGameAuth.initDashboard();
     if (!ready) return;
@@ -82,5 +122,5 @@
     };
   }
 
-  window.addEventListener("DOMContentLoaded", () => { bindEvents(); load(); });
+  window.addEventListener("DOMContentLoaded", () => { bindSubjectAccordion(); bindEvents(); load(); });
 })();
