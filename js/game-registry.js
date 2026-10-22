@@ -52,12 +52,13 @@
     },
     {
       gameId: "biology",
-      displayName: "Biology & Environment Lab",
-      description: "Discover living systems, ecosystems, and practical environmental science.",
+      displayName: "Biology Garden",
+      description: "Grow a tomato plant and discover how care, light, water, and photosynthesis work together.",
       route: "Biology/index.html",
-      enabled: false,
+      enabled: true,
       levelCount: 0,
-      validator: null,
+      progressionMode: "stateful",
+      validator: "biology",
       icon: "✦"
     }
   ];

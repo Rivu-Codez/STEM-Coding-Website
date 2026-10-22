@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biology Garden | RoboLogic</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-platform.js"></script>
+  <script src="../js/auth-api.js"></script>
+  <script src="../js/progress-api.js"></script>
+  <script src="../js/game-registry.js"></script>
+  <script src="../js/achievement-api.js"></script>
+  <script src="../js/mistake-api.js"></script>
+  <script src="../js/tutor-api.js"></script>
+  <script src="../js/game-auth.js"></script>
+  <script src="engine.js"></script>
+</head>
+<body>
+  <header class="topbar"><a href="../dashboard.html" class="brand">Biology Garden <small>RoboLogic STEM Lab</small></a><a href="../dashboard.html" class="dashboard-link">Dashboard</a></header>
+  <main class="garden-shell">
+    <section class="hero"><div><p class="eyebrow">BIOLOGY LAB · 30-DAY GROWTH STUDY</p><h1>Grow a tomato plant.</h1><p>Plan its care, advance the day, and learn why each choice changes the plant.</p></div><div class="day-card" id="dayCard"><span id="phaseLabel">DAYLIGHT</span><strong>Day <span id="dayValue">1</span> <small>/ 30</small></strong><div class="day-progress"><i id="dayProgress"></i></div><button id="advancePhase" type="button">Advance time →</button></div></section>
+    <section class="garden-grid">
+      <section class="plant-panel panel" aria-labelledby="plantTitle"><div class="panel-heading"><div><p class="eyebrow">YOUR PLANT</p><h2 id="plantTitle">Seed</h2></div><span id="healthValue" class="health-pill">82% healthy</span></div><div id="plantScene" class="plant-scene stage-seed" aria-label="Tomato plant growth scene"><div class="sky-label">A simulated day in the garden</div><div class="sun"></div><div class="moon"></div><div class="sky-particle particle-co2">CO₂</div><div class="sky-particle particle-o2">O₂</div><div class="light-ray ray-one"></div><div class="light-ray ray-two"></div><div class="soil"></div><div class="plant-art"><span class="root root-one"></span><span class="root root-two"></span><span class="stem"></span><span class="leaf leaf-left"></span><span class="leaf leaf-right"></span><span class="leaf leaf-third"></span><span class="bud"></span><span class="flower-petal petal-one"></span><span class="flower-petal petal-two"></span><span class="fruit"></span></div></div><p id="observationText" class="observation">Your seed is ready for its first care plan.</p><div class="resource-grid"><div><span>Moisture</span><strong id="moistureValue">52%</strong><i><b id="moistureBar"></b></i></div><div><span>Light</span><strong id="lightValue">48%</strong><i><b id="lightBar"></b></i></div><div><span>Nutrients</span><strong id="nutrientsValue">46%</strong><i><b id="nutrientsBar"></b></i></div></div><div class="growth-caption"><strong id="growthDayLabel">Day 1: Seed study</strong><span id="growthDayText">A careful routine starts with a clear plan.</span></div></section>
+      <section class="plan-panel panel" aria-labelledby="planTitle"><div class="panel-heading"><div><p class="eyebrow">STRUCTURED CARE</p><h2 id="planTitle">Plan the day</h2></div><span id="actionCount">0 / 3 actions</span></div><p class="help">Choose a short sequence, then run it. Watch for the resource that limits growth.</p><div id="actionPalette" class="action-palette"><button data-action="water" type="button">Water</button><button data-action="sunlight" type="button">Give sunlight</button><button data-action="nutrients" type="button">Add compost</button><button data-action="observe" type="button">Observe</button></div><div id="planQueue" class="plan-queue" aria-live="polite"><span>Your plan is empty.</span></div><div class="prediction"><strong>Before you run it</strong><p id="predictionText">Choose an action to see its expected effect.</p></div><button id="runPlan" class="primary-button" type="button">Run today’s plan →</button><p id="feedbackText" class="feedback" aria-live="polite"></p></section>
+    </section>
+    <section class="learning-grid"><section class="photosynthesis panel" id="photosynthesisPanel" hidden><div class="panel-heading"><div><p class="eyebrow">LEAF SCIENCE</p><h2>Photosynthesis in action</h2></div><span>Chlorophyll is the plant’s light catcher</span></div><div class="reaction animated-reaction" aria-label="Photosynthesis reaction"><span>CO₂</span><b>+</b><span>H₂O</span><b>+</b><span>light</span><b>→</b><span class="product">sugar + O₂</span></div><div class="science-animation"><span class="gas gas-co2">CO₂ enters</span><span class="gas gas-water">H₂O rises</span><span class="gas gas-o2">O₂ leaves</span><span class="chlorophyll-chip">chlorophyll captures light</span></div><p>Green chlorophyll in the leaves absorbs sunlight. The plant takes in carbon dioxide and water, builds sugar for growth, and releases oxygen back into the air.</p></section><section class="reflection panel"><p class="eyebrow">REFLECT</p><h2>What changed?</h2><p id="reflectionPrompt">Which resource will you watch first tomorrow?</p><div class="reflection-options"><button data-reflection="water" type="button">Moisture</button><button data-reflection="light" type="button">Light</button><button data-reflection="nutrients" type="button">Nutrients</button></div></section></section>
+    <section class="structure-panel panel"><div><p class="eyebrow">STRUCTURED THINKING</p><h2>A plant grows like a good implementation</h2><p>Biology gives us a real system to reason about: observe the state, plan small changes, run them in order, and debug when the result is not healthy.</p></div><div class="structure-steps"><div><b>1 · PLAN</b><span>Choose up to three care actions.</span></div><div><b>2 · RUN</b><span>Apply the sequence to today’s conditions.</span></div><div><b>3 · OBSERVE</b><span>Inspect health, moisture, light, and nutrients.</span></div><div><b>4 · DEBUG</b><span>Change the weakest input tomorrow.</span></div></div></section>
+    <section class="milestone-panel panel"><div><p class="eyebrow">GROWTH JOURNEY</p><h2>Milestones</h2></div><div id="milestones" class="milestones"></div></section>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

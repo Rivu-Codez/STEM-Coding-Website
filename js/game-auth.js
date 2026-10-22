@@ -65,7 +65,7 @@
   async function signOut() {
     await auth().signOut();
     platform().setSession(null);
-    const inGame = /\/(PhysicsSim|RoboMaze)\//.test(window.location.pathname);
+    const inGame = /\/(PhysicsSim|RoboMaze|Biology)\//.test(window.location.pathname);
     platform().redirectToLogin(inGame ? "../login.html" : "login.html");
   }
 

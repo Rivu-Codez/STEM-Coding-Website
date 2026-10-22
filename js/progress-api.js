@@ -51,6 +51,10 @@
       const game = gameDefinition(gameId);
       const maxLevels = game?.levelCount || 0;
       if (!session() || !game || !game.enabled) return { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1, maxLevels };
+      if (gameId === "biology") {
+        const result = await client().rpc("get_biology_dashboard_stats");
+        return result.error ? { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1, maxLevels: 6 } : { ...result.data, maxLevels: 6, nextLevel: 1 };
+      }
       const progress = await client().from("level_progress")
         .select("level_number,status,best_result").eq("game_id", gameId);
       const achievements = await client().from("student_achievements")

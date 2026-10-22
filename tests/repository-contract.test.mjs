@@ -117,7 +117,7 @@ test('frontend game registry exposes stable routes and feature flags', () => {
   assert.match(source, /gameId: "signal_decrypter"/);
   assert.match(source, /gameId: "chemistry"/);
   assert.match(source, /gameId: "biology"/);
-  assert.match(source, /enabled: false/);
+  assert.match(source, /progressionMode: "stateful"/);
   assert.match(source, /levelCount\(gameId\)/);
 });
 

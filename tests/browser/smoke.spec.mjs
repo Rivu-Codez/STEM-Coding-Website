@@ -4,6 +4,7 @@ async function mockSupabase(page, session = null) {
   await page.route(/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js/, (route) => route.abort());
   await page.addInitScript(({ session }) => {
     const progressRows = [];
+    let biologyGarden = { day: 1, phase: 'day', stage: 'seed', health: 82, moisture: 52, light: 48, nutrients: 46, milestones: [], lastObservation: 'Your seed is ready for its first care plan.' };
     window.supabase = { createClient: () => ({ auth: {
       getSession: async () => ({ data: { session }, error: null }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),
@@ -24,6 +25,16 @@ async function mockSupabase(page, session = null) {
       };
       return query;
     } }), rpc: async (name, args) => {
+      if (name === 'load_biology_garden') return { data: { garden: biologyGarden }, error: null };
+      if (name === 'submit_biology_plan') {
+        biologyGarden = { ...biologyGarden, phase: 'night', day: biologyGarden.day, stage: 'sprout', health: 88, lastObservation: 'Healthy care helped your plant reach the sprout stage.' };
+        return { data: { garden: biologyGarden, feedback: biologyGarden.lastObservation }, error: null };
+      }
+      if (name === 'advance_biology_phase') {
+        biologyGarden = { ...biologyGarden, phase: biologyGarden.phase === 'day' ? 'night' : 'day', day: biologyGarden.phase === 'night' ? biologyGarden.day + 1 : biologyGarden.day };
+        return { data: { garden: biologyGarden, feedback: 'A new garden phase has begun.' }, error: null };
+      }
+      if (name === 'get_biology_dashboard_stats') return { data: { completedLevels: 0, stars: 0, xp: 0 }, error: null };
       if (name === 'submit_game_attempt_idempotent') {
         const success = args.p_attempt_data.answer === '+10';
         if (success) {
@@ -98,6 +109,26 @@ test('protected Signal Decrypter page redirects unauthenticated visitors', async
   await mockSupabase(page);
   await page.goto('/SignalDecrypter/index.html');
   await expect(page).toHaveURL(/\/login\.html$/);
+});
+
+test('protected Biology Garden page redirects unauthenticated visitors', async ({ page }) => {
+  await mockSupabase(page);
+  await page.goto('/Biology/index.html');
+  await expect(page).toHaveURL(/\/login\.html$/);
+});
+
+test('Biology Garden runs a care plan and advances the plant', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await page.goto('/Biology/index.html');
+  await expect(page.locator('#plantTitle')).toHaveText('Seed');
+  await page.locator('[data-action="water"]').click();
+  await page.locator('[data-action="sunlight"]').click();
+  await page.locator('[data-action="nutrients"]').click();
+  await page.locator('#runPlan').click();
+  await expect(page.locator('#plantTitle')).toHaveText('Sprout');
+  await expect(page.locator('#feedbackText')).toContainText('sprout');
+  await page.locator('#advancePhase').click();
+  await expect(page.locator('#phaseLabel')).toHaveText('DAYLIGHT');
 });
 
 test('Signal Decrypter completes an easy block mission and advances levels', async ({ page }) => {
