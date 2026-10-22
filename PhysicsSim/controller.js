@@ -145,11 +145,19 @@ import { createGamePersistence } from '../js/game-persistence.js';
         scale: SCALE,
       });
 
-      const dt = 0.025; // 25ms physics time-step
+      // Use real frame time so the projectile does not slow down on a busy or
+      // lower-refresh display. The multiplier preserves the previous brisk feel.
+      const simulationRate = 1.35;
+      let previousTimestamp = null;
       const useDrag = airResistance; // fixed for the whole flight
       const lvl = LEVELS[currentLevelIndex];
 
-      function physicsLoop() {
+      function physicsLoop(timestamp) {
+        const frameSeconds = previousTimestamp === null
+          ? 1 / 60
+          : Math.min((timestamp - previousTimestamp) / 1000, 0.05);
+        previousTimestamp = timestamp;
+        const dt = frameSeconds * simulationRate;
         PhysicsSimulation.advance(currentBall, {
           dt,
           useDrag,
