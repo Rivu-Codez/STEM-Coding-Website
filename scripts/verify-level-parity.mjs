@@ -61,13 +61,12 @@ function normalizedFrontend(gameId, level, index) {
         ...(debugSetup === undefined ? {} : { debugSetup }) } };
   }
   if (gameId === 'signal_decrypter') {
-    const operations = level.operations.filter(operation => operation.role === 'correct' || level.mode === 'python').map(({ type, chars, index, start, end, step, value, from, to }) =>
-      Object.fromEntries(Object.entries({ type, chars, index, start, end, step, value, from, to })
-        .filter(([, operationValue]) => operationValue !== undefined && operationValue !== null)));
+    const availableOperations = level.operations.map(operation => operation.type);
     return { gameId, levelNumber: level.id, title: level.title,
-      instruction: cleanInstruction(level.objective),
-      configuration: { id: level.id, signal: level.signal, output: level.output, mode: level.mode, operations,
-        timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost } };
+      instruction: cleanInstruction(level.question),
+      configuration: { id: level.id, question: level.question, signal: level.signal, mode: level.mode,
+        timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost,
+        ...(level.mode === 'blocks' ? { availableOperations } : {}) } };
   }
   const { title, instruction, grid, start, requiredBlock, maxBlocks } = level;
   return { gameId, levelNumber: index + 1, title, instruction: cleanInstruction(instruction),

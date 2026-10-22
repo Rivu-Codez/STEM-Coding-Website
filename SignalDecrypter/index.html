@@ -47,14 +47,15 @@
     </section>
     <section class="workspace panel" aria-labelledby="missionTitle">
       <div class="progress-row"><span id="progressLabel">Level 1 of 15</span><div class="progress-track"><span id="progressBar"></span></div></div>
-      <div class="mission-copy"><p class="eyebrow">MISSION BRIEF</p><h2 id="missionTitle">Mirror Transmission</h2><p id="objectiveText"></p></div>
+      <div class="mission-copy"><p class="eyebrow">MISSION BRIEF</p><h2 id="missionTitle">World Capitals</h2><p id="questionText">What is the capital of France?</p><p id="objectiveText">Decode the answer using the available modules.</p></div>
       <div class="mission-callout"><strong>Signal to inspect</strong><code id="missionSignal">—</code><span id="objectiveTag">Recover the transmission before interference reaches the limit.</span></div>
       <div class="mode-heading"><div><p class="eyebrow">SIGNAL WORKSPACE</p><h3 id="modeTitle">Build the operation</h3></div><select id="levelPicker" aria-label="Choose unlocked level"></select></div>
       <div id="blockWorkspace" class="block-workspace"><p class="workspace-help">Drag decoder modules into the pipeline, then run the signal. You can also use the keyboard: focus a module and press Enter.</p><div id="operationPalette" class="operation-palette" aria-label="Decoder modules"></div><div class="pipeline-heading"><span>DECODER PIPELINE</span><span id="pipelineCount">0 modules</span></div><div id="selectedOperations" class="selected-operations" aria-label="Decoder pipeline"><span class="empty-state">Drop a module here to start.</span></div><div id="tracePanel" class="trace-panel" hidden><strong>Execution trace</strong><ol id="executionTrace"></ol></div></div>
-      <div id="pythonWorkspace" class="python-workspace" hidden><label for="pythonEditor">Write the approved Python-style expression</label><textarea id="pythonEditor" spellcheck="false" placeholder="signal[::-1]"></textarea><p class="editor-help">Only the string operations taught in this level are accepted.</p></div>
+      <div id="pythonWorkspace" class="python-workspace" hidden><div class="python-window-bar"><span>PYTHON DECODER</span><span>LEVELS 11–15 REQUIRED</span></div><label for="pythonEditor">Write Python code to decode the answer</label><textarea id="pythonEditor" spellcheck="false" placeholder="signal[::-1]"></textarea><p id="pythonHint" class="editor-help">Only the string operations taught in this level are accepted.</p></div>
       <div class="route-preview"><span>Mission status</span><code id="outputPreview">Build your pipeline</code></div>
       <button id="executeButton" class="execute-button" type="button">Execute decryption <span>→</span></button>
       <p id="feedbackText" class="feedback" aria-live="polite"></p>
+      <div id="answerReveal" class="answer-reveal" hidden><strong>Answer revealed after 5 incorrect attempts</strong><span id="revealedAnswer"></span></div>
       <div class="hint-box"><strong>💡 Hint</strong><p id="hintText"></p></div>
       <button id="hintButton" class="hint-button" type="button">Use hint <span id="hintCost">−8s</span></button>
       <button id="nextButton" class="next-button" type="button" hidden>Continue to next level →</button>

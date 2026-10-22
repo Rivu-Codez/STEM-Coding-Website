@@ -15,33 +15,36 @@ function loadSignalTools() {
   return context.window;
 }
 
-test('Signal Decrypter canonical operations produce every level output', () => {
-  const { SignalDecrypterLevels, SignalDecrypterEngine } = loadSignalTools();
+test('Signal Decrypter contains fifteen question-driven missions', () => {
+  const { SignalDecrypterLevels } = loadSignalTools();
+  assert.equal(SignalDecrypterLevels.length, 15);
+  assert.ok(SignalDecrypterLevels.every(level => level.question && level.signal && level.timeLimit > 0));
+  assert.equal(SignalDecrypterLevels.filter(level => level.mode === 'blocks').length, 10);
+  assert.equal(SignalDecrypterLevels.filter(level => level.mode === 'python').length, 5);
+});
+
+test('public level data does not expose expected answers or canonical solutions', () => {
+  const { SignalDecrypterLevels } = loadSignalTools();
   for (const level of SignalDecrypterLevels) {
-    const operations = level.operations.filter(operation => operation.role === 'correct' || level.mode === 'python');
-    assert.equal(SignalDecrypterEngine.execute(level.signal, operations), level.output, `level ${level.id}`);
+    assert.equal('output' in level, false, `level ${level.id}`);
+    assert.equal('answer' in level, false, `level ${level.id}`);
+    assert.equal(JSON.stringify(level).includes('"role"'), false, `level ${level.id}`);
   }
 });
 
-test('Signal Decrypter missions expose timing and decoy choices without leaking the answer', () => {
-  const { SignalDecrypterLevels } = loadSignalTools();
-  assert.equal(SignalDecrypterLevels.length, 15);
-  assert.ok(SignalDecrypterLevels.every(level => level.timeLimit > 0 && level.interferenceLimit > 0));
-  assert.ok(SignalDecrypterLevels.slice(0, 10).every(level => level.operations.some(operation => operation.role === 'decoy')));
-  assert.equal(Array.from(SignalDecrypterLevels[0].operations.filter(operation => operation.role === 'correct'), operation => operation.type).join(','), 'reverse');
+test('decoder engine handles real-world cleanup operations', () => {
+  const { SignalDecrypterEngine } = loadSignalTools();
+  assert.equal(SignalDecrypterEngine.execute('0-C', [{ type: 'remove', chars: '-' }]), '0C');
+  assert.equal(SignalDecrypterEngine.execute('#EDIXOIDNOBRAC#', [{ type: 'strip', chars: '#' }, { type: 'reverse' }]), 'CARBONDIOXIDE');
+  assert.equal(SignalDecrypterEngine.execute('#n-i-k-s#', [{ type: 'strip', chars: '#' }, { type: 'reverse' }, { type: 'remove', chars: '-' }, { type: 'lower' }]), 'skin');
 });
 
-test('Signal Decrypter parses only the approved Python string subset', () => {
+test('Signal Decrypter parses the approved Python solution subset', () => {
   const { SignalDecrypterEngine } = loadSignalTools();
-  assert.deepEqual(JSON.parse(JSON.stringify(SignalDecrypterEngine.parseCode(' signal . upper ( ) '))), { operations: [{ type: 'upper' }] });
   assert.deepEqual(JSON.parse(JSON.stringify(SignalDecrypterEngine.parseCode('signal[::-1]'))), { operations: [{ type: 'reverse' }] });
+  assert.deepEqual(JSON.parse(JSON.stringify(SignalDecrypterEngine.parseCode('signal.strip("#")[::-1].replace("-", "")'))), {
+    operations: [{ type: 'strip', chars: '#' }, { type: 'reverse' }, { type: 'remove', chars: '-' }]
+  });
   assert.match(SignalDecrypterEngine.parseCode('import os').error, /Start with signal/);
   assert.match(SignalDecrypterEngine.parseCode('signal.__class__').error, /outside this level/);
-});
-
-test('Signal Decrypter keeps literal separator indexes', () => {
-  const { SignalDecrypterLevels, SignalDecrypterEngine } = loadSignalTools();
-  const findLevel = id => SignalDecrypterLevels.find(level => level.id === id);
-  assert.equal(SignalDecrypterEngine.execute(findLevel(9).signal, findLevel(9).operations.filter(operation => operation.role === 'correct')), 'A-L-I-E-N');
-  assert.equal(SignalDecrypterEngine.execute(findLevel(12).signal, findLevel(12).operations), '4');
 });

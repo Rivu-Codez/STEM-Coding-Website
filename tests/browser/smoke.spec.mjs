@@ -41,6 +41,7 @@ async function mockGameAuth(page) {
   await page.route('**/js/game-auth.js', (route) => route.fulfill({
     contentType: 'application/javascript',
     body: `let mockedUnlockedLevel = 1;
+    const mockedAttempts = {};
     window.StemGameAuth = {
       init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null, recordAttempt: async () => ({ ok: true }),
@@ -57,9 +58,11 @@ async function mockProgressionAuth(page) {
     window.StemGameAuth = {
       init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null,
-      recordAttempt: async (level, result) => {
-        if (result === 'success') mockedUnlockedLevel = Math.max(mockedUnlockedLevel, level + 1);
-        return { ok: true, data: { server_result: result } };
+      recordAttempt: async (level, result, _category, details) => {
+        const correct = level === 1 && details?.operations?.[0]?.type === 'reverse';
+        mockedAttempts[level] = (mockedAttempts[level] || 0) + 1;
+        if (correct) mockedUnlockedLevel = Math.max(mockedUnlockedLevel, level + 1);
+        return { ok: true, data: { server_result: correct ? 'success' : 'miss', attempt_count: mockedAttempts[level], revealed_answer: !correct && mockedAttempts[level] >= 5 ? 'Paris' : null, feedback: correct ? 'Correct! You decoded the answer.' : 'The decoder does not produce the answer.' } };
       },
       recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
       recordAchievement: async () => ({ ok: true, data: { awarded: true, stars: 3, xp: 100 } })
@@ -115,8 +118,20 @@ test('Signal Decrypter wrong decoder increases interference and gives stage feed
   await page.goto('/SignalDecrypter/index.html');
   await page.getByRole('button', { name: 'Add Make uppercase to pipeline' }).click();
   await page.locator('#executeButton').click();
-  await expect(page.locator('#feedbackText')).toContainText('Stage 1');
+  await expect(page.locator('#feedbackText')).toContainText('pipeline');
   await expect(page.locator('#interferenceValue')).toHaveText('1 / 3');
+});
+
+test('Signal Decrypter reveals the question answer after five failed submissions', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockProgressionAuth(page);
+  await page.goto('/SignalDecrypter/index.html');
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    await page.getByRole('button', { name: 'Add Make lowercase to pipeline' }).click();
+    await page.locator('#executeButton').click();
+    if (attempt < 4) await expect(page.locator('#answerReveal')).toBeHidden();
+  }
+  await expect(page.locator('#answerReveal')).toContainText('Paris');
 });
 
 test('Submarine Math checks an answer and advances levels', async ({ page }) => {
