@@ -50,7 +50,26 @@
       <div class="mission-copy"><p class="eyebrow">MISSION BRIEF</p><h2 id="missionTitle">World Capitals</h2><p id="questionText">What is the capital of France?</p><p id="objectiveText">Decode the answer using the available modules.</p></div>
       <div class="mission-callout"><strong>Signal to inspect</strong><code id="missionSignal">—</code><span id="objectiveTag">Recover the transmission before interference reaches the limit.</span></div>
       <div class="mode-heading"><div><p class="eyebrow">SIGNAL WORKSPACE</p><h3 id="modeTitle">Build the operation</h3></div><select id="levelPicker" aria-label="Choose unlocked level"></select></div>
-      <div id="blockWorkspace" class="block-workspace"><p class="workspace-help">Drag decoder modules into the pipeline, then run the signal. You can also use the keyboard: focus a module and press Enter.</p><div id="operationPalette" class="operation-palette" aria-label="Decoder modules"></div><div class="pipeline-heading"><span>DECODER PIPELINE</span><span id="pipelineCount">0 modules</span></div><div id="selectedOperations" class="selected-operations" aria-label="Decoder pipeline"><span class="empty-state">Drop a module here to start.</span></div><div id="tracePanel" class="trace-panel" hidden><strong>Execution trace</strong><ol id="executionTrace"></ol></div></div>
+      <div id="blockWorkspace" class="block-workspace">
+        <p class="workspace-help">Drag decoder modules into the pipeline, then run the signal. You can also use the keyboard: focus a module and press Enter.</p>
+        <div id="programViewToggle" class="program-view-toggle" role="group" aria-label="Program view">
+          <button id="showBlocksView" class="program-view-button active" type="button" aria-pressed="true">Decoder</button>
+          <button id="showPythonView" class="program-view-button" type="button" aria-pressed="false">Python</button>
+        </div>
+        <div class="block-builder-layout">
+          <div id="blockBuilderMain" class="block-builder-main">
+            <div id="operationPalette" class="operation-palette" aria-label="Decoder modules"></div>
+            <div class="pipeline-heading"><span>DECODER PIPELINE</span><span id="pipelineCount">0 modules</span></div>
+            <div id="selectedOperations" class="selected-operations" aria-label="Decoder pipeline"><span class="empty-state">Drop a module here to start.</span></div>
+          </div>
+          <div id="pythonPreview" class="python-workspace python-preview" aria-label="Generated Python code">
+            <div class="python-window-bar"><span>PYTHON VIEW</span><span>GENERATED FROM DECODER</span></div>
+            <p class="workspace-help">Build with decoder modules and watch the equivalent Python update here.</p>
+            <pre id="pythonCodePreview" class="python-code-preview"><code># Add a decoder block to generate Python.</code></pre>
+          </div>
+        </div>
+        <div id="tracePanel" class="trace-panel" hidden><strong>Execution trace</strong><ol id="executionTrace"></ol></div>
+      </div>
       <div id="pythonWorkspace" class="python-workspace" hidden><div class="python-window-bar"><span>PYTHON DECODER</span><span>LEVELS 11–15 REQUIRED</span></div><label for="pythonEditor">Write Python code to decode the answer</label><textarea id="pythonEditor" spellcheck="false" placeholder="signal[::-1]"></textarea><p id="pythonHint" class="editor-help">Only the string operations taught in this level are accepted.</p></div>
       <div class="route-preview"><span>Mission status</span><code id="outputPreview">Build your pipeline</code></div>
       <button id="executeButton" class="execute-button" type="button">Execute decryption <span>→</span></button>

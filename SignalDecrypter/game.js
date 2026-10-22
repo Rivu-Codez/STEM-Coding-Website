@@ -10,10 +10,64 @@
   let interference = 0;
   let timerId = null;
   let attemptId = 0;
+  let programView = "blocks";
   const $ = id => document.getElementById(id);
   const setText = (id, value) => { const node = $(id); if (node) node.textContent = value; };
   const currentLevel = () => levels[levelIndex];
   const operationLabel = operation => operation.label || operation.type;
+
+  function pythonLiteral(value) { return JSON.stringify(String(value)); }
+
+  function operationToPython(operation) {
+    switch (operation.type) {
+      case "reverse": return ["signal = signal[::-1]"];
+      case "remove": return [`signal = signal.replace(${pythonLiteral(operation.chars)}, "")`];
+      case "replace": return [`signal = signal.replace(${pythonLiteral(operation.from)}, ${pythonLiteral(operation.to)})`];
+      case "lower": return ["signal = signal.lower()"];
+      case "upper": return ["signal = signal.upper()"];
+      case "strip": return [`signal = signal.strip(${pythonLiteral(operation.chars)})`];
+      case "lstrip": return [`signal = signal.lstrip(${pythonLiteral(operation.chars)})`];
+      case "slice": return [`signal = signal[${operation.start}:${operation.end}]`];
+      case "slice_step": return [`signal = signal[${operation.start}::${operation.step}]`];
+      case "index": return [`signal = signal[${operation.index}]`];
+      case "find": return [`signal = signal.find(${pythonLiteral(operation.value)})`];
+      case "count": return [`signal = signal.count(${pythonLiteral(operation.value)})`];
+      case "length": return ["signal = len(signal)"];
+      case "swap": return [
+        "characters = list(signal)",
+        `characters[${operation.first}], characters[${operation.second}] = characters[${operation.second}], characters[${operation.first}]`,
+        'signal = "".join(characters)'
+      ];
+      default: return [`# Unsupported block: ${operationLabel(operation)}`];
+    }
+  }
+
+  function renderPythonPreview() {
+    const preview = $("pythonCodePreview");
+    if (!preview || currentLevel().mode === "python") return;
+    const lines = [`signal = ${pythonLiteral(currentLevel().signal)}`];
+    if (!selected.length) {
+      lines.push("# Add a decoder block to continue");
+    } else {
+      selected.forEach((operation, index) => {
+        lines.push(`# Block ${index + 1}: ${operationLabel(operation)}`);
+        lines.push(...operationToPython(operation));
+      });
+      lines.push("print(signal)");
+    }
+    preview.textContent = lines.join("\n");
+  }
+
+  function setProgramView(view) {
+    programView = view;
+    const blocks = programView === "blocks";
+    $("blockBuilderMain").hidden = !blocks;
+    $("pythonPreview").hidden = blocks;
+    $("showBlocksView").classList.toggle("active", blocks);
+    $("showPythonView").classList.toggle("active", !blocks);
+    $("showBlocksView").setAttribute("aria-pressed", String(blocks));
+    $("showPythonView").setAttribute("aria-pressed", String(!blocks));
+  }
 
   function canonicalOperations(operations) {
     return operations.map(({ type, chars, index, start, end, step, value, from, to, first, second }) =>
@@ -77,6 +131,7 @@
       empty.textContent = "Drop a module here to start.";
       target.append(empty);
       setText("outputPreview", "Build your pipeline");
+      renderPythonPreview();
       return;
     }
     selected.forEach((operation, index) => {
@@ -111,6 +166,7 @@
       target.append(item);
     });
     setText("outputPreview", `${selected.length} module${selected.length === 1 ? "" : "s"} ready`);
+    renderPythonPreview();
   }
 
   function renderPalette(level) {
@@ -168,12 +224,15 @@
     elapsed = 0;
     interference = 0;
     attemptId += 1;
+    programView = "blocks";
     $("pythonEditor").value = "";
     $("pythonWorkspace").hidden = level.mode !== "python";
     $("blockWorkspace").hidden = level.mode === "python";
+    $("programViewToggle").hidden = level.mode === "python";
+    setProgramView("blocks");
     setText("missionTitle", level.title);
     setText("questionText", level.question);
-    setText("objectiveText", level.mode === "python" ? "Write Python code that transforms the signal into the answer." : "Use the decoder blocks to transform the signal into the answer.");
+    setText("objectiveText", level.mode === "python" ? "Write Python code that transforms the signal into the answer." : "Use the decoder modules to transform the signal into the answer.");
     setText("signalInput", level.signal);
     setText("missionSignal", level.signal);
     setText("decodedOutput", "LOCKED UNTIL RUN");
@@ -266,6 +325,8 @@
     $("executeButton").onclick = submit;
     $("hintButton").onclick = useHint;
     $("pythonEditor").oninput = () => setText("outputPreview", "Python expression ready to run");
+    $("showBlocksView").onclick = () => setProgramView("blocks");
+    $("showPythonView").onclick = () => setProgramView("python");
     $("selectedOperations").addEventListener("dragover", event => event.preventDefault());
     $("selectedOperations").addEventListener("drop", event => {
       event.preventDefault();
