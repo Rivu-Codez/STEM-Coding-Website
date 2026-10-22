@@ -25,7 +25,7 @@ async function mockSupabase(page, session = null) {
       return query;
     } }), rpc: async (name, args) => {
       if (name === 'submit_game_attempt_idempotent') {
-        const success = args.p_attempt_data.answer === '>';
+        const success = args.p_attempt_data.answer === '+10';
         if (success) {
           progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number, status: 'completed' });
           if (args.p_level_number < 15) progressRows.push({ game_id: 'submarine_math', level_number: args.p_level_number + 1, status: 'unlocked' });
@@ -55,11 +55,16 @@ async function mockProgressionAuth(page) {
   await page.route('**/js/game-auth.js', (route) => route.fulfill({
     contentType: 'application/javascript',
     body: `let mockedUnlockedLevel = 1;
+    const mockedAttempts = {};
     window.StemGameAuth = {
       init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null,
       recordAttempt: async (level, result, _category, details) => {
-        const correct = level === 1 && details?.operations?.[0]?.type === 'reverse';
+        const isSignalSolution = details?.operations?.[0]?.type === 'remove' &&
+          details?.operations?.[0]?.chars === '-' &&
+          details?.operations?.[1]?.type === 'reverse';
+        const correct = (result === 'success' && details?.program?.length === 5) ||
+          (level === 1 && isSignalSolution);
         mockedAttempts[level] = (mockedAttempts[level] || 0) + 1;
         if (correct) mockedUnlockedLevel = Math.max(mockedUnlockedLevel, level + 1);
         return { ok: true, data: { server_result: correct ? 'success' : 'miss', attempt_count: mockedAttempts[level], revealed_answer: !correct && mockedAttempts[level] >= 5 ? 'Paris' : null, feedback: correct ? 'Correct! You decoded the answer.' : 'The decoder does not produce the answer.' } };
@@ -102,8 +107,9 @@ test('Signal Decrypter completes an easy block mission and advances levels', asy
 
   await expect(page.locator('#levelIndicator')).toHaveText('Level 1 of 15');
   await expect(page.locator('#timerValue')).toHaveText('90s');
+  await page.getByRole('button', { name: 'Add Remove hyphens to pipeline' }).click();
   await page.getByRole('button', { name: 'Add Reverse signal to pipeline' }).click();
-  await expect(page.locator('#outputPreview')).toContainText('1 module ready');
+  await expect(page.locator('#outputPreview')).toContainText('2 modules ready');
   await expect(page.locator('#decodedOutput')).toHaveText('LOCKED UNTIL RUN');
   await page.locator('#executeButton').click();
   await expect(page.locator('#feedbackText')).toContainText('Correct!');
@@ -139,7 +145,7 @@ test('Submarine Math checks an answer and advances levels', async ({ page }) => 
   await page.goto('/SubmarineMath/index.html');
 
   await expect(page.locator('#level-indicator')).toHaveText('Level 1 of 15');
-  await page.locator('[data-symbol=">"]') .click();
+  await page.locator('#native-user-input').fill('+10');
   await page.locator('[data-action="submit-answer"]').click();
   await expect(page.locator('#feedback-text')).toContainText('Correct!');
   await page.locator('[data-action="next-level"]').click();
