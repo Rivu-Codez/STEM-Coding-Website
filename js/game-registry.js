@@ -49,16 +49,6 @@
       levelCount: 0,
       validator: null,
       icon: "⚗"
-    },
-    {
-      gameId: "biology",
-      displayName: "Biology & Environment Lab",
-      description: "Discover living systems, ecosystems, and practical environmental science.",
-      route: "Biology/index.html",
-      enabled: false,
-      levelCount: 0,
-      validator: null,
-      icon: "✦"
     }
   ];
 

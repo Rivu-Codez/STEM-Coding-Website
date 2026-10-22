@@ -70,7 +70,7 @@ export function createAnalyzeMistakeHandler(overrides: Partial<Dependencies> = {
     } catch {
       return json({ error: "Invalid JSON body", state: "AI_INVALID_RESPONSE" }, 400);
     }
-    const gameId = ["physics", "robo_maze", "chemistry", "biology"].includes(String(input.gameId)) ? String(input.gameId) : null;
+    const gameId = ["physics", "robo_maze", "chemistry"].includes(String(input.gameId)) ? String(input.gameId) : null;
     const levelNumber = Number(input.levelNumber);
     if (!gameId || !Number.isInteger(levelNumber) || levelNumber < 1 || levelNumber > 30) return json({ error: "Invalid mistake data", state: "AI_INVALID_RESPONSE" }, 400);
 

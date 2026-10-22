@@ -3,4 +3,3 @@
 -- have been committed by PostgreSQL.
 
 alter type public.game_id add value if not exists 'chemistry';
-alter type public.game_id add value if not exists 'biology';

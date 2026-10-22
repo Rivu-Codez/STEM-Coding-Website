@@ -20,8 +20,7 @@ insert into public.games
 values
   ('physics', 'Physics Kinematics Lab', 'Explore speed, angles, distance, and trajectory through experiments.', 'PhysicsSim/index.html', 15, 'physics', '⚡', true),
   ('robo_maze', 'RoboLogic Maze', 'Plan routes, practise logic, and teach a robot to solve the maze.', 'RoboMaze/index.html', 15, 'robo_maze', '▦', true),
-  ('chemistry', 'Chemistry Lab', 'Experiment with reactions, matter, and the building blocks of chemistry.', 'Chemistry/index.html', 0, null, '⚗', false),
-  ('biology', 'Biology & Environment Lab', 'Discover living systems, ecosystems, and practical environmental science.', 'Biology/index.html', 0, null, '✦', false)
+  ('chemistry', 'Chemistry Lab', 'Experiment with reactions, matter, and the building blocks of chemistry.', 'Chemistry/index.html', 0, null, '⚗', false)
 on conflict (game_id) do update set
   display_name = excluded.display_name,
   description = excluded.description,

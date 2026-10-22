@@ -1,6 +1,6 @@
 # Phase 8: Registry-driven game platform
 
-Phase 8 prepares the platform for Chemistry and Biology without changing the
+Phase 8 prepares the platform for Chemistry without changing the
 existing Physics or RoboMaze validators.
 
 ## What is now implemented
@@ -8,8 +8,8 @@ existing Physics or RoboMaze validators.
 - `js/game-registry.js` is the browser registry for stable IDs, routes, level
   counts, validator keys, display metadata, and release flags.
 - Physics and RoboMaze remain enabled with 15 levels each.
-- Chemistry and Biology are registered but disabled and have no playable level
-  count until their real modules and authoritative validators are supplied.
+- Chemistry is registered but disabled and has no playable level count until its
+  real module and authoritative validator are supplied.
 - Migration `019_game_registry.sql` adds the new stable game IDs and stores
   registry metadata without rewriting historical progress.
 - Migration `020_common_attempt_boundary.sql` adds one idempotent submission
@@ -29,6 +29,6 @@ existing Physics or RoboMaze validators.
 5. Set its registry `levelCount`, `validator`, and `enabled` values together
    only after hosted Supabase verification.
 
-Chemistry and Biology intentionally remain hidden from playable navigation in
-the first rollout. Their dashboard cards are informational placeholders only.
+Chemistry intentionally remains hidden from playable navigation in the first
+rollout. Its dashboard card is an informational placeholder only.
 Creator Academy remains RoboMaze-specific.

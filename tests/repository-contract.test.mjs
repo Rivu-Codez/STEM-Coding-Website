@@ -90,12 +90,10 @@ test('Phase 8 game registry preserves existing games and keeps new games disable
     .map(file => fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', file), 'utf8'))
     .join('\n');
   assert.match(source, /alter type public\.game_id add value if not exists 'chemistry'/);
-  assert.match(source, /alter type public\.game_id add value if not exists 'biology'/);
   assert.match(source, /create table if not exists public\.games/);
   assert.match(source, /'physics'.*true/s);
   assert.match(source, /'robo_maze'.*true/s);
   assert.match(source, /'chemistry'.*false/s);
-  assert.match(source, /'biology'.*false/s);
 });
 
 test('Phase 8 exposes one common attempt boundary over existing validators', () => {
@@ -116,7 +114,6 @@ test('frontend game registry exposes stable routes and feature flags', () => {
   assert.match(source, /gameId: "submarine_math"/);
   assert.match(source, /gameId: "signal_decrypter"/);
   assert.match(source, /gameId: "chemistry"/);
-  assert.match(source, /gameId: "biology"/);
   assert.match(source, /enabled: false/);
   assert.match(source, /levelCount\(gameId\)/);
 });
