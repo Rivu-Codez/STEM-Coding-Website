@@ -1,24 +1,113 @@
 (function () {
+  const block = (type, label, details = {}) => ({ type, label, ...details });
+
   const levels = [
-    { id: 1, title: "World Capitals", section: "Everyday knowledge", mode: "blocks", question: "What is the capital of France?", signal: "SIRAP", timeLimit: 90, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "lower", label: "Make lowercase" }, { type: "upper", label: "Make uppercase" }], hint: "The code word is written backwards. Read it from right to left." },
-    { id: 2, title: "Planet Patrol", section: "Everyday knowledge", mode: "blocks", question: "Which planet is the largest in our solar system?", signal: "RETIPUJ", timeLimit: 85, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "lower", label: "Make lowercase" }, { type: "remove", chars: "-", label: "Remove hyphens" }], hint: "The planet name is hidden backwards." },
-    { id: 3, title: "Red Planet Relay", section: "Everyday knowledge", mode: "blocks", question: "Which planet is known as the Red Planet?", signal: "SRAM", timeLimit: 80, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "upper", label: "Make uppercase" }, { type: "lower", label: "Make lowercase" }], hint: "Try reading the four-letter signal from the end." },
-    { id: 4, title: "Weather Station", section: "Everyday knowledge", mode: "blocks", question: "What is the freezing point of water in Celsius?", signal: "0-C", timeLimit: 78, interferenceLimit: 3, hintCost: 8, operations: [{ type: "remove", chars: "-", label: "Remove hyphens" }, { type: "reverse", label: "Reverse signal" }, { type: "strip", chars: "0", label: "Strip zeroes" }], hint: "The dash is formatting noise between the number and its unit." },
-    { id: 5, title: "Ocean Atlas", section: "Geography", mode: "blocks", question: "What is the largest ocean on Earth?", signal: "CIFICAP", timeLimit: 75, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "lower", label: "Make lowercase" }, { type: "index", index: 0, label: "Read first character" }], hint: "The ocean name is reversed, but it has no separators to remove." },
-    { id: 6, title: "Currency Exchange", section: "Geography", mode: "blocks", question: "What is the currency of Japan?", signal: "NEY", timeLimit: 72, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "upper", label: "Make uppercase" }, { type: "length", label: "Count characters" }], hint: "The three-letter currency is backwards." },
-    { id: 7, title: "Plant Science", section: "Science", mode: "blocks", question: "Which gas do plants absorb from the air?", signal: "#EDIXOIDNOBRAC#", timeLimit: 70, interferenceLimit: 3, hintCost: 8, operations: [{ type: "strip", chars: "#", label: "Remove # noise" }, { type: "reverse", label: "Reverse signal" }, { type: "lower", label: "Make lowercase" }, { type: "remove", chars: "#", label: "Remove every #" }], hint: "First clean the outside noise, then read the remaining signal backwards." },
-    { id: 8, title: "Shape Check", section: "Science", mode: "blocks", question: "How many sides does a triangle have?", signal: "3#", timeLimit: 68, interferenceLimit: 3, hintCost: 8, operations: [{ type: "remove", chars: "#", label: "Remove # noise" }, { type: "reverse", label: "Reverse signal" }, { type: "length", label: "Count characters" }], hint: "Keep the number and discard the trailing noise marker." },
-    { id: 9, title: "Literature Lock", section: "Culture", mode: "blocks", question: "What is the surname of the author of Harry Potter?", signal: "GNILWOR", timeLimit: 65, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "upper", label: "Make uppercase" }, { type: "slice", start: 0, end: 4, label: "Slice first four" }], hint: "The surname is seven letters long and appears backwards." },
-    { id: 10, title: "Moon Mission", section: "History", mode: "blocks", question: "Who was the first person to walk on the Moon?", signal: "GNORTSMRALIEN", timeLimit: 62, interferenceLimit: 3, hintCost: 8, operations: [{ type: "reverse", label: "Reverse signal" }, { type: "remove", chars: "-", label: "Remove hyphens" }, { type: "lower", label: "Make lowercase" }], hint: "The full name is encoded backwards as one continuous word." },
-    { id: 11, title: "Python: Capital Search", section: "Python missions", mode: "python", question: "What is the capital of Australia?", signal: "ARREBNAC", timeLimit: 78, interferenceLimit: 3, hintCost: 8, pythonHint: "Use a slice to reverse the signal, such as signal[::-1].", hint: "The capital is hidden backwards. Write the slice expression that reverses a string." },
-    { id: 12, title: "Python: Element Symbol", section: "Python missions", mode: "python", question: "What is the chemical symbol for gold?", signal: "uA", timeLimit: 72, interferenceLimit: 3, hintCost: 8, pythonHint: "Reverse the two-character signal with signal[::-1].", hint: "The symbol is two characters and the code has their order swapped." },
-    { id: 13, title: "Python: DNA Pattern", section: "Python missions", mode: "python", question: "What shape is commonly used to describe DNA?", signal: "#xileh-elbuod#", timeLimit: 68, interferenceLimit: 3, hintCost: 8, pythonHint: "Chain strip('#'), [::-1], and replace('-', '').", hint: "Clean the outside markers, reverse the text, then remove the word separator." },
-    { id: 14, title: "Python: Light Speed", section: "Python missions", mode: "python", question: "What is the approximate speed of light in metres per second?", signal: "854297992", timeLimit: 62, interferenceLimit: 3, hintCost: 8, pythonHint: "The number is backwards. Use signal[::-1].", hint: "Reverse the digits without changing them." },
-    { id: 15, title: "Python: Human Biology", section: "Python missions", mode: "python", question: "What is the largest organ in the human body?", signal: "#n-i-k-s#", timeLimit: 58, interferenceLimit: 3, hintCost: 8, pythonHint: "Chain strip('#'), [::-1], replace('-', ''), and lower().", hint: "Remove the outside and between-word noise, then use lowercase." }
+    {
+      id: 1, title: "World Capitals", mode: "blocks",
+      question: "What is the capital of France?",
+      signal: "S-I-R-A-P", timeLimit: 90, interferenceLimit: 3, hintCost: 8,
+      operations: [block("remove", "Remove hyphens", { chars: "-" }), block("reverse", "Reverse signal"), block("lower", "Make lowercase"), block("upper", "Make uppercase")],
+      hint: "Clean the separators first, then read the signal from right to left."
+    },
+    {
+      id: 2, title: "Planet Patrol", mode: "blocks",
+      question: "Which planet is the largest in our solar system?",
+      signal: "XXJUPITERXX", timeLimit: 86, interferenceLimit: 3, hintCost: 8,
+      operations: [block("slice", "Keep the middle word", { start: 2, end: 9 }), block("reverse", "Reverse signal"), block("remove", "Remove X", { chars: "X" }), block("lower", "Make lowercase")],
+      hint: "The useful transmission begins after the first two characters and ends before the final two."
+    },
+    {
+      id: 3, title: "Red Planet Relay", mode: "blocks",
+      question: "Which planet is known as the Red Planet?",
+      signal: "M#A#R#S", timeLimit: 82, interferenceLimit: 3, hintCost: 8,
+      operations: [block("remove", "Remove hash marks", { chars: "#" }), block("reverse", "Reverse signal"), block("lower", "Make lowercase"), block("length", "Count characters")],
+      hint: "The hash marks are noise. Remove every one without changing the letter order."
+    },
+    {
+      id: 4, title: "Weather Station", mode: "blocks",
+      question: "What is the freezing point of water in Celsius?",
+      signal: "C0", timeLimit: 78, interferenceLimit: 3, hintCost: 8,
+      operations: [block("swap", "Swap the two characters", { first: 0, second: 1 }), block("reverse", "Reverse signal"), block("upper", "Make uppercase"), block("length", "Count characters")],
+      hint: "The temperature unit is written after the number. Exchange the two positions."
+    },
+    {
+      id: 5, title: "Ocean Atlas", mode: "blocks",
+      question: "What is the largest ocean on Earth?",
+      signal: "X-PACIFIC-Y", timeLimit: 75, interferenceLimit: 3, hintCost: 8,
+      operations: [block("slice", "Extract the ocean name", { start: 2, end: 9 }), block("remove", "Remove hyphens", { chars: "-" }), block("reverse", "Reverse signal"), block("lower", "Make lowercase")],
+      hint: "Ignore the first two characters and the final two characters. The answer is the seven letters between them."
+    },
+    {
+      id: 6, title: "Currency Exchange", mode: "blocks",
+      question: "What is the currency of Japan?",
+      signal: "N-E-Y", timeLimit: 72, interferenceLimit: 3, hintCost: 8,
+      operations: [block("remove", "Remove hyphens", { chars: "-" }), block("reverse", "Reverse signal"), block("swap", "Swap first and last", { first: 0, second: 2 }), block("lower", "Make lowercase")],
+      hint: "Remove the separators, then read the three-letter currency from the opposite direction."
+    },
+    {
+      id: 7, title: "Plant Science", mode: "blocks",
+      question: "Which gas do plants absorb from the air?",
+      signal: "#CARBON-DIOXIDE#", timeLimit: 70, interferenceLimit: 3, hintCost: 8,
+      operations: [block("strip", "Strip outer hash marks", { chars: "#" }), block("remove", "Remove the hyphen", { chars: "-" }), block("reverse", "Reverse signal"), block("lower", "Make lowercase")],
+      hint: "First remove only the outside hash marks. Then join the two words."
+    },
+    {
+      id: 8, title: "Emergency Beacon", mode: "blocks",
+      question: "Which international distress signal is represented by SxOxS?",
+      signal: "SxOxS", timeLimit: 68, interferenceLimit: 3, hintCost: 8,
+      operations: [block("slice_step", "Read every other character", { start: 0, step: 2 }), block("remove", "Remove x", { chars: "x" }), block("reverse", "Reverse signal"), block("upper", "Make uppercase")],
+      hint: "The useful letters alternate with the x characters. Start at position zero and take every second character."
+    },
+    {
+      id: 9, title: "Literature Lock", mode: "blocks",
+      question: "What is the surname of the author of Harry Potter?",
+      signal: "ROWLING!", timeLimit: 65, interferenceLimit: 3, hintCost: 8,
+      operations: [block("remove", "Remove the exclamation mark", { chars: "!" }), block("slice", "Keep the surname", { start: 0, end: 7 }), block("reverse", "Reverse signal"), block("lower", "Make lowercase")],
+      hint: "The punctuation is not part of the surname. Remove it, then keep all seven letters."
+    },
+    {
+      id: 10, title: "Moon Mission", mode: "blocks",
+      question: "Who was the first person to walk on the Moon?",
+      signal: "NEIL*ARMSTRONG", timeLimit: 62, interferenceLimit: 3, hintCost: 8,
+      operations: [block("replace", "Join the two name parts", { from: "*", to: "" }), block("reverse", "Reverse signal"), block("remove", "Remove spaces", { chars: " " }), block("upper", "Make uppercase")],
+      hint: "The star is a separator between the first and last name. Replace it with nothing."
+    },
+    {
+      id: 11, title: "Outback Dispatch", mode: "python",
+      question: "What is the capital city of Australia?",
+      signal: "c-a-n-b-e-r-r-a", timeLimit: 60, interferenceLimit: 3, hintCost: 10,
+      operations: [], pythonHint: "Remove the hyphens, then convert the result to uppercase.",
+      hint: "Use a Python expression that removes '-' before calling .upper()."
+    },
+    {
+      id: 12, title: "Precious Metal", mode: "python",
+      question: "What is the chemical symbol for gold?",
+      signal: "#uA#", timeLimit: 56, interferenceLimit: 3, hintCost: 10,
+      operations: [], pythonHint: "Strip the outside hash marks, then reverse the remaining characters.",
+      hint: "The answer is case-sensitive: use strip('#') and [::-1]."
+    },
+    {
+      id: 13, title: "Genetic Relay", mode: "python",
+      question: "What shape is commonly used to describe DNA?",
+      signal: "#xileh-elbuod#", timeLimit: 52, interferenceLimit: 3, hintCost: 10,
+      operations: [], pythonHint: "Remove the outside hashes, reverse the signal, then remove the hyphen.",
+      hint: "Chain strip('#'), [::-1], and replace('-', '')."
+    },
+    {
+      id: 14, title: "Light-Speed Relay", mode: "python",
+      question: "What is the approximate speed of light in metres per second?",
+      signal: "854,297,992", timeLimit: 48, interferenceLimit: 3, hintCost: 10,
+      operations: [], pythonHint: "Remove the commas before reversing the digits.",
+      hint: "Use replace(',', '') followed by [::-1]."
+    },
+    {
+      id: 15, title: "Human Biology", mode: "python",
+      question: "What is the largest organ in the human body?",
+      signal: "#n-i-k-s#", timeLimit: 44, interferenceLimit: 3, hintCost: 10,
+      operations: [], pythonHint: "Strip the hashes, reverse the signal, remove the hyphens, and make it lowercase.",
+      hint: "This final mission needs four transformations in the correct order."
+    }
   ];
 
-  window.SignalDecrypterLevels = Object.freeze(levels.map(level => Object.freeze({
-    ...level,
-    operations: Object.freeze((level.operations || []).map(operation => Object.freeze({ ...operation })))
-  })));
+  window.SignalDecrypterLevels = Object.freeze(levels.map(level => Object.freeze(level)));
 })();
