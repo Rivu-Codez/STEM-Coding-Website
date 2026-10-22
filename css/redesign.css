@@ -67,7 +67,7 @@ body.rl-home {
 .rl-about { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; padding: 56px 64px; border-radius: 24px; color: white; background: #17233d; }
 .rl-about h2 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -.05em; }
 .rl-about p { margin: 0; color: #d6def2; font-size: 1.05rem; line-height: 1.65; }
-.rl-footer { padding: 36px 0 0; color: var(--rl-muted); font-size: .85rem; text-align: center; }
+.rl-footer { padding: 36px 0 0; color: #000; font-size: .85rem; text-align: center; }
 @media (max-width: 900px) { .rl-hero, .rl-about { grid-template-columns: 1fr; } .rl-hero { padding: 42px 30px; } .rl-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .rl-site-header { padding: 18px 16px; } .rl-nav { gap: 10px; } .rl-nav a:not(.rl-nav-cta) { display: none; } .rl-home-main { padding: 0 16px 48px; } .rl-hero { gap: 28px; padding: 34px 22px; border-radius: 22px; } .rl-hero h1 { font-size: 2.65rem; } .rl-section#learning-paths { padding: 38px 0 44px; } .rl-subject-grid { grid-template-columns: 1fr; } .rl-about { padding: 34px 24px; border-radius: 20px; } }
 
