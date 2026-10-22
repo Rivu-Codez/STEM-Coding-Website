@@ -40,8 +40,12 @@
       let match = rest.match(/^\.lower\(\)/); if (match) { operations.push({ type: "lower" }); rest = rest.slice(match[0].length); continue; }
       match = rest.match(/^\.upper\(\)/); if (match) { operations.push({ type: "upper" }); rest = rest.slice(match[0].length); continue; }
       match = rest.match(/^\.strip\(['"](#|0)['"]\)/); if (match) { operations.push({ type: "strip", chars: match[1] }); rest = rest.slice(match[0].length); continue; }
-      match = rest.match(/^\.replace\("(-)",""\)/) || rest.match(/^\.replace\('(-)',''\)/); if (match) { operations.push({ type: "remove", chars: match[1] }); rest = rest.slice(match[0].length); continue; }
-      match = rest.match(/^\.replace\(['"](\*)['"]\,['"](-)['"]\)/); if (match) { operations.push({ type: "replace", from: match[1], to: match[2] }); rest = rest.slice(match[0].length); continue; }
+      match = rest.match(/^\.replace\("([,-])",""\)/) || rest.match(/^\.replace\('([,-])',''\)/); if (match) { operations.push({ type: "remove", chars: match[1] }); rest = rest.slice(match[0].length); continue; }
+      match = rest.match(/^\.replace\(['"](\*)['"]\,['"](-)['"]\)/) || rest.match(/^\.replace\(",""\)/) || rest.match(/^\.replace\(','',''\)/); if (match) {
+        if (match[1] === undefined) operations.push({ type: "remove", chars: "," });
+        else operations.push({ type: "replace", from: match[1], to: match[2] });
+        rest = rest.slice(match[0].length); continue;
+      }
       match = rest.match(/^\.find\(['"]([A-Z])['"]\)/); if (match) { operations.push({ type: "find", value: match[1] }); rest = rest.slice(match[0].length); continue; }
       match = rest.match(/^\.count\(['"]([01])['"]\)/); if (match) { operations.push({ type: "count", value: match[1] }); rest = rest.slice(match[0].length); continue; }
       return { error: "That expression uses an operation outside this level." };
