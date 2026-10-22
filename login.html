@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/auth.css">
   <link rel="stylesheet" href="css/aimora-theme.css">
+  <link rel="stylesheet" href="css/redesign.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/game-registry.js"></script>
@@ -22,13 +23,24 @@
   <script src="js/tutor-api.js"></script>
   <script src="js/game-auth.js"></script>
 </head>
-<body>
-  <main class="auth-card">
-    <section id="loginPanel">
-      <div class="brand">⚙ ROBO LOGIC STEM LAB</div>
-      <h1 id="authTitle">Welcome back</h1>
-      <p id="authDescription">Log in to continue your learning journey.</p>
-      <form id="authForm" class="auth-form">
+<body class="rl-home">
+  <header class="rl-site-header">
+    <a class="rl-brand" href="login.html"><span class="rl-brand-mark">⚙</span> ROBOLOGIC</a>
+    <nav class="rl-nav" aria-label="Main navigation"><a href="#about">About</a><a href="#learning-paths">Learning paths</a><a class="rl-nav-cta" href="#loginPanel">Sign in</a></nav>
+  </header>
+  <main class="rl-home-main">
+    <section class="rl-hero" aria-labelledby="authTitle">
+      <div>
+        <p class="rl-eyebrow">STUDENT COMMAND CENTER</p>
+        <h1>Make curiosity something you can play.</h1>
+        <p class="rl-hero-copy">RoboLogic turns STEM ideas into clear, interactive challenges—one level at a time.</p>
+        <p class="rl-hero-note">Physics and Coding are live now. Maths is an active expedition; Biology and Chemistry are coming soon.</p>
+      </div>
+      <section id="loginPanel" class="rl-login-card">
+        <p class="rl-eyebrow">WELCOME BACK</p>
+        <h2 id="authTitle">Log in to continue</h2>
+        <p id="authDescription">Your next challenge is waiting.</p>
+        <form id="authForm" class="auth-form">
         <label for="loginEmail">Email address</label>
         <input id="loginEmail" type="email" placeholder="Student email" autocomplete="email">
         <div id="displayNameRow" hidden>
@@ -48,8 +60,21 @@
         <button id="authSubmit" type="submit">Log in</button>
         <p id="loginMessage" class="auth-message" aria-live="polite"></p>
         <button id="modeToggle" type="button" class="secondary">Need an account? Create one</button>
-      </form>
+        </form>
+      </section>
     </section>
+    <section id="learning-paths" class="rl-section" aria-labelledby="learningPathsHeading">
+      <div class="rl-section-heading"><p class="rl-eyebrow">LEARNING PATHS</p><h2 id="learningPathsHeading">Choose a challenge that feels like you.</h2><p>Short missions, visible progress, and clear next steps.</p></div>
+      <div class="rl-subject-grid">
+        <article class="rl-subject-card"><strong>LIVE · PHYSICS</strong><h3>Projectile</h3><p>Explore speed, angles, distance, and trajectory.</p></article>
+        <article class="rl-subject-card"><strong>LIVE · CODING</strong><h3>RoboMaze</h3><p>Plan routes and teach a robot to solve the maze.</p></article>
+        <article class="rl-subject-card"><strong>LIVE · MATHS</strong><h3>Submarine Math Expedition</h3><p>Navigate 15 levels with number operations.</p></article>
+        <article class="rl-subject-card"><strong>COMING SOON · BIOLOGY</strong><h3>Biology</h3><p>Discover living systems and the world around us.</p></article>
+        <article class="rl-subject-card"><strong>COMING SOON · CHEMISTRY</strong><h3>Chemistry</h3><p>Experiment with reactions, matter, and materials.</p></article>
+      </div>
+    </section>
+    <section id="about" class="rl-section" aria-labelledby="aboutHeading"><div class="rl-about"><h2 id="aboutHeading">A calmer way to practise STEM.</h2><p>RoboLogic is built around focused, playful missions. Students solve, experiment, and see their progress clearly—without losing the excitement of discovery.</p></div></section>
+    <p class="rl-footer">RoboLogic STEM Lab · Learn. Build. Explore.</p>
   </main>
   <script src="js/login-entry.js"></script>
 </body>
