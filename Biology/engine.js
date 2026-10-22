@@ -1,6 +1,6 @@
 (function () {
-  const stages = ["seed", "sprout", "leafy", "bud", "flower", "fruit"];
-  const stageDays = [1, 4, 9, 15, 22, 30];
+  const stages = ["seed", "germinating", "sprout", "first-leaves", "leafy", "branching", "bud", "flower", "fruit-set", "ripe-harvest"];
+  const stageDays = [1, 3, 5, 8, 12, 16, 20, 23, 27, 30];
   const defaults = Object.freeze({
     day: 1, phase: "day", stage: "seed", health: 82, moisture: 52,
     light: 48, nutrients: 46, plannedActions: [], milestones: [],
@@ -20,12 +20,13 @@
       if (action === "sunlight") next.light += 22;
       if (action === "nutrients") next.nutrients += 18;
     });
+    if (state.phase === "day") next.light += 14;
     if ((seen.water || 0) > 1) next.health -= 12 * (seen.water - 1);
     if ((seen.sunlight || 0) > 2) next.health -= 8 * (seen.sunlight - 2);
     next.moisture = clamp(next.moisture);
     next.light = clamp(next.light);
     next.nutrients = clamp(next.nutrients);
-    const balance = Math.min(next.moisture, next.light, next.nutrients);
+    const balance = Math.min(next.moisture, next.nutrients);
     next.health = clamp(next.health + (balance >= 45 ? 6 : -8));
     return next;
   }
@@ -38,7 +39,7 @@
     next.moisture = clamp(next.moisture - 16);
     next.light = clamp(next.light - 10);
     next.nutrients = clamp(next.nutrients - 5);
-    const balance = Math.min(next.moisture, next.light, next.nutrients);
+    const balance = Math.min(next.moisture, next.nutrients);
     const currentStage = stages.indexOf(state.stage);
     const growth = balance >= 48 && next.health >= 60 && next.day >= stageDays[currentStage + 1];
     next.stage = stages[Math.min(stages.length - 1, currentStage + (growth ? 1 : 0))];
