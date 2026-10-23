@@ -4,11 +4,13 @@
   const roboDefinition = () => registry().get("robo_maze");
   const signalDefinition = () => registry().get("signal_decrypter");
   const submarineDefinition = () => registry().get("submarine_math");
+  const chemistryDefinition = () => registry().get("chemistry");
   const games = {
     physics: { prefix: "physics", definition: physicsDefinition },
     robo: { prefix: "robo", definition: roboDefinition },
     signal: { prefix: "signal", definition: signalDefinition },
-    submarine: { prefix: "submarine", definition: submarineDefinition }
+    submarine: { prefix: "submarine", definition: submarineDefinition },
+    chemistry: { prefix: "chemistry", definition: chemistryDefinition }
   };
 
   const $ = id => document.getElementById(id);
@@ -81,16 +83,19 @@
     const roboGame = games.robo.definition();
     const signalGame = games.signal.definition();
     const submarineGame = games.submarine.definition();
-    const [physics, robo, signal, submarine] = await Promise.all([
+    const chemistryGame = games.chemistry.definition();
+    const [physics, robo, signal, submarine, chemistry] = await Promise.all([
       window.StemGameAuth.getDashboardStats(physicsGame.gameId),
       window.StemGameAuth.getDashboardStats(roboGame.gameId),
       window.StemGameAuth.getDashboardStats(signalGame.gameId),
-      window.StemGameAuth.getDashboardStats(submarineGame.gameId)
+      window.StemGameAuth.getDashboardStats(submarineGame.gameId),
+      window.StemGameAuth.getDashboardStats(chemistryGame.gameId)
     ]);
     renderStats(games.physics.prefix, physics);
     renderStats(games.robo.prefix, robo);
     renderStats(games.signal.prefix, signal);
     renderStats(games.submarine.prefix, submarine);
+    renderStats(games.chemistry.prefix, chemistry);
   }
 
   function bindEvents() {
@@ -98,6 +103,7 @@
     $("roboGameButton").onclick = () => { window.location.href = games.robo.definition().route; };
     $("signalGameButton").onclick = () => { window.location.href = games.signal.definition().route; };
     $("submarineGameButton").onclick = () => { window.location.href = games.submarine.definition().route; };
+    $("chemistryGameButton").onclick = () => { window.location.href = games.chemistry.definition().route; };
     $("logoutButton").onclick = () => window.StemGameAuth.signOut();
     $("editProfileButton").onclick = () => {
       $("profileForm").hidden = false;

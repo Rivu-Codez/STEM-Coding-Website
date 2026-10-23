@@ -93,6 +93,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgb(37 99 235 / 3
 .physics-subject { border-top: 3px solid var(--blue); }
 .submarine-subject { border-top: 3px solid #0891b2; }
 .submarine-subject .subject-icon { background: #e0f7fb; color: #0891b2; }
+.chemistry-subject { border-top: 3px solid #0d9488; }
+.chemistry-subject .subject-icon { background: #d9f7ef; color: #0d766f; }
+.chemistry-label { color: #0d766f; }
 .coming-subject { border-top: 3px solid #cbd4e2; }
 .coming-subject .subject-icon { background: #f0f2f6; color: #8290a8; }
 .coming-state { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 22px; border: 1px dashed #cbd4e2; border-radius: 14px; background: #fff; color: #8290a8; }

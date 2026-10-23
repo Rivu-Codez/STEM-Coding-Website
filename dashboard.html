@@ -134,9 +134,22 @@
           </div>
         </details>
 
-        <details class="subject-card coming-subject">
-          <summary><span class="subject-icon" aria-hidden="true">⚗</span><span><span class="subject-kicker">SUBJECT</span><strong>Chemistry</strong><small>New games in development</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
-          <div class="subject-body"><div class="coming-state"><span aria-hidden="true">✦</span><div><h3>Coming soon</h3><p>Experiment with reactions, matter, and materials.</p></div></div></div>
+        <details class="subject-card chemistry-subject">
+          <summary><span class="subject-icon" aria-hidden="true">⚗</span><span><span class="subject-kicker">SUBJECT</span><strong>Chemistry</strong><small>1 interactive game</small></span><span class="subject-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="subject-body">
+            <article class="game-card chemistry-card">
+              <div class="game-icon" aria-hidden="true">⚗️</div>
+              <div class="game-content">
+                <div class="game-label chemistry-label"><span>⚗️</span> CHEMISTRY GAME</div>
+                <h3>Chemistry Lab</h3>
+                <p>Build molecules, balance reactions, and learn Python as a molecular scientist.</p>
+                <div class="progress-row"><span>Progress</span><strong id="chemistryProgress">0%</strong></div>
+                <div class="progress-track"><span id="chemistryProgressBar"></span></div>
+                <div class="stat-grid"><div><strong id="chemistryCompleted">0/15</strong><span>Levels</span></div><div><strong id="chemistryStars">0</strong><span>Stars</span></div><div><strong id="chemistryXp">0</strong><span>XP</span></div></div>
+                <button id="chemistryGameButton" class="button game-button" type="button">Play Chemistry Lab</button>
+              </div>
+            </article>
+          </div>
         </details>
       </div>
       <div id="subjectPanel" class="subject-panel" aria-live="polite"></div>
