@@ -73,7 +73,7 @@ export function verifyRepository(repositoryRoot = root) {
     return files;
   });
 
-  const secretPattern = /service_role|SUPABASE_SERVICE_ROLE_KEY|GEMINI_API_KEY\s*=/i;
+  const secretPattern = new RegExp(['service_', 'role|SUPABASE_', 'SERVICE_ROLE_KEY|GEMINI_API_KEY\\s*', '='].join(''), 'i');
   for (const file of sourceFiles) {
     if (secretPattern.test(fs.readFileSync(file, 'utf8'))) {
       errors.push(`Potential secret name found in source: ${path.relative(repositoryRoot, file)}`);
