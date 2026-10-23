@@ -3,8 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html', 'RoboMaze/creator.html', 'SubmarineMath/index.html'];
-const pinnedSupabase = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
+const pages = ['index.html', 'login.html', 'dashboard.html', 'PhysicsSim/index.html', 'RoboMaze/index.html', 'RoboMaze/creator.html', 'SubmarineMath/index.html', 'SignalDecrypter/index.html', 'Chemistry/index.html'];
 
 function resolveLocalReference(page, reference) {
   const cleanReference = reference.split(/[?#]/, 1)[0];
@@ -27,12 +26,10 @@ export function verifyWebQuality(repositoryRoot = root) {
     if (!/<meta\b[^>]*name=["']viewport["']/i.test(html)) errors.push(`${relativePage}: missing viewport metadata`);
     if (!/<meta\b[^>]*name=["']referrer["'][^>]*strict-origin-when-cross-origin/i.test(html)) errors.push(`${relativePage}: missing referrer policy`);
     if (!/<meta\b[^>]*http-equiv=["']Content-Security-Policy["']/i.test(html)) errors.push(`${relativePage}: missing content security policy`);
-    const csp = html.match(/<meta\b[^>]*http-equiv=["']Content-Security-Policy["'][^>]*content=["']([^"']+)["']/i)?.[1] ?? '';
-    if (/script-src[^;]*'unsafe-inline'/i.test(csp)) errors.push(`${relativePage}: script-src must not allow unsafe-inline`);
+    const csp = extractContentSecurityPolicy(html);
+    if (hasUnsafeInlineScript(csp)) errors.push(`${relativePage}: script-src must not allow unsafe-inline`);
     if (!/<title>[^<]+<\/title>/i.test(html)) errors.push(`${relativePage}: missing page title`);
-    if (html.includes('@supabase/supabase-js@') && !html.includes(pinnedSupabase)) {
-      errors.push(`${relativePage}: Supabase browser dependency is not pinned`);
-    }
+    if (/<script\b[^>]*\bsrc=["']https?:/i.test(html)) errors.push(`${relativePage}: executable third-party scripts must be bundled locally`);
 
     for (const match of html.matchAll(/<(?:script|link)\b[^>]+(?:src|href)=["']([^"']+)["'][^>]*>/gi)) {
       const reference = match[1];
@@ -76,6 +73,18 @@ export function verifyWebQuality(repositoryRoot = root) {
   }
 
   return errors;
+}
+
+export function extractContentSecurityPolicy(html) {
+  const tag = html.match(/<meta\b(?=[^>]*\bhttp-equiv\s*=\s*(["'])Content-Security-Policy\1)[^>]*>/i)?.[0];
+  if (!tag) return '';
+  return (tag.match(/\bcontent\s*=\s*(["'])(.*?)\1/i)?.[2] ?? '')
+    .replace(/&apos;|&#0*39;|&#x0*27;/gi, "'")
+    .replace(/&quot;|&#0*34;|&#x0*22;/gi, '"');
+}
+
+export function hasUnsafeInlineScript(csp) {
+  return /(?:^|;)\s*script-src\b[^;]*'unsafe-inline'/i.test(csp);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

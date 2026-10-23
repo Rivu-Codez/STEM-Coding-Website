@@ -149,22 +149,36 @@ import { createGamePersistence } from '../js/game-persistence.js';
       // lower-refresh display. The multiplier preserves the previous brisk feel.
       const simulationRate = 1.35;
       let previousTimestamp = null;
+      let physicsAccumulator = 0;
+      const VALIDATION_STEP = 0.025;
       const useDrag = airResistance; // fixed for the whole flight
       const lvl = LEVELS[currentLevelIndex];
 
       function physicsLoop(timestamp) {
         const frameSeconds = previousTimestamp === null
-          ? 1 / 60
+          ? VALIDATION_STEP / simulationRate
           : Math.min((timestamp - previousTimestamp) / 1000, 0.05);
         previousTimestamp = timestamp;
-        const dt = frameSeconds * simulationRate;
-        PhysicsSimulation.advance(currentBall, {
-          dt,
-          useDrag,
-          gravity: G,
-          scale: SCALE,
-          dragCoefficient: DRAG_COEFF,
-        });
+        physicsAccumulator += frameSeconds * simulationRate;
+        while (physicsAccumulator + 1e-9 >= VALIDATION_STEP) {
+          PhysicsSimulation.advance(currentBall, {
+            dt: VALIDATION_STEP,
+            useDrag,
+            gravity: G,
+            scale: SCALE,
+            dragCoefficient: DRAG_COEFF,
+          });
+          physicsAccumulator -= VALIDATION_STEP;
+
+          // Collision and landing checks use the same fixed simulation step
+          // as the server validator, independent of the display refresh rate.
+          if (lvl.wall) {
+            const wallPx = ORIGIN_X + lvl.wall.x * SCALE;
+            const wallTopY = GROUND_Y - lvl.wall.height * SCALE;
+            if (Math.abs(currentBall.x - wallPx) < 7 && currentBall.y >= wallTopY) break;
+          }
+          if (currentBall.y >= GROUND_Y) break;
+        }
 
         // 1. Check Wall Collision (Level 3)
         if (lvl.wall) {
@@ -292,7 +306,14 @@ import { createGamePersistence } from '../js/game-persistence.js';
           apex: currentBall ? (GROUND_Y - currentBall.maxY) / SCALE : 0
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
-          triggerMessage('The server could not confirm this trajectory. Please try the shot again.', 'error');
+          const serverDistance = Number(attempt?.data?.distance);
+          const distanceNote = Number.isFinite(serverDistance)
+            ? ` Server landing distance: ${serverDistance.toFixed(1)} m.`
+            : '';
+          const message = attempt?.ok
+            ? `The server checked this shot and recorded a ${attempt.data?.server_result || 'miss'}.${distanceNote}`
+            : attempt?.error || 'The server could not check this trajectory. Please retry.';
+          triggerMessage(message, 'error');
           return;
         }
         const achievement = await persistence.recordAchievement(currentLevelIndex);

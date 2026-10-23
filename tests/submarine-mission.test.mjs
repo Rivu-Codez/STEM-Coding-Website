@@ -30,15 +30,15 @@ test('valid target mission calculates and reaches the first target', () => {
 
 test('mission rejects routes that cross above sea level', () => {
   const { levels, engine } = loadMissionRuntime();
-  const result = engine.validateRoute({ ...levels[0], moves: [40], checkpoints: [5] }, '+40');
+  const result = engine.validateRoute({ ...levels[0], checkpoints: [40], targetDepth: 40 }, '+40');
   assert.equal(result.code, 'above_surface');
 });
 
 test('mission rejects a wrong route even when its move count matches', () => {
   const { levels, engine } = loadMissionRuntime();
-  const result = engine.validateRoute(levels[0], '-10');
-  assert.equal(result.code, 'wrong_move');
-  assert.match(result.message, /Move 1/);
+  const result = engine.validateRoute(levels[0], '+9');
+  assert.equal(result.code, 'checkpoint');
+  assert.match(result.message, /checkpoint 1/i);
 });
 
 test('fuel limits and hazards are enforced', () => {

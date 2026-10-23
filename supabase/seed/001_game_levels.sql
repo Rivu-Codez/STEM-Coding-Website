@@ -1,5 +1,5 @@
--- Phase 2 seed: the 30 current levels from Prototype3 for each game.
--- Re-running this file updates level content without duplicating rows.
+-- Generated from data/levels/*.json. Run npm run generate:levels.
+-- Answer keys remain in server migrations and are not stored in these public manifests.
 
 insert into public.game_levels
   (game_id, level_number, title, instruction, configuration, is_bonus, bonus_number)
@@ -63,17 +63,22 @@ values
   ('robo_maze', 27, 'Level 27: Multi-Corner Route', '🔄 Concept: Chain several turns and conditional checks in sequence.', '{"grid":[[1,1,1,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,1,0,1,1,1,1,1],[1,1,0,0,0,1,1,1],[1,1,1,1,0,1,1,1],[1,1,1,1,0,1,1,1],[1,1,1,1,2,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}}'::jsonb, false, null),
   ('robo_maze', 28, 'Level 28: Compact Program', '🏃 Concept: Find a compact block sequence for a long route.', '{"grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,0,1,1],[1,1,1,1,1,0,0,1],[1,0,0,0,0,1,0,1],[1,0,1,1,0,0,0,1],[1,0,0,0,0,2,0,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}}'::jsonb, false, null),
   ('robo_maze', 29, 'Level 29: Advanced Conditionals', '🧠 Concept: Use conditionals at multiple decision points without losing direction.', '{"grid":[[1,1,1,1,1,1,1,1],[1,0,0,1,0,0,0,1],[1,0,0,1,0,1,0,1],[1,0,0,0,0,1,0,1],[1,0,1,1,0,0,0,1],[1,0,0,0,1,2,0,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}}'::jsonb, false, null),
-  ('robo_maze', 30, 'Level 30: Final Logic Maze', '🏆 Final Challenge: Combine sequence, loops, turns, and conditionals to solve the full 8x8 maze.', '{"grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,1,1,1],[1,1,1,0,0,1,1,1],[1,0,0,0,1,0,1,1],[1,0,1,0,0,0,1,1],[1,0,0,0,1,0,0,1],[1,2,0,0,1,0,0,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}}'::jsonb, false, null)
-on conflict (game_id, level_number) do update set
-  title = excluded.title,
-  instruction = excluded.instruction,
-  configuration = excluded.configuration,
-  is_bonus = excluded.is_bonus,
-  bonus_number = excluded.bonus_number;
-
--- Signal Decrypter: public question and signal metadata. Answers stay private.
-insert into public.game_levels (game_id, level_number, title, instruction, configuration, is_bonus, bonus_number)
-values
+  ('robo_maze', 30, 'Level 30: Final Logic Maze', '🏆 Final Challenge: Combine sequence, loops, turns, and conditionals to solve the full 8x8 maze.', '{"grid":[[1,1,1,1,1,1,1,1],[1,0,0,0,0,1,1,1],[1,1,1,0,0,1,1,1],[1,0,0,0,1,0,1,1],[1,0,1,0,0,0,1,1],[1,0,0,0,1,0,0,1],[1,2,0,0,1,0,0,1],[1,1,1,1,1,1,1,1]],"start":{"x":1,"y":1,"dir":1}}'::jsonb, false, null),
+  ('submarine_math', 1, 'Target Practice', 'Move the submarine from -20m to the target at -10m. Enter the signed move.', '{"id":1,"section":1,"title":"Target Practice","startDepth":-20,"checkpoints":[-10],"targetDepth":-10}'::jsonb, false, null),
+  ('submarine_math', 2, 'Two-Buoy Target Run', 'Move the submarine from -40m to the target at -20m. How far must it move?', '{"id":2,"section":1,"title":"Two-Buoy Target Run","startDepth":-40,"checkpoints":[-20],"targetDepth":-20}'::jsonb, false, null),
+  ('submarine_math', 3, 'Surface Target Run', 'Move the submarine from -60m to the surface at 0m. It must pass the buoy at -30m.', '{"id":3,"section":1,"title":"Surface Target Run","startDepth":-60,"checkpoints":[-30,0],"surfaceObjective":true,"targetDepth":0}'::jsonb, false, null),
+  ('submarine_math', 4, 'Current Correction', 'Move the submarine from -45m to the target at -20m. It must pass -15m, then -35m.', '{"id":4,"section":2,"title":"Current Correction","startDepth":-45,"checkpoints":[-15,-35,-20],"targetDepth":-20,"maxMoves":3}'::jsonb, false, null),
+  ('submarine_math', 5, 'Deep Trench Turn', 'Move the submarine from -20m back to -20m. Visit -55m and -35m first.', '{"id":5,"section":2,"title":"Deep Trench Turn","startDepth":-20,"checkpoints":[-55,-35,-20],"targetDepth":-20,"maxMoves":3}'::jsonb, false, null),
+  ('submarine_math', 6, 'Four-Move Current Maze', 'Move the submarine from -70m to -30m through these targets: -45m, -25m, and -40m.', '{"id":6,"section":2,"title":"Four-Move Current Maze","startDepth":-70,"checkpoints":[-45,-25,-40,-30],"targetDepth":-30,"maxMoves":4}'::jsonb, false, null),
+  ('submarine_math', 7, 'Surface-and-Return Drill', 'Move the submarine from -50m to -10m. It must touch the surface after reaching -20m.', '{"id":7,"section":3,"title":"Surface-and-Return Drill","startDepth":-50,"checkpoints":[-20,0,-10],"surfaceObjective":true,"targetDepth":-10}'::jsonb, false, null),
+  ('submarine_math', 8, 'Floodgate Recovery', 'Move the submarine from -15m back to -15m. Touch 0m, then visit -25m.', '{"id":8,"section":3,"title":"Floodgate Recovery","startDepth":-15,"checkpoints":[0,-25,-15],"surfaceObjective":true,"targetDepth":-15}'::jsonb, false, null),
+  ('submarine_math', 9, 'Blackwater Checkpoints', 'Move the submarine from -80m to -20m. Visit -45m, -15m, and -35m in order.', '{"id":9,"section":3,"title":"Blackwater Checkpoints","startDepth":-80,"checkpoints":[-45,-15,-35,-20],"targetDepth":-20,"maxMoves":4}'::jsonb, false, null),
+  ('submarine_math', 10, 'Rescue Dock Run', 'Move the submarine from -55m to the surface dock. Visit -35m, -20m, and -30m. Avoid the hazard band.', '{"id":10,"section":4,"title":"Rescue Dock Run","startDepth":-55,"checkpoints":[-35,-20,-30,0],"surfaceObjective":true,"targetDepth":0,"hazards":[{"min":-18,"max":-12}]}'::jsonb, false, null),
+  ('submarine_math', 11, 'Minefield Rescue', 'Move the submarine from -90m to -30m. Visit -60m, -35m, and -15m. Avoid the mine band.', '{"id":11,"section":4,"title":"Minefield Rescue","startDepth":-90,"checkpoints":[-60,-35,-15,-30],"targetDepth":-30,"hazards":[{"min":-55,"max":-45}]}'::jsonb, false, null),
+  ('submarine_math', 12, 'Fuel-Efficient Patrol', 'Move the submarine from -40m to -15m through -20m and -30m. Use 45m of fuel or less.', '{"id":12,"section":5,"title":"Fuel-Efficient Patrol","startDepth":-40,"checkpoints":[-20,-30,-15],"targetDepth":-15,"maxDistance":45}'::jsonb, false, null),
+  ('submarine_math', 13, 'Long-Range Survey', 'Move the submarine from -75m to -45m through -50m, -35m, and -55m. Use 70m or less.', '{"id":13,"section":5,"title":"Long-Range Survey","startDepth":-75,"checkpoints":[-50,-35,-55,-45],"targetDepth":-45,"maxDistance":70}'::jsonb, false, null),
+  ('submarine_math', 14, 'Engine Boost Calculations', 'Move the submarine from -90m to -30m through -66m, -48m, and -18m. Calculate each engine boost before entering the route.', '{"id":14,"section":6,"title":"Engine Boost Calculations","startDepth":-90,"checkpoints":[-66,-48,-18,-30],"targetDepth":-30,"maxMoves":4}'::jsonb, false, null),
+  ('submarine_math', 15, 'Final Surface Mission', 'Move the submarine from -30m to the surface. Visit -54m, -36m, and -24m, then dock at 0m.', '{"id":15,"section":6,"title":"Final Surface Mission","startDepth":-30,"checkpoints":[-54,-36,-24,0],"surfaceObjective":true,"targetDepth":0,"maxMoves":4}'::jsonb, false, null),
   ('signal_decrypter', 1, 'World Capitals', 'What is the capital of France?', '{"id":1,"question":"What is the capital of France?","signal":"S-I-R-A-P","mode":"blocks","timeLimit":90,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","lower","upper"]}'::jsonb, false, null),
   ('signal_decrypter', 2, 'Planet Patrol', 'Which planet is the largest in our solar system?', '{"id":2,"question":"Which planet is the largest in our solar system?","signal":"XXJUPITERXX","mode":"blocks","timeLimit":86,"interferenceLimit":3,"hintCost":8,"availableOperations":["slice","reverse","remove","lower"]}'::jsonb, false, null),
   ('signal_decrypter', 3, 'Red Planet Relay', 'Which planet is known as the Red Planet?', '{"id":3,"question":"Which planet is known as the Red Planet?","signal":"M#A#R#S","mode":"blocks","timeLimit":82,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","lower","length"]}'::jsonb, false, null),
@@ -88,53 +93,22 @@ values
   ('signal_decrypter', 12, 'Precious Metal', 'What is the chemical symbol for gold?', '{"id":12,"question":"What is the chemical symbol for gold?","signal":"#uA#","mode":"python","timeLimit":56,"interferenceLimit":3,"hintCost":10}'::jsonb, false, null),
   ('signal_decrypter', 13, 'Genetic Relay', 'What shape is commonly used to describe DNA?', '{"id":13,"question":"What shape is commonly used to describe DNA?","signal":"#xileh-elbuod#","mode":"python","timeLimit":52,"interferenceLimit":3,"hintCost":10}'::jsonb, false, null),
   ('signal_decrypter', 14, 'Light-Speed Relay', 'What is the approximate speed of light in metres per second?', '{"id":14,"question":"What is the approximate speed of light in metres per second?","signal":"854,297,992","mode":"python","timeLimit":48,"interferenceLimit":3,"hintCost":10}'::jsonb, false, null),
-  ('signal_decrypter', 15, 'Human Biology', 'What is the largest organ in the human body?', '{"id":15,"question":"What is the largest organ in the human body?","signal":"#n-i-k-s#","mode":"python","timeLimit":44,"interferenceLimit":3,"hintCost":10}'::jsonb, false, null)
-on conflict (game_id, level_number) do update set title = excluded.title, instruction = excluded.instruction, configuration = excluded.configuration;
-
--- Harder Signal Decrypter curriculum. The answer key remains private.
-update public.game_levels set configuration = case level_number
-  when 1 then '{"id":1,"question":"What is the capital of France?","signal":"S-I-R-A-P","mode":"blocks","timeLimit":90,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","lower","upper"]}'::jsonb
-  when 2 then '{"id":2,"question":"Which planet is the largest in our solar system?","signal":"XXJUPITERXX","mode":"blocks","timeLimit":86,"interferenceLimit":3,"hintCost":8,"availableOperations":["slice","reverse","remove","lower"]}'::jsonb
-  when 3 then '{"id":3,"question":"Which planet is known as the Red Planet?","signal":"M#A#R#S","mode":"blocks","timeLimit":82,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","lower","length"]}'::jsonb
-  when 4 then '{"id":4,"question":"What is the freezing point of water in Celsius?","signal":"C0","mode":"blocks","timeLimit":78,"interferenceLimit":3,"hintCost":8,"availableOperations":["swap","reverse","upper","length"]}'::jsonb
-  when 5 then '{"id":5,"question":"What is the largest ocean on Earth?","signal":"X-PACIFIC-Y","mode":"blocks","timeLimit":75,"interferenceLimit":3,"hintCost":8,"availableOperations":["slice","remove","reverse","lower"]}'::jsonb
-  when 6 then '{"id":6,"question":"What is the currency of Japan?","signal":"N-E-Y","mode":"blocks","timeLimit":72,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","reverse","swap","lower"]}'::jsonb
-  when 7 then '{"id":7,"question":"Which gas do plants absorb from the air?","signal":"#CARBON-DIOXIDE#","mode":"blocks","timeLimit":70,"interferenceLimit":3,"hintCost":8,"availableOperations":["strip","remove","reverse","lower"]}'::jsonb
-  when 8 then '{"id":8,"question":"Which international distress signal is represented by SxOxS?","signal":"SxOxS","mode":"blocks","timeLimit":68,"interferenceLimit":3,"hintCost":8,"availableOperations":["slice_step","remove","reverse","upper"]}'::jsonb
-  when 9 then '{"id":9,"question":"What is the surname of the author of Harry Potter?","signal":"ROWLING!","mode":"blocks","timeLimit":65,"interferenceLimit":3,"hintCost":8,"availableOperations":["remove","slice","reverse","lower"]}'::jsonb
-  when 10 then '{"id":10,"question":"Who was the first person to walk on the Moon?","signal":"NEIL*ARMSTRONG","mode":"blocks","timeLimit":62,"interferenceLimit":3,"hintCost":8,"availableOperations":["replace","reverse","remove","upper"]}'::jsonb
-  when 11 then '{"id":11,"question":"What is the capital city of Australia?","signal":"c-a-n-b-e-r-r-a","mode":"python","timeLimit":60,"interferenceLimit":3,"hintCost":10}'::jsonb
-  when 12 then '{"id":12,"question":"What is the chemical symbol for gold?","signal":"#uA#","mode":"python","timeLimit":56,"interferenceLimit":3,"hintCost":10}'::jsonb
-  when 13 then '{"id":13,"question":"What shape is commonly used to describe DNA?","signal":"#xileh-elbuod#","mode":"python","timeLimit":52,"interferenceLimit":3,"hintCost":10}'::jsonb
-  when 14 then '{"id":14,"question":"What is the approximate speed of light in metres per second?","signal":"854,297,992","mode":"python","timeLimit":48,"interferenceLimit":3,"hintCost":10}'::jsonb
-  when 15 then '{"id":15,"question":"What is the largest organ in the human body?","signal":"#n-i-k-s#","mode":"python","timeLimit":44,"interferenceLimit":3,"hintCost":10}'::jsonb
-  else configuration end
-where game_id = 'signal_decrypter';
-
-
-
--- Submarine Math: canonical 15-level curriculum.
-insert into public.game_levels
-  (game_id, level_number, title, instruction, configuration, is_bonus, bonus_number)
-values
-  ('submarine_math', 1, 'Target Practice', 'Move the submarine from -20m to the target at -10m. Enter the signed move.', '{"id":1,"section":1,"title":"Target Practice","startDepth":-20,"moves":[10],"checkpoints":[-10],"targetDepth":-10,"numericVal":-10}'::jsonb, false, null),
-  ('submarine_math', 2, 'Two-Buoy Target Run', 'Move the submarine from -40m to the target at -20m. How far must it move?', '{"id":2,"section":1,"title":"Two-Buoy Target Run","startDepth":-40,"moves":[20],"checkpoints":[-20],"targetDepth":-20,"numericVal":-20}'::jsonb, false, null),
-  ('submarine_math', 3, 'Surface Target Run', 'Move the submarine from -60m to the surface at 0m. It must pass the buoy at -30m.', '{"id":3,"section":1,"title":"Surface Target Run","startDepth":-60,"moves":[30,30],"checkpoints":[-30,0],"surfaceObjective":true,"targetDepth":0,"numericVal":0}'::jsonb, false, null),
-  ('submarine_math', 4, 'Current Correction', 'Move the submarine from -45m to the target at -20m. It must pass -15m, then -35m.', '{"id":4,"section":2,"title":"Current Correction","startDepth":-45,"moves":[30,-20,15],"checkpoints":[-15,-35,-20],"targetDepth":-20,"numericVal":-20,"maxMoves":3}'::jsonb, false, null),
-  ('submarine_math', 5, 'Deep Trench Turn', 'Move the submarine from -20m back to -20m. Visit -55m and -35m first.', '{"id":5,"section":2,"title":"Deep Trench Turn","startDepth":-20,"moves":[-35,20,15],"checkpoints":[-55,-35,-20],"targetDepth":-20,"numericVal":-20,"maxMoves":3}'::jsonb, false, null),
-  ('submarine_math', 6, 'Four-Move Current Maze', 'Move the submarine from -70m to -30m through these targets: -45m, -25m, and -40m.', '{"id":6,"section":2,"title":"Four-Move Current Maze","startDepth":-70,"moves":[25,20,-15,10],"checkpoints":[-45,-25,-40,-30],"targetDepth":-30,"numericVal":-30,"maxMoves":4}'::jsonb, false, null),
-  ('submarine_math', 7, 'Surface-and-Return Drill', 'Move the submarine from -50m to -10m. It must touch the surface after reaching -20m.', '{"id":7,"section":3,"title":"Surface-and-Return Drill","startDepth":-50,"moves":[30,20,-10],"checkpoints":[-20,0,-10],"surfaceObjective":true,"targetDepth":-10,"numericVal":-10}'::jsonb, false, null),
-  ('submarine_math', 8, 'Floodgate Recovery', 'Move the submarine from -15m back to -15m. Touch 0m, then visit -25m.', '{"id":8,"section":3,"title":"Floodgate Recovery","startDepth":-15,"moves":[15,-25,10],"checkpoints":[0,-25,-15],"surfaceObjective":true,"targetDepth":-15,"numericVal":-15}'::jsonb, false, null),
-  ('submarine_math', 9, 'Blackwater Checkpoints', 'Move the submarine from -80m to -20m. Visit -45m, -15m, and -35m in order.', '{"id":9,"section":3,"title":"Blackwater Checkpoints","startDepth":-80,"moves":[35,30,-20,15],"checkpoints":[-45,-15,-35,-20],"targetDepth":-20,"numericVal":-20,"maxMoves":4}'::jsonb, false, null),
-  ('submarine_math', 10, 'Rescue Dock Run', 'Move the submarine from -55m to the surface dock. Visit -35m, -20m, and -30m. Avoid the hazard band.', '{"id":10,"section":4,"title":"Rescue Dock Run","startDepth":-55,"moves":[20,15,-10,30],"checkpoints":[-35,-20,-30,0],"surfaceObjective":true,"targetDepth":0,"numericVal":0,"hazards":[{"min":-18,"max":-12}]}'::jsonb, false, null),
-  ('submarine_math', 11, 'Minefield Rescue', 'Move the submarine from -90m to -30m. Visit -60m, -35m, and -15m. Avoid the mine band.', '{"id":11,"section":4,"title":"Minefield Rescue","startDepth":-90,"moves":[30,25,20,-15],"checkpoints":[-60,-35,-15,-30],"targetDepth":-30,"numericVal":-30,"hazards":[{"min":-55,"max":-45}]}'::jsonb, false, null),
-  ('submarine_math', 12, 'Fuel-Efficient Patrol', 'Move the submarine from -40m to -15m through -20m and -30m. Use 45m of fuel or less.', '{"id":12,"section":5,"title":"Fuel-Efficient Patrol","startDepth":-40,"moves":[20,-10,15],"checkpoints":[-20,-30,-15],"targetDepth":-15,"numericVal":-15,"maxDistance":45}'::jsonb, false, null),
-  ('submarine_math', 13, 'Long-Range Survey', 'Move the submarine from -75m to -45m through -50m, -35m, and -55m. Use 70m or less.', '{"id":13,"section":5,"title":"Long-Range Survey","startDepth":-75,"moves":[25,15,-20,10],"checkpoints":[-50,-35,-55,-45],"targetDepth":-45,"numericVal":-45,"maxDistance":70}'::jsonb, false, null),
-  ('submarine_math', 14, 'Engine Boost Calculations', 'Move the submarine from -90m to -30m through -66m, -48m, and -18m. Calculate each engine boost before entering the route.', '{"id":14,"section":6,"title":"Engine Boost Calculations","startDepth":-90,"moves":[24,18,30,-12],"checkpoints":[-66,-48,-18,-30],"targetDepth":-30,"numericVal":-30,"maxMoves":4}'::jsonb, false, null),
-  ('submarine_math', 15, 'Final Surface Mission', 'Move the submarine from -30m to the surface. Visit -54m, -36m, and -24m, then dock at 0m.', '{"id":15,"section":6,"title":"Final Surface Mission","startDepth":-30,"moves":[-24,18,12,24],"checkpoints":[-54,-36,-24,0],"surfaceObjective":true,"targetDepth":0,"numericVal":0,"maxMoves":4}'::jsonb, false, null)
+  ('signal_decrypter', 15, 'Human Biology', 'What is the largest organ in the human body?', '{"id":15,"question":"What is the largest organ in the human body?","signal":"#n-i-k-s#","mode":"python","timeLimit":44,"interferenceLimit":3,"hintCost":10}'::jsonb, false, null),
+  ('chemistry', 1, 'Level 1: Water', 'Combine two hydrogen atoms with one oxygen atom.', '{"compound":"Water","formula":"H2O","mode":"blocks","atoms":["H","O"]}'::jsonb, false, null),
+  ('chemistry', 2, 'Level 2: Carbon dioxide', 'Combine one carbon atom with two oxygen atoms.', '{"compound":"Carbon dioxide","formula":"CO2","mode":"blocks","atoms":["C","O"]}'::jsonb, false, null),
+  ('chemistry', 3, 'Level 3: Table salt', 'Combine one sodium atom with one chlorine atom.', '{"compound":"Table salt","formula":"NaCl","mode":"blocks","atoms":["Na","Cl"]}'::jsonb, false, null),
+  ('chemistry', 4, 'Level 4: Methane', 'Combine one carbon atom with four hydrogen atoms.', '{"compound":"Methane","formula":"CH4","mode":"blocks","atoms":["C","H"]}'::jsonb, false, null),
+  ('chemistry', 5, 'Level 5: Ammonia', 'Combine one nitrogen atom with three hydrogen atoms.', '{"compound":"Ammonia","formula":"NH3","mode":"blocks","atoms":["N","H"]}'::jsonb, false, null),
+  ('chemistry', 6, 'Level 6: Oxygen gas', 'Join two oxygen atoms.', '{"compound":"Oxygen gas","formula":"O2","mode":"blocks","atoms":["O"]}'::jsonb, false, null),
+  ('chemistry', 7, 'Level 7: Hydrogen chloride', 'Combine one hydrogen atom with one chlorine atom.', '{"compound":"Hydrogen chloride","formula":"HCl","mode":"blocks","atoms":["H","Cl"]}'::jsonb, false, null),
+  ('chemistry', 8, 'Level 8: Glucose', 'Build glucose from six carbon, twelve hydrogen, and six oxygen atoms.', '{"compound":"Glucose","formula":"C6H12O6","mode":"blocks","atoms":["C","H","O"]}'::jsonb, false, null),
+  ('chemistry', 9, 'Level 9: Hydrogen peroxide', 'Combine two hydrogen atoms with two oxygen atoms.', '{"compound":"Hydrogen peroxide","formula":"H2O2","mode":"blocks","atoms":["H","O"]}'::jsonb, false, null),
+  ('chemistry', 10, 'Level 10: Iron oxide', 'Build iron(III) oxide from two iron and three oxygen atoms.', '{"compound":"Iron oxide","formula":"Fe2O3","mode":"blocks","atoms":["Fe","O"]}'::jsonb, false, null),
+  ('chemistry', 11, 'Level 11: Hydrogen and oxygen', 'Python Lab: use lab.mix(''H2O'', 1) to synthesize water.', '{"compound":"Hydrogen and oxygen","formula":"H2O","mode":"python","atoms":["H","O"]}'::jsonb, false, null),
+  ('chemistry', 12, 'Level 12: Carbon and oxygen', 'Python Lab: use lab.mix(''CO2'', 1) to synthesize carbon dioxide.', '{"compound":"Carbon and oxygen","formula":"CO2","mode":"python","atoms":["C","O"]}'::jsonb, false, null),
+  ('chemistry', 13, 'Level 13: Sodium and chlorine', 'Python Lab: use lab.mix(''NaCl'', 1) to synthesize table salt.', '{"compound":"Sodium and chlorine","formula":"NaCl","mode":"python","atoms":["Na","Cl"]}'::jsonb, false, null),
+  ('chemistry', 14, 'Level 14: Carbon and hydrogen', 'Python Lab: use lab.mix(''CH4'', 1) to synthesize methane.', '{"compound":"Carbon and hydrogen","formula":"CH4","mode":"python","atoms":["C","H"]}'::jsonb, false, null),
+  ('chemistry', 15, 'Level 15: Final synthesis: glucose', 'Python Lab: synthesize glucose and verify it with lab.count().', '{"compound":"Final synthesis: glucose","formula":"C6H12O6","mode":"python","atoms":["C","H","O"]}'::jsonb, false, null)
 on conflict (game_id, level_number) do update set
-  title = excluded.title,
-  instruction = excluded.instruction,
-  configuration = excluded.configuration,
-  is_bonus = excluded.is_bonus,
-  bonus_number = excluded.bonus_number;
+  title = excluded.title, instruction = excluded.instruction, configuration = excluded.configuration,
+  is_bonus = excluded.is_bonus, bonus_number = excluded.bonus_number;

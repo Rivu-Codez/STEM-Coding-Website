@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
   <title>RoboLogic: Physics Kinematics Lab (Step 1 - Mini-Game 2)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -261,7 +261,7 @@
       cursor: pointer;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../vendor/supabase-browser.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/game-registry.js"></script>
   <script src="../js/game-platform.js"></script>
@@ -271,6 +271,7 @@
   <script src="../js/mistake-api.js"></script>
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/game-shell.js" defer></script>
   <script src="../js/game-adapter.js"></script>
   <script src="../js/game-module.js"></script>
   <script src="../js/tutor-hints.js"></script>
@@ -280,6 +281,7 @@
   <script src="ui.js"></script>
   <link rel="stylesheet" href="../css/aimora-theme.css">
   <link rel="stylesheet" href="../css/redesign.css">
+  <link rel="stylesheet" href="../css/game-shell.css">
 </head>
 <body>
 
@@ -294,7 +296,7 @@
     </div></div>
   </header>
 
-  <main>
+  <main data-game-root="physics">
     <!-- Left Column: 2D Trajectory Canvas -->
     <div class="panel">
       <div class="level-header">
@@ -415,7 +417,7 @@
 
       <!-- Action Buttons -->
       <div class="controls">
-        <button class="btn-action btn-fire" id="btnFire" data-action="fire">🚀 Fire Cannon!</button>
+        <button class="btn-action btn-fire" id="btnFire" data-attempt-submit data-action="fire">🚀 Fire Cannon!</button>
         <button class="btn-action btn-reset" data-action="reset">🔄 Clear Trail</button>
       </div>
     </div>

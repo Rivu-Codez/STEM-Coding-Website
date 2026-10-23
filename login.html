@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
   <title>RoboLogic STEM Lab | Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="css/auth.css">
   <link rel="stylesheet" href="css/aimora-theme.css">
   <link rel="stylesheet" href="css/redesign.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="vendor/supabase-browser.js"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/game-registry.js"></script>
   <script src="js/game-platform.js"></script>
@@ -34,7 +34,7 @@
         <p class="rl-eyebrow">STUDENT COMMAND CENTER</p>
         <h1>Make curiosity something you can play.</h1>
         <p class="rl-hero-copy">RoboLogic turns STEM ideas into clear, interactive challenges—one level at a time.</p>
-        <p class="rl-hero-note">Physics and Coding are live now. Maths is an active expedition; Chemistry is coming soon.</p>
+        <p class="rl-hero-note">Physics, Coding, Maths, and Chemistry are live now.</p>
       </div>
       <section id="loginPanel" class="rl-login-card">
         <p class="rl-eyebrow">WELCOME BACK</p>
@@ -69,7 +69,7 @@
         <article class="rl-subject-card"><strong>LIVE · PHYSICS</strong><h3>Projectile</h3><p>Explore speed, angles, distance, and trajectory.</p></article>
         <article class="rl-subject-card"><strong>LIVE · CODING</strong><h3>RoboMaze</h3><p>Plan routes and teach a robot to solve the maze.</p></article>
         <article class="rl-subject-card"><strong>LIVE · MATHS</strong><h3>Submarine Math Expedition</h3><p>Navigate 15 levels with number operations.</p></article>
-        <article class="rl-subject-card"><strong>COMING SOON · CHEMISTRY</strong><h3>Chemistry</h3><p>Experiment with reactions, matter, and materials.</p></article>
+        <article class="rl-subject-card"><strong>LIVE · CHEMISTRY</strong><h3>Chemistry Lab</h3><p>Build molecules, explore reactions, and learn Python through hands-on synthesis challenges.</p></article>
       </div>
     </section>
     <section id="about" class="rl-section" aria-labelledby="aboutHeading"><div class="rl-about"><h2 id="aboutHeading">A calmer way to practise STEM.</h2><p>RoboLogic is built around focused, playful missions. Students solve, experiment, and see their progress clearly—without losing the excitement of discovery.</p></div></section>

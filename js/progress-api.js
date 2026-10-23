@@ -8,10 +8,6 @@
   function gameDefinition(gameId) { return registry()?.get(gameId) || legacyDefinitions[gameId] || null; }
   function client() { return platform().getClient(); }
   function session() { return platform().getSession(); }
-  function createAttemptId() {
-    return window.crypto?.randomUUID?.() || null;
-  }
-
   async function load(gameId) {
     const game = gameDefinition(gameId);
     if (!game || !game.enabled) return;
@@ -47,26 +43,27 @@
       }
       return true;
     },
+    async getDashboardSummaries() {
+      if (!session()) return [];
+      const response = await client().rpc("get_dashboard_summaries");
+      if (response.error) {
+        platform().showStatus("Could not load your dashboard progress. Refresh and retry.");
+        return [];
+      }
+      return response.data || [];
+    },
     async getDashboardStats(gameId) {
       const game = gameDefinition(gameId);
       const maxLevels = game?.levelCount || 0;
       if (!session() || !game || !game.enabled) return { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1, maxLevels };
-      const progress = await client().from("level_progress")
-        .select("level_number,status,best_result").eq("game_id", gameId);
-      const achievements = await client().from("student_achievements")
-        .select("level_number,stars,xp").eq("game_id", gameId);
-      const completed = (progress.data || []).filter(row => row.status === "completed" && row.level_number <= maxLevels);
-      const records = achievements.error ? [] : (achievements.data || []);
-      const fallback = completed.map(row => row.best_result || {});
-      const starsFromRecords = records.reduce((total, row) => total + (row.stars || 0), 0);
-      const totalStars = await client().rpc("get_student_star_total", { p_game_id: gameId });
-      const stars = totalStars.error
-        ? (records.length ? starsFromRecords : fallback.reduce((total, row) => total + (row.stars || 0), 0))
-        : (totalStars.data || 0);
-      const xp = records.length
-        ? records.reduce((total, row) => total + (row.xp || 0), 0)
-        : fallback.reduce((total, row) => total + (row.xp || 0), 0);
-      return { completedLevels: completed.length, stars, xp, nextLevel: Math.min(maxLevels, completed.length + 1), maxLevels };
+      const summary = (await this.getDashboardSummaries()).find(row => row.game_id === gameId);
+      return summary ? {
+        completedLevels: summary.completed_levels,
+        stars: summary.stars,
+        xp: summary.xp,
+        nextLevel: summary.next_level,
+        maxLevels: summary.level_count
+      } : { completedLevels: 0, stars: 0, xp: 0, nextLevel: 1, maxLevels };
     },
     async getGameProgress(gameId = platform().getGameId()) {
       if (!client() || !session()) return { ok: false, levels: [], achievements: [] };
@@ -82,7 +79,7 @@
       }
       return { ok: true, levels: levels.data || [], achievements: achievements.data || [] };
     },
-    async recordAttempt(levelNumber, result, mistakeCode, attemptData) {
+    async recordAttempt(levelNumber, result, mistakeCode, attemptData, attemptId) {
       if (!client() || !session()) return { ok: false, error: "Authentication required" };
       const gameId = platform().getGameId();
       const game = gameDefinition(gameId);
@@ -104,22 +101,38 @@
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };
       }
-      const attemptId = createAttemptId();
-      if (!attemptId) {
-        platform().showStatus("Your browser cannot create a safe attempt ID. Please refresh and retry.");
+      if (typeof attemptId !== "string" || !attemptId) {
+        platform().showStatus("Your browser could not prepare a safe attempt ID. Please refresh and retry.");
         return { ok: false, error: "Attempt ID unavailable" };
       }
-      const response = await client().rpc("submit_game_attempt_idempotent", {
-        p_game_id: gameId,
-        p_attempt_id: attemptId,
-        p_level_number: levelNumber,
-        p_attempt_data: isRoboMaze ? { program: attemptData.program } : attemptData
-      });
-      if (response.error) {
-        platform().showStatus("Progress could not be saved. Please retry this attempt.");
-        return { ok: false, error: response.error.message };
+      let response;
+      try {
+        response = await client().rpc("submit_game_attempt_idempotent", {
+          p_game_id: gameId,
+          p_attempt_id: attemptId,
+          p_level_number: levelNumber,
+          p_attempt_data: isRoboMaze ? { program: attemptData.program } : attemptData
+        });
+      } catch (error) {
+        const message = "The lab did not return a response. Retry the same attempt safely.";
+        platform().showStatus(message);
+        return { ok: false, error: error?.message || message, retryable: true };
       }
-      await load(gameId);
+      if (response.error) {
+        const code = response.error.code || response.error.status;
+        const validatorMissing = ["PGRST202", "42883", 404].includes(code);
+        const message = validatorMissing
+          ? "The server validator is not installed. Apply the latest Supabase game migrations, then retry."
+          : response.error.message || "The server rejected this attempt. Check the level and solution, then retry.";
+        platform().showStatus(message);
+        const retryable = !response.error.code && !Number.isFinite(response.error.status);
+        return { ok: false, error: message, retryable };
+      }
+      // The RPC response is authoritative. A later progress refresh can fail
+      // independently and must not turn a confirmed attempt into a retry.
+      try { await load(gameId); } catch {
+        platform().showStatus("The attempt was checked, but progress could not refresh. Reload to update your level status.");
+      }
       return { ok: true, data: response.data };
     },
     async getLevelAttemptCount(levelNumber) {

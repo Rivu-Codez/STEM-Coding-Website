@@ -1,0 +1,350 @@
+{
+  "gameId": "physics",
+  "levels": [
+    {
+      "title": "Level 1: Projectile Motion",
+      "instruction": "🔭 Concept: Observe how launch angle creates a curved projectile path.",
+      "targetDistance": 30,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 2: Maximum Range",
+      "instruction": "📐 Concept: Find the 45° angle that produces the greatest range at fixed speed.",
+      "targetDistance": 40.8,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 3: Speed & Distance",
+      "instruction": "⚡ Concept: Increase launch speed to reach a target farther away.",
+      "targetDistance": 50,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 4: Angle & Height",
+      "instruction": "📈 Concept: Use a steeper angle to increase the projectile's height.",
+      "targetDistance": 22,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 5: Match the Target",
+      "instruction": "🎯 Concept: Combine angle and speed to land within the target ring.",
+      "targetDistance": 34,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 6: Two Valid Angles",
+      "instruction": "🔀 Concept: Discover that low and high launch angles can reach the same distance.",
+      "targetDistance": 28,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 7: Clear the Wall",
+      "instruction": "🧱 Concept: Clear an obstacle by controlling the projectile's height at a given distance.",
+      "targetDistance": 42,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 25,
+      "wall": {
+        "x": 20,
+        "height": 12
+      },
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 8: Flight Time",
+      "instruction": "⏱️ Concept: Compare launch angles and notice how vertical velocity changes flight time.",
+      "targetDistance": 24,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 22,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 9: Apex Height",
+      "instruction": "⬆️ Concept: Reach a distant target while balancing range and maximum height.",
+      "targetDistance": 36,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 24,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 10: Air Resistance",
+      "instruction": "💨 Concept: Turn on air resistance and observe how drag shortens the trajectory.",
+      "targetDistance": 24,
+      "lockSpeed": true,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 11: Drag Comparison",
+      "instruction": "🌬️ Concept: Compare ideal and drag-affected motion by adjusting the angle.",
+      "targetDistance": 22,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 12: Compensate with Speed",
+      "instruction": "🚀 Concept: Use extra launch speed to overcome air resistance.",
+      "targetDistance": 34,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 13: Compensate with Angle",
+      "instruction": "🧭 Concept: Adjust angle as well as speed to recover a lost range.",
+      "targetDistance": 30,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 14: Energy Loss",
+      "instruction": "🔄 Concept: Observe how a bounce loses vertical and horizontal energy before settling.",
+      "targetDistance": 26,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 15: Final Trajectory",
+      "instruction": "🏆 Final Challenge: Combine angle, speed, drag, height, and range into one accurate shot.",
+      "targetDistance": 38,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 28,
+      "wall": {
+        "x": 24,
+        "height": 10
+      },
+      "dragMode": "on",
+      "targetTolerance": null
+    },
+    {
+      "title": "Level 16: Range with Drag",
+      "instruction": "🌬️ Concept: Adjust the launch to recover range lost to optional air resistance.",
+      "targetDistance": 32,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 3.2
+    },
+    {
+      "title": "Level 17: Drag & Distance",
+      "instruction": "🎯 Concept: Tune speed and angle for a target while drag is forced on.",
+      "targetDistance": 30,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 24,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": 3
+    },
+    {
+      "title": "Level 18: High-Wall Clearance",
+      "instruction": "🧱 Concept: Clear a taller wall by controlling the projectile's apex.",
+      "targetDistance": 46,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 30,
+      "wall": {
+        "x": 22,
+        "height": 14
+      },
+      "dragMode": null,
+      "targetTolerance": 3
+    },
+    {
+      "title": "Level 19: Angle Choice with Drag",
+      "instruction": "🔀 Concept: Compare low and high launch angles while drag is active.",
+      "targetDistance": 26,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 25,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": 2.8
+    },
+    {
+      "title": "Level 20: Speed Limit",
+      "instruction": "⚡ Concept: Reach the target with a fixed, limited launch speed.",
+      "targetDistance": 30,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 18,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 3
+    },
+    {
+      "title": "Level 21: Low-Speed Precision",
+      "instruction": "🎯 Concept: Use careful angle control to make a precise low-speed shot.",
+      "targetDistance": 18,
+      "lockSpeed": true,
+      "lockDrag": true,
+      "fixedSpeed": 16,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 2
+    },
+    {
+      "title": "Level 22: Bounce Trajectory",
+      "instruction": "🔄 Concept: Account for the bounce when choosing the landing path.",
+      "targetDistance": 28,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 26,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 3
+    },
+    {
+      "title": "Level 23: Energy-Loss Landing",
+      "instruction": "📉 Concept: Observe how lost energy changes the final rolling distance.",
+      "targetDistance": 24,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 22,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 2.8
+    },
+    {
+      "title": "Level 24: Ideal Calibration",
+      "instruction": "📏 Concept: Calibrate an ideal trajectory before introducing drag again.",
+      "targetDistance": 36,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 20,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 2.8
+    },
+    {
+      "title": "Level 25: Drag Calibration",
+      "instruction": "💨 Concept: Calibrate the same style of shot with air resistance enabled.",
+      "targetDistance": 28,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 24,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": 2.6
+    },
+    {
+      "title": "Level 26: Wall with Air Resistance",
+      "instruction": "🧱 Concept: Clear an obstacle while compensating for air resistance.",
+      "targetDistance": 40,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 30,
+      "wall": {
+        "x": 20,
+        "height": 12
+      },
+      "dragMode": "on",
+      "targetTolerance": 2.8
+    },
+    {
+      "title": "Level 27: Maximum Range under Drag",
+      "instruction": "🚀 Concept: Find the best range compromise when drag is always active.",
+      "targetDistance": 38,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 30,
+      "wall": null,
+      "dragMode": "on",
+      "targetTolerance": 2.8
+    },
+    {
+      "title": "Level 28: Apex vs Range",
+      "instruction": "⬆️ Concept: Balance a high apex against the need to reach the target.",
+      "targetDistance": 30,
+      "lockSpeed": false,
+      "lockDrag": true,
+      "fixedSpeed": 24,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 2.5
+    },
+    {
+      "title": "Level 29: Tight Accuracy",
+      "instruction": "🎯 Concept: Make a highly accurate shot inside a smaller landing zone.",
+      "targetDistance": 32,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 27,
+      "wall": null,
+      "dragMode": null,
+      "targetTolerance": 1.5
+    },
+    {
+      "title": "Level 30: Final Trajectory",
+      "instruction": "🏆 Final Challenge: Combine speed, angle, drag, wall clearance, and precision.",
+      "targetDistance": 42,
+      "lockSpeed": false,
+      "lockDrag": false,
+      "fixedSpeed": 32,
+      "wall": {
+        "x": 25,
+        "height": 12
+      },
+      "dragMode": "on",
+      "targetTolerance": 2
+    }
+  ]
+}

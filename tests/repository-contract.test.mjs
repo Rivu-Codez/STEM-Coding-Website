@@ -5,6 +5,8 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { collectMigrationNumbers, verifyRepository } from '../scripts/verify-repo.mjs';
+import { extractContentSecurityPolicy, hasUnsafeInlineScript, verifyWebQuality } from '../scripts/verify-web-quality.mjs';
+import { generateLevelData } from '../scripts/generate-level-data.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -12,9 +14,72 @@ test('repository verification passes', () => {
   assert.deepEqual(verifyRepository(repositoryRoot), []);
 });
 
+test('CSP extraction preserves quoted directives and rejects inline scripts', () => {
+  const doubleQuoted = '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\' \'unsafe-inline\';">';
+  const singleQuoted = "<meta http-equiv='Content-Security-Policy' content='default-src &apos;self&apos;; script-src &apos;unsafe-inline&apos;'>";
+  assert.match(extractContentSecurityPolicy(doubleQuoted), /'unsafe-inline'/);
+  assert.equal(hasUnsafeInlineScript(extractContentSecurityPolicy(doubleQuoted)), true);
+  assert.equal(hasUnsafeInlineScript(extractContentSecurityPolicy(singleQuoted)), true);
+  assert.equal(hasUnsafeInlineScript("default-src 'self'; script-src 'self' https://cdn.example"), false);
+  assert.deepEqual(verifyWebQuality(repositoryRoot), []);
+});
+
 test('migrations are numbered without gaps', () => {
   const numbers = collectMigrationNumbers(path.join(repositoryRoot, 'supabase', 'migrations'));
   assert.deepEqual(numbers, numbers.map((_, index) => index + 1));
+});
+
+test('Physics and RoboMaze release limits cap at 15 without deleting catalogs or progress', () => {
+  const source = fs.readFileSync(path.join(repositoryRoot, 'supabase/migrations/034_release_level_limits.sql'), 'utf8');
+  assert.match(source, /set level_count = 15[\s\S]*game_id in \('physics', 'robo_maze'\)/);
+  assert.match(source, /p_level_number > released_level_count/);
+  assert.match(source, /submit_robo_maze_attempt_idempotent/);
+  assert.match(source, /submit_physics_attempt_idempotent/);
+  assert.doesNotMatch(source, /delete\s+from\s+public\.(?:level_progress|level_attempts)/i);
+});
+
+test('dashboard summaries are authenticated and aggregate progress in one RPC', () => {
+  const migration = fs.readFileSync(path.join(repositoryRoot, 'supabase/migrations/035_dashboard_summaries.sql'), 'utf8');
+  const dashboard = fs.readFileSync(path.join(repositoryRoot, 'js/dashboard.js'), 'utf8');
+  assert.match(migration, /create function public\.get_dashboard_summaries\(\)/);
+  assert.match(migration, /where auth\.uid\(\) is not null/);
+  assert.match(migration, /revoke all on function public\.get_dashboard_summaries\(\) from public, anon, authenticated/);
+  assert.match(migration, /grant execute on function public\.get_dashboard_summaries\(\) to authenticated/);
+  assert.match(migration, /completed_levels[\s\S]*fallback_stars[\s\S]*fallback_xp/);
+  assert.match(migration, /then null else coalesce\(progress_totals\.completed_levels, 0\) \+ 1 end/);
+  assert.match(dashboard, /getDashboardSummaries\(\)/);
+  assert.doesNotMatch(dashboard, /Promise\.all\([\s\S]*getDashboardStats/);
+});
+
+test('canonical level manifests generate frontend and seed files without answer-key fields', () => {
+  assert.deepEqual(generateLevelData({ check: true, repositoryRoot }), []);
+  for (const gameId of ['physics', 'robo_maze', 'submarine_math', 'signal_decrypter', 'chemistry']) {
+    const manifest = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'data/levels', `${gameId}.json`), 'utf8'));
+    assert.equal(manifest.gameId, gameId);
+    assert.ok(manifest.levels.length >= 15);
+    assert.doesNotMatch(JSON.stringify(manifest.levels), /"(?:answer|answerKey|correctAnswer|solution|expectedAnswer)"\s*:/i);
+  }
+  const submarine = JSON.parse(fs.readFileSync(path.join(repositoryRoot, 'data/levels/submarine_math.json'), 'utf8'));
+  assert.ok(submarine.levels.every(level => !('moves' in level) && !('numericVal' in level)));
+});
+
+test('all game pages connect to the shared shell and local vendor bundles', () => {
+  for (const [page, gameId] of [
+    ['PhysicsSim/index.html', 'physics'], ['RoboMaze/index.html', 'robo_maze'],
+    ['SubmarineMath/index.html', 'submarine_math'], ['SignalDecrypter/index.html', 'signal_decrypter'],
+    ['Chemistry/index.html', 'chemistry'],
+  ]) {
+    const html = fs.readFileSync(path.join(repositoryRoot, page), 'utf8');
+    assert.match(html, new RegExp(`data-game-root="${gameId}"`));
+    assert.match(html, /src="\.\.\/js\/game-shell\.js"/);
+    assert.match(html, /src="\.\.\/js\/game-shell\.js" defer/);
+    assert.match(html, /data-attempt-submit/);
+    assert.match(html, /vendor\/supabase-browser\.js/);
+    assert.doesNotMatch(html, /<script[^>]+src="https?:/i);
+  }
+  assert.match(fs.readFileSync(path.join(repositoryRoot, 'Chemistry/game.js'), 'utf8'), /import\("\.\/codemirror\.bundle\.js"\)/);
+  assert.ok(fs.existsSync(path.join(repositoryRoot, 'vendor/blockly.min.js')));
+  assert.ok(fs.existsSync(path.join(repositoryRoot, 'vendor/submarine-tailwind.css')));
 });
 
 test('authoritative progression migrations expose server-owned procedures', () => {
@@ -176,15 +241,15 @@ test('Submarine Math target depths match answers and allow visible movement', ()
     path.join(repositoryRoot, 'SubmarineMath', 'levels.js'), 'utf8'), context);
   const levels = context.window.SubmarineMathLevels;
 
-  levels.forEach(level => assert.equal(level.targetDepth, level.numericVal,
-    'Level ' + level.id + ' target must match its answer destination'));
+  levels.forEach(level => assert.equal(level.checkpoints.at(-1), level.targetDepth,
+    'Level ' + level.id + ' final checkpoint must match its target destination'));
   [2, 10, 11].forEach(levelNumber => {
     const level = levels[levelNumber - 1];
     assert.notEqual(level.startDepth, level.targetDepth,
       'Level ' + levelNumber + ' should move the submarine to its target');
   });
-  assert.deepEqual(Array.from(levels[0].moves), [10]);
-  assert.deepEqual(Array.from(levels[14].moves), [-24, 18, 12, 24]);
+  assert.equal('moves' in levels[0], false);
+  assert.equal('numericVal' in levels[0], false);
   assert.equal(levels[14].targetDepth, 0, 'Final mission must dock at sea level');
 });
 

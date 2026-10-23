@@ -230,11 +230,7 @@
   async function startEditor() {
     if (node.editor) return;
     try {
-      const [{ EditorView, basicSetup }, { python }, { oneDark }] = await Promise.all([
-        import("https://esm.sh/codemirror@6.0.1"),
-        import("https://esm.sh/@codemirror/lang-python@6.2.1"),
-        import("https://esm.sh/@codemirror/theme-one-dark@6.1.2")
-      ]);
+      const { EditorView, basicSetup, python, oneDark } = await import("./codemirror.bundle.js");
       node.editorView = new EditorView({ doc: 'lab.mix("H2O", 1)', extensions: [basicSetup, python(), oneDark, EditorView.updateListener.of(update => { if (update.docChanged) readPython(); })], parent: $("pythonEditor") });
       node.editor = {
         getValue: () => node.editorView.state.doc.toString(),
@@ -338,7 +334,11 @@
     const attempt = await adapter.submitAttempt(node.levelIndex, "submitted", null, payload);
     node.reaction = false; drawMolecule(node.counts);
     node.busy = false; $("synthesizeButton").disabled = false;
-    if (!attempt.ok) { $("chamberStatus").textContent = "🔴 UNSTABLE"; $("reactionMessage").textContent = "Server could not validate this attempt"; return; }
+    if (!attempt.ok) {
+      $("chamberStatus").textContent = "🔴 UNSTABLE";
+      $("reactionMessage").textContent = attempt.error || "The server could not check this attempt. Retry when connected.";
+      return;
+    }
     const result = attempt.data;
     moduleApi().renderFeedback(result);
     if (result?.server_result === "success") {

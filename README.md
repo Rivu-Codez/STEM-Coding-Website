@@ -33,7 +33,7 @@ in `js/supabase-config.js`. Never put a service-role key or Gemini key there.
 ### Dashboard setup
 
 1. Create or open the Supabase project.
-2. In **SQL Editor**, run migrations in filename order: `001` through `018`.
+2. In **SQL Editor**, run migrations in filename order: `001` through `035`.
 3. Run `supabase/seed/001_game_levels.sql` after the migrations.
 4. In **Authentication > Providers > Email**, enable email/password sign-in.
 5. In **Project Settings > API**, copy only the project URL and publishable key
@@ -57,21 +57,27 @@ from pg_proc
 where proname in ('record_game_attempt', 'submit_robo_maze_attempt',
                   'submit_physics_attempt', 'record_authoritative_achievement',
                   'consume_tutor_quota', 'reserve_tutor_quota',
-                  'refund_tutor_quota', 'store_ai_insight')
+                  'refund_tutor_quota', 'store_ai_insight',
+                  'get_dashboard_summaries')
 order by proname;
 
 select to_regclass('public.tutor_quota_events');
 ```
 
-Expected results are 30 seeded levels for each current game, the authoritative
-validators and idempotent submit wrappers, revoked direct client access to the
-old submit procedures, and `tutor_quota_events` as the table name.
+Expected results are a 30-level authored catalog for Physics and RoboMaze with
+only levels 1–15 released, 15 levels each for Submarine Math, Signal Decrypter,
+and Chemistry Lab, the authoritative validators and idempotent submit
+wrappers, revoked direct client access to the validators, dashboard summary
+RPCs, and `tutor_quota_events` as the table name. Migrations 034 and 035 enforce
+released level limits and add authenticated dashboard summaries.
 
-After applying migration `018`, test the server replay with a signed-in user by
+After applying all migrations, test the server replay with a signed-in user by
 running RoboMaze level 1. A successful run should create a `success` row in
 `level_attempts` and unlock level 2. A wall collision or incomplete program
 must not unlock level 2. Repeating the same attempt ID must return the stored
-receipt result rather than awarding progress twice.
+receipt result rather than awarding progress twice. Physics and RoboMaze
+submissions for level 16 or later must be rejected while their current released
+path remains 15 levels.
 
 ### Deploy the tutor function
 
@@ -141,7 +147,7 @@ SUPABASE_INTEGRATION=1
 Never use a service-role key for browser or integration tests. The integration
 checks are opt-in because they authenticate a real test account and may create
 test-project data. Run them only against a disposable Supabase project after
-applying migrations `001` through `018` and the seed file:
+applying migrations `001` through `035` and the seed file:
 
 ```text
 npm run test:integration

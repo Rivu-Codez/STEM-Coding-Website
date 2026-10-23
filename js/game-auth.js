@@ -90,6 +90,7 @@
     getCurrentUser: () => platform().getSession()?.user || null,
     updateStudentProfile: name => auth().updateProfile(name),
     getDashboardStats: gameId => progress().getDashboardStats(gameId),
+    getDashboardSummaries: () => progress().getDashboardSummaries(),
     getGameProgress: gameId => progress().getGameProgress(gameId),
     signOut,
     async init(gameId, options = {}) {
@@ -152,20 +153,27 @@
         }
         busy = true;
         submitButton.disabled = true;
+        modeToggle.disabled = true;
         submitButton.textContent = mode === "signup" ? "Creating account..." : "Logging in...";
-        const result = mode === "signup"
-          ? await auth().signUp(email.value.trim(), password.value, displayName.value.trim())
-          : await auth().signIn(email.value.trim(), password.value);
-        busy = false;
-        submitButton.disabled = false;
-        submitButton.textContent = mode === "signup" ? "Create account" : "Log in";
-        if (result.error) return setMessage(result.error.message);
-        if (mode === "signup" && !result.data.session) {
-          return setMessage("Account created. Check your email, confirm it, then log in.");
+        try {
+          const result = mode === "signup"
+            ? await auth().signUp(email.value.trim(), password.value, displayName.value.trim())
+            : await auth().signIn(email.value.trim(), password.value);
+          if (result?.error) return setMessage(result.error.message || "Authentication failed. Please try again.");
+          if (mode === "signup" && !result?.data?.session) {
+            return setMessage("Account created. Check your email, confirm it, then log in.");
+          }
+          platform().redirectToLogin("dashboard.html");
+        } catch {
+          setMessage("We could not reach the account service. Check your connection and try again.");
+        } finally {
+          busy = false;
+          submitButton.disabled = false;
+          modeToggle.disabled = false;
+          submitButton.textContent = mode === "signup" ? "Create account" : "Log in";
         }
-        platform().redirectToLogin("dashboard.html");
       };
-      document.getElementById("authForm").onsubmit = event => { event.preventDefault(); submit(); };
+      document.getElementById("authForm").onsubmit = event => { event.preventDefault(); return submit(); };
       modeToggle.onclick = () => { mode = mode === "login" ? "signup" : "login"; updateMode(); };
       document.getElementById("togglePassword").onclick = () => {
         const visible = password.type === "password";
@@ -179,8 +187,8 @@
       if (current.data.session) platform().redirectToLogin("dashboard.html");
     },
     allowLevel: levelNumber => progress().allowLevel(levelNumber),
-    recordAttempt: (levelNumber, result, mistakeCode, attemptData) =>
-      progress().recordAttempt(levelNumber, result, mistakeCode, attemptData),
+    recordAttempt: (levelNumber, result, mistakeCode, attemptData, attemptId) =>
+      progress().recordAttempt(levelNumber, result, mistakeCode, attemptData, attemptId),
     getLevelAttemptCount: levelNumber => progress().getLevelAttemptCount(levelNumber),
     recordAchievement: levelNumber => window.StemAchievementApi.record(levelNumber),
     getTotalStars: () => window.StemAchievementApi.getTotalStars(),

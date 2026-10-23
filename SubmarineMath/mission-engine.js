@@ -17,8 +17,8 @@
   function validateRoute(level, raw) {
     const parsed = parseRoute(raw);
     if (!parsed.ok) return { ...parsed, code: 'invalid_format' };
-    const expected = level.moves || [];
-    if (parsed.moves.length !== expected.length) return { ok: false, code: 'move_count', moves: parsed.moves, message: `This mission needs exactly ${expected.length} moves.` };
+    const requiredMoves = (level.checkpoints || []).length;
+    if (parsed.moves.length !== requiredMoves) return { ok: false, code: 'move_count', moves: parsed.moves, message: `This mission needs exactly ${requiredMoves} moves.` };
     let depth = level.startDepth;
     const positions = [];
     let distance = 0;
@@ -30,7 +30,6 @@
       const hazard = (level.hazards || []).find(item => depth >= item.min && depth <= item.max);
       if (hazard) return { ok: false, code: 'hazard', step: i + 1, positions, finalDepth: depth, message: `Move ${i + 1} enters a hazard band from ${hazard.min}m to ${hazard.max}m.` };
       positions.push(depth);
-      if (move !== expected[i]) return { ok: false, code: 'wrong_move', step: i + 1, positions, finalDepth: depth, message: `Move ${i + 1} is incorrect. Check the direction and distance at this waypoint.` };
     }
     const checkpointMismatch = (level.checkpoints || []).findIndex((checkpoint, index) => positions[index] !== checkpoint);
     if (checkpointMismatch >= 0) return { ok: false, code: 'checkpoint', step: checkpointMismatch + 1, positions, finalDepth: depth, message: `The submarine missed checkpoint ${checkpointMismatch + 1}. Recalculate that waypoint.` };
