@@ -95,7 +95,12 @@
       const isSignalDecrypter = gameId === "signal_decrypter" && attemptData &&
         ((Array.isArray(attemptData.operations) && attemptData.operations.length <= 12) ||
          (typeof attemptData.code === "string" && attemptData.code.length <= 800));
-      if (!isRoboMaze && !isPhysics && !isSubmarineMath && !isSignalDecrypter) {
+      const isChemistry = gameId === "chemistry" && attemptData &&
+        Number.isInteger(attemptData.level_id) &&
+        typeof attemptData.synthesized_compound === "string" && attemptData.synthesized_compound.length <= 32 &&
+        Number.isInteger(attemptData.synthesized_count) && attemptData.synthesized_count >= 0 &&
+        typeof attemptData.student_code === "string" && attemptData.student_code.length <= 4000;
+      if (!isRoboMaze && !isPhysics && !isSubmarineMath && !isSignalDecrypter && !isChemistry) {
         platform().showStatus("This game cannot submit attempts safely. Please refresh and retry.");
         return { ok: false, error: "Unsupported attempt payload" };
       }

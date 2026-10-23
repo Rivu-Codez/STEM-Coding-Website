@@ -45,9 +45,9 @@
       displayName: "Chemistry Lab",
       description: "Experiment with reactions, matter, and the building blocks of chemistry.",
       route: "Chemistry/index.html",
-      enabled: false,
-      levelCount: 0,
-      validator: null,
+      enabled: true,
+      levelCount: 15,
+      validator: "chemistry",
       icon: "⚗"
     }
   ];

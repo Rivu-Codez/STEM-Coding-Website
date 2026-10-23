@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://esm.sh; worker-src 'self' blob:;">
+  <title>Chemistry Lab | RoboLogic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/blockly@12.3.1/blockly.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../js/supabase-config.js"></script>
+  <script src="../js/game-registry.js"></script>
+  <script src="../js/game-platform.js"></script>
+  <script src="../js/auth-api.js"></script>
+  <script src="../js/progress-api.js"></script>
+  <script src="../js/achievement-api.js"></script>
+  <script src="../js/mistake-api.js"></script>
+  <script src="../js/tutor-api.js"></script>
+  <script src="../js/game-auth.js"></script>
+  <script src="../js/game-adapter.js"></script>
+  <script src="../js/game-module.js"></script>
+  <script src="levels.js"></script>
+  <script type="module" src="chemistry-module.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../dashboard.html"><span class="brand-icon">⚗</span><span><strong>Chemistry Lab</strong><small>Molecular reactor · Python synthesis</small></span></a>
+    <nav class="top-actions"><a class="dashboard-link" href="../dashboard.html">⌂ Dashboard</a><span class="stat-pill">⭐ <span id="starCount">0</span></span><span class="stat-pill">XP <span id="xpCount">0</span></span></nav>
+  </header>
+  <main class="lab-layout" id="chemistryGame">
+    <section class="reactor panel" aria-labelledby="levelTitle">
+      <div class="reactor-head">
+        <div><p class="eyebrow">MOLECULAR REACTOR</p><h1 id="levelTitle">Chemistry Lab</h1><p id="goalText" class="goal-text">Choose atoms and assemble the target compound.</p></div>
+        <label class="level-control">LEVEL <select id="levelPicker" aria-label="Choose unlocked level"></select></label>
+      </div>
+      <div class="reactor-meta"><div><span class="meta-label">COMPOUND GOAL</span><strong id="compoundGoal">Water · H₂O</strong></div><div><span class="meta-label">REACTION CHAMBER</span><strong id="chamberStatus" class="stable">🟢 STABLE</strong></div><div><span class="meta-label">TRIES</span><strong id="hearts" aria-label="3 tries left">❤️❤️❤️</strong></div></div>
+      <div class="canvas-frame"><canvas id="moleculeCanvas" aria-label="Molecular reactor canvas"></canvas><div id="canvasEmpty" class="canvas-empty">Add atom blocks to begin a molecule</div></div>
+      <div class="formula-readout"><span>MOLECULE FORMULA</span><strong id="formulaReadout">—</strong><span id="moleculeCount">0 molecules</span></div>
+      <div class="reactor-actions"><button id="synthesizeButton" class="synthesize" type="button">▶ INITIATE SYNTHESIS</button><button id="resetButton" class="reset" type="button">↻ RESET WORKSPACE</button></div>
+      <p id="feedbackText" class="feedback" aria-live="polite"></p>
+      <div class="audio-monitor"><span class="audio-dot"></span><span>REACTION MONITOR</span><span id="reactionMessage">Awaiting atom sequence</span></div>
+    </section>
+    <section class="workspace panel" aria-labelledby="workspaceTitle">
+      <div class="workspace-head"><div><p class="eyebrow">SYNTHESIS WORKSPACE</p><h2 id="workspaceTitle">Build with atoms</h2></div><span id="modeBadge" class="mode-badge">BLOCK PHASE · 1–10</span></div>
+      <p id="instructionText" class="instruction">Drag atom blocks into the workspace. Set each block's count to assemble the compound.</p>
+      <div id="blockMode" class="block-mode">
+        <div id="blocklyWorkspace" class="blockly-workspace" aria-label="Blockly atom assembly workspace"></div>
+        <div class="preview-head"><span>PYTHON PREVIEW</span><span>GENERATED FROM ATOM BLOCKS</span></div>
+        <pre id="pythonPreview" class="python-preview"># Add atom blocks to build a molecule</pre>
+      </div>
+      <div id="pythonMode" class="python-mode" hidden>
+        <div class="snippet-dock" aria-label="Code snippets"><button type="button" data-snippet="mix">lab.mix()</button><button type="button" data-snippet="count">lab.count()</button><button type="button" data-snippet="balance">.balance()</button></div>
+        <div id="pythonEditor" class="code-editor" aria-label="Python synthesis code"></div>
+        <textarea id="pythonFallback" spellcheck="false" aria-label="Python synthesis code" hidden>lab.mix("H2O", 1)</textarea>
+        <p class="editor-help">Use <code>lab.mix("formula", count)</code> to build the target. Snippets are inserted at the cursor.</p>
+      </div>
+      <div class="workspace-footer"><span id="workspaceHint">Atom counts and bonds update in the reactor as you build.</span><button id="nextButton" class="next-button" type="button" hidden>Continue to next level →</button></div>
+    </section>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
