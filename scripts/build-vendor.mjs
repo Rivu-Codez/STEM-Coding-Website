@@ -7,6 +7,10 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const vendor = path.join(root, 'vendor');
 fs.mkdirSync(vendor, { recursive: true });
+function stripTrailingWhitespace(file) {
+  const source = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, source.replace(/[ \t]+(?=\r?$)/gm, ''));
+}
 
 await build({
   stdin: {
@@ -17,9 +21,11 @@ await build({
   bundle: true,
   format: 'iife',
   target: ['es2020'],
+  minify: true,
   outfile: path.join(vendor, 'supabase-browser.js'),
   legalComments: 'inline',
 });
+stripTrailingWhitespace(path.join(vendor, 'supabase-browser.js'));
 
 await build({
   stdin: {
@@ -30,9 +36,11 @@ await build({
   bundle: true,
   format: 'esm',
   target: ['es2020'],
+  minify: true,
   outfile: path.join(root, 'Chemistry/codemirror.bundle.js'),
   legalComments: 'inline',
 });
+stripTrailingWhitespace(path.join(root, 'Chemistry/codemirror.bundle.js'));
 
 fs.copyFileSync(path.join(root, 'node_modules/blockly/blockly.min.js'), path.join(vendor, 'blockly.min.js'));
 const tailwind = spawnSync(process.execPath, [
@@ -42,3 +50,4 @@ const tailwind = spawnSync(process.execPath, [
   '--minify',
 ], { cwd: root, stdio: 'inherit' });
 if (tailwind.status !== 0) throw new Error('Tailwind CSS build failed.');
+stripTrailingWhitespace(path.join(vendor, 'submarine-tailwind.css'));
