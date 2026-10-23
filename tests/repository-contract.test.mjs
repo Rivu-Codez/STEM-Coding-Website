@@ -114,8 +114,23 @@ test('frontend game registry exposes stable routes and feature flags', () => {
   assert.match(source, /gameId: "submarine_math"/);
   assert.match(source, /gameId: "signal_decrypter"/);
   assert.match(source, /gameId: "chemistry"/);
-  assert.match(source, /enabled: false/);
+  assert.match(source, /gameId: "chemistry"[\s\S]*?enabled: true,[\s\S]*?levelCount: 15,[\s\S]*?validator: "chemistry"/);
   assert.match(source, /levelCount\(gameId\)/);
+});
+
+test('Chemistry Lab is registered with its dashboard, module contract, and server validator', () => {
+  const dashboard = fs.readFileSync(path.join(repositoryRoot, 'dashboard.html'), 'utf8');
+  const page = fs.readFileSync(path.join(repositoryRoot, 'Chemistry', 'index.html'), 'utf8');
+  const module = fs.readFileSync(path.join(repositoryRoot, 'Chemistry', 'chemistry-module.js'), 'utf8');
+  const migration = fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', '033_chemistry_game.sql'), 'utf8');
+
+  assert.match(dashboard, /id="chemistryGameButton"/);
+  assert.match(page, /Chemistry Lab/);
+  assert.match(module, /export const ChemistryGameModule/);
+  assert.match(module, /getAttemptPayload\(\)/);
+  assert.match(migration, /chemistry_answer_keys/);
+  assert.match(migration, /submit_chemistry_attempt_idempotent/);
+  assert.match(migration, /p_game_id = 'chemistry'/);
 });
 
 test('Signal Decrypter is registered across the dashboard, module boundary, and authoritative migration', () => {
