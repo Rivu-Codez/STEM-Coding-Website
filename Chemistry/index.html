@@ -38,6 +38,10 @@
         <label class="level-control">LEVEL <select id="levelPicker" aria-label="Choose unlocked level"></select></label>
       </div>
       <div class="reactor-meta"><div><span class="meta-label">COMPOUND GOAL</span><strong id="compoundGoal">Water · H₂O</strong></div><div><span class="meta-label">REACTION CHAMBER</span><strong id="chamberStatus" class="stable">🟢 STABLE</strong></div><div><span class="meta-label">TRIES</span><strong id="hearts" aria-label="3 tries left">❤️❤️❤️</strong></div></div>
+      <aside class="element-legend" aria-label="Element symbol legend">
+        <strong>ELEMENT LEGEND <span>SYMBOL → ELEMENT NAME</span></strong>
+        <div class="legend-items"><span><b>H</b> Hydrogen</span><span><b>O</b> Oxygen</span><span><b>C</b> Carbon</span><span><b>N</b> Nitrogen</span><span><b>Na</b> Sodium</span><span><b>Cl</b> Chlorine</span><span><b>Fe</b> Iron</span></div>
+      </aside>
       <div class="canvas-frame"><canvas id="moleculeCanvas" aria-label="Molecular reactor canvas"></canvas><div id="canvasEmpty" class="canvas-empty">Add atom blocks to begin a molecule</div></div>
       <div class="formula-readout"><span>MOLECULE FORMULA</span><strong id="formulaReadout">—</strong><span id="moleculeCount">0 molecules</span></div>
       <div class="reactor-actions"><button id="synthesizeButton" class="synthesize" type="button">▶ INITIATE SYNTHESIS</button><button id="resetButton" class="reset" type="button">↻ RESET WORKSPACE</button></div>
@@ -46,7 +50,7 @@
     </section>
     <section class="workspace panel" aria-labelledby="workspaceTitle">
       <div class="workspace-head"><div><p class="eyebrow">SYNTHESIS WORKSPACE</p><h2 id="workspaceTitle">Build with atoms</h2></div><span id="modeBadge" class="mode-badge">BLOCK PHASE · 1–10</span></div>
-      <p id="instructionText" class="instruction">Drag atom blocks into the workspace. Set each block's count to assemble the compound.</p>
+      <p id="instructionText" class="instruction">Connect atom blocks from left to right. For water, build H → O → H.</p>
       <div id="blockMode" class="block-mode">
         <div id="blocklyWorkspace" class="blockly-workspace" aria-label="Blockly atom assembly workspace"></div>
         <div class="preview-head"><span>PYTHON PREVIEW</span><span>GENERATED FROM ATOM BLOCKS</span></div>
