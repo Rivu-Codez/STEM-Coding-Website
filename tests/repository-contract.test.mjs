@@ -198,20 +198,20 @@ test('Chemistry Lab is registered with its dashboard, module contract, and serve
   assert.match(migration, /p_game_id = 'chemistry'/);
 });
 
-test('Signal Decrypter is registered across the dashboard, module boundary, and authoritative migration', () => {
+test('The Locked Academy replaces Signal Decrypter while keeping its progress contract', () => {
   const dashboard = fs.readFileSync(path.join(repositoryRoot, 'dashboard.html'), 'utf8');
   const dashboardScript = fs.readFileSync(path.join(repositoryRoot, 'js', 'dashboard.js'), 'utf8');
   const page = fs.readFileSync(path.join(repositoryRoot, 'SignalDecrypter', 'index.html'), 'utf8');
-  const module = fs.readFileSync(path.join(repositoryRoot, 'SignalDecrypter', 'module.js'), 'utf8');
-  const migration = fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', '028_signal_decrypter_game.sql'), 'utf8');
+  const module = fs.readFileSync(path.join(repositoryRoot, 'SignalDecrypter', 'locked-academy-integration.js'), 'utf8');
+  const migration = fs.readFileSync(path.join(repositoryRoot, 'supabase', 'migrations', '036_locked_academy.sql'), 'utf8');
 
   assert.match(dashboard, /id="signalGameButton"/);
   assert.match(dashboardScript, /signal_decrypter/);
-  assert.match(page, /Signal Decrypter/);
-  assert.match(module, /StemGameModule.create/);
+  assert.match(page, /The Locked Academy/);
+  assert.match(module, /gameId: "signal_decrypter"/);
   assert.match(migration, /signal_decrypter_answer_keys/);
-  assert.match(migration, /submit_signal_decrypter_attempt_idempotent/);
-  assert.match(migration, /p_game_id = 'signal_decrypter'/);
+  assert.match(migration, /create or replace function public\.submit_signal_decrypter_attempt/);
+  assert.match(migration, /game_id = 'signal_decrypter'/);
 });
 
 test('Submarine Math backend validates canonical answers and awards server-owned progress', () => {

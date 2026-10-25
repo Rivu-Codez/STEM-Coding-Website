@@ -1,96 +1,282 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
-  <title>Signal Decrypter | RoboLogic</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="../vendor/supabase-browser.js"></script>
-  <script src="../js/supabase-config.js"></script>
-  <script src="../js/game-registry.js"></script>
-  <script src="../js/game-platform.js"></script>
-  <script src="../js/auth-api.js"></script>
-  <script src="../js/progress-api.js"></script>
-  <script src="../js/achievement-api.js"></script>
-  <script src="../js/mistake-api.js"></script>
-  <script src="../js/tutor-api.js"></script>
-  <script src="../js/game-auth.js"></script>
-  <script src="../js/game-shell.js" defer></script>
-  <script src="../js/game-adapter.js"></script>
-  <script src="../js/game-module.js"></script>
-  <script src="levels.js"></script>
-  <script src="engine.js"></script>
-  <script src="module.js"></script>
-  <link rel="stylesheet" href="../css/game-shell.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+<title>The Locked Academy: print and variables</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Nunito:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<script src="../vendor/supabase-browser.js"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/game-registry.js"></script>
+<script src="../js/game-platform.js"></script>
+<script src="../js/auth-api.js"></script>
+<script src="../js/progress-api.js"></script>
+<script src="../js/achievement-api.js"></script>
+<script src="../js/mistake-api.js"></script>
+<script src="../js/tutor-api.js"></script>
+<script src="../js/game-auth.js"></script>
+<script src="../js/game-adapter.js"></script>
+<style>
+:root{color-scheme:light;--ink:#1f2a44;--paper:#f3e7cf;--cream:#fbf3dd;--oxb:#8c2f39;--brass:#b8893b;--moss:#4f6b4a;--glow:#f2b84b;--wood:#7a4a2a;--code:#1f2a44;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:17px/1.5 Nunito,system-ui,sans-serif;color:var(--ink);min-height:100vh;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .13 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(ellipse at 50% 0,#f8eed6,#e6d4ad 70%,#c9b184);background-attachment:fixed}
+.w{max-width:1120px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;border-bottom:3px double var(--brass);padding-bottom:8px}
+h1{font:900 2.3rem/1.1 Fraunces,Georgia,serif;margin:0;letter-spacing:-.01em}
+#total{font:700 1rem Fraunces,Georgia,serif;color:var(--cream);background:var(--ink);border:2px solid var(--brass);border-radius:6px;padding:3px 14px}
+#map{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 18px}
+#map button{width:40px;height:40px;border:0;border-radius:48% 52% 50% 50%/52% 48% 52% 48%;background:radial-gradient(circle at 35% 30%,#c4505b,#8c2f39 60%,#6b2029);color:var(--cream);font:700 15px Fraunces,Georgia,serif;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.35),inset 0 0 0 3px rgba(0,0,0,.12);transition:transform .15s}
+#map button:hover:not(:disabled){transform:translateY(-3px) rotate(-6deg)}
+#map button.cur{animation:cand 2s ease-in-out infinite}
+@keyframes cand{50%{box-shadow:0 2px 0 rgba(0,0,0,.35),0 0 0 5px rgba(242,184,75,.55),0 0 16px 6px rgba(242,184,75,.6)}}
+#map button.done{background:radial-gradient(circle at 35% 30%,#f0d68a,#b8893b 65%,#8a6420);color:var(--ink)}
+#map button:disabled{opacity:.45;filter:grayscale(.6);cursor:not-allowed}
+#map button:nth-child(3n){margin-right:12px}
+main{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;align-items:start}
+@media (max-width:780px){main{grid-template-columns:1fr}}
+.card{padding:16px;border-radius:5px}
+main .card:first-child{background:linear-gradient(135deg,#8a5a2f,#5b3a22);border:3px solid var(--ink);box-shadow:inset 0 0 0 3px var(--brass),0 12px 24px rgba(31,42,68,.35);padding:18px}
+main .card:first-child h2{color:var(--cream)}
+main .card+.card{background:linear-gradient(90deg,transparent 40px,rgba(176,60,60,.4) 40px 42px,transparent 42px),repeating-linear-gradient(transparent 0 31px,rgba(60,90,140,.17) 31px 32px),var(--cream);border:1px solid #c9b184;box-shadow:0 8px 18px rgba(31,42,68,.22);padding-left:56px}
+h2{font:700 1.35rem Fraunces,Georgia,serif;margin:0 0 10px}
+#scene{position:relative;height:340px;border-radius:3px;border:3px solid var(--ink);overflow:hidden;isolation:isolate;box-shadow:inset 0 0 50px rgba(31,42,68,.4);background-image:radial-gradient(circle,rgba(255,255,255,.2) 0 3px,transparent 4px),radial-gradient(circle,rgba(0,0,0,.08) 0 3px,transparent 4px);background-size:38px 38px;background-position:0 0,19px 19px}
+#scene:after{content:"";position:absolute;inset:-100% 0 0;z-index:1;pointer-events:none;opacity:.6;background:radial-gradient(2px 2px at 20% 30%,rgba(255,240,190,.9),transparent),radial-gradient(2px 2px at 62% 60%,rgba(255,240,190,.8),transparent),radial-gradient(3px 3px at 82% 20%,rgba(255,240,190,.9),transparent);background-size:50% 50%;animation:dust 22s linear infinite}
+@keyframes dust{to{transform:translateY(50%)}}
+#scene.enter{animation:enter .5s ease-out}
+@keyframes enter{from{opacity:.3;transform:scale(.97)}}
+#scene .wall{position:absolute;left:0;right:0;top:44%;height:20%;background:repeating-linear-gradient(90deg,rgba(74,45,23,.55) 0 58px,rgba(40,24,12,.6) 58px 61px);border-top:5px solid #4a2d17;z-index:0}
+#scene .floor{position:absolute;left:0;right:0;top:64%;bottom:0;background:linear-gradient(rgba(255,214,140,.18),rgba(0,0,0,.25)),repeating-linear-gradient(90deg,#a8713f 0 70px,#7d4f28 70px 73px);border-top:3px solid var(--ink);z-index:0}
+.mn{display:block;position:absolute;left:66%;top:6%;width:20%;height:26%;border:4px solid #4a2d17;border-radius:40px 40px 3px 3px;background:linear-gradient(90deg,transparent 48%,#4a2d17 48% 52%,transparent 52%),linear-gradient(transparent 55%,#4a2d17 55% 59%,transparent 59%),radial-gradient(circle at 70% 30%,#fff6c8 0 9%,#2e3f78 10%);box-shadow:0 0 28px rgba(255,246,200,.45);z-index:0;animation:moon 7s ease-in-out infinite}
+@keyframes moon{50%{box-shadow:0 0 44px rgba(255,246,200,.75)}}
+.dr{position:absolute;left:41%;top:24%;width:16%;height:42%;background:repeating-linear-gradient(90deg,#7a4a2a 0 14px,#66391f 14px 16px);border:4px solid #3a2111;border-bottom:0;border-radius:60px 60px 0 0;z-index:0;transition:transform .9s cubic-bezier(.3,1.3,.5,1),box-shadow .9s;transform-origin:left}
+.dr:before{content:"";position:absolute;right:10%;top:72%;width:10px;height:10px;border-radius:50%;background:var(--brass);border:2px solid #3a2111}
+.dr:after{content:"";position:absolute;right:12%;top:40%;width:28px;height:34px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 34'%3E%3Cpath d='M7 15V10a7 7 0 0114 0v5' fill='none' stroke='%23d9d4c4' stroke-width='3.5'/%3E%3Crect x='3' y='15' width='22' height='17' rx='3' fill='%23b8893b' stroke='%231f2a44' stroke-width='2'/%3E%3Ccircle cx='14' cy='23' r='2.5' fill='%231f2a44'/%3E%3C/svg%3E") center/contain no-repeat;transform-origin:50% 0;animation:sway 3s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+#scene.open .dr{transform:perspective(500px) rotateY(-58deg);box-shadow:-14px 0 50px 16px rgba(242,184,75,.95)}
+#scene.open .dr:after{animation:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 34'%3E%3Cpath d='M7 15V10a7 7 0 0113-3' fill='none' stroke='%23d9d4c4' stroke-width='3.5'/%3E%3Crect x='3' y='15' width='22' height='17' rx='3' fill='%23b8893b' stroke='%231f2a44' stroke-width='2'/%3E%3Ccircle cx='14' cy='23' r='2.5' fill='%231f2a44'/%3E%3C/svg%3E")}
+.shf{position:absolute;left:70%;width:28%;top:44%;height:12px;background:#6a3e22;border:3px solid #3a2111;border-radius:2px;z-index:0}
+.dsk{position:absolute;left:6%;width:36%;top:68%;height:11%;background:#8a5a2f;border:3px solid #3a2111;border-radius:3px;z-index:0}
+.rug{position:absolute;left:58%;width:36%;top:82%;height:14%;border-radius:50%;background:var(--oxb);border:3px solid var(--brass);box-shadow:inset 0 0 0 4px var(--oxb),inset 0 0 0 6px #e9d8a6;z-index:0}
+#door{position:absolute;right:10px;top:8px;z-index:3;font:700 14px Nunito,sans-serif;background:var(--cream);border:1.5px solid var(--ink);padding:1px 12px;border-radius:3px}
+.hs{position:absolute;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(242,184,75,.6),transparent 70%);border:0;cursor:zoom-in;z-index:2;padding:4px;border-radius:12px;animation:pu 3s ease-in-out infinite}
+.hs svg{width:46px;height:46px;display:block;filter:drop-shadow(0 2px 0 rgba(31,42,68,.35))}
+.hs:nth-of-type(2n){animation-delay:-1s}
+.hs:nth-of-type(3n){animation-delay:-2s}
+.hs.f{animation:none;background:none}
+.hs.f svg{opacity:.8}
+.hs.f:after{content:"✓";position:absolute;right:-2px;top:-2px;font:700 13px sans-serif;color:var(--cream);background:var(--moss);border:2px solid var(--ink);border-radius:50%;width:20px;height:20px;line-height:16px;animation:pop .45s}
+.hs:hover,.hs:focus-visible{outline:3px solid var(--cream)}
+.hs:hover:before,.hs:focus-visible:before{content:attr(data-n);position:absolute;left:50%;bottom:100%;transform:translateX(-50%);font:700 13px Nunito,sans-serif;white-space:nowrap;background:var(--ink);color:var(--cream);padding:2px 10px;border-radius:3px}
+@keyframes pu{50%{transform:translate(-50%,-56%)}}
+.pop{animation:pop .4s}
+@keyframes pop{0%{transform:scale(.92);opacity:0}60%{transform:scale(1.03);opacity:1}100%{transform:none}}
+.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.cf{position:absolute;width:8px;height:8px;border-radius:50%;z-index:5;pointer-events:none;animation:fly 1.4s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes fly{40%{transform:translate(calc(var(--x)*.6),var(--y))}to{transform:translate(var(--x),calc(var(--y) + 320px));opacity:0}}
+#note{margin:12px 0 8px;background:var(--cream);border:1.5px solid #c9b184;border-left:6px solid var(--brass);border-radius:3px;padding:10px 14px;min-height:52px}
+#note.clue{background:#f6dc98;border-left-color:var(--oxb)}
+#nb{font:13px/1.5 "JetBrains Mono",monospace;background:var(--cream);border:1.5px dashed var(--brass);border-radius:3px;padding:10px 12px;min-height:44px}
+#nb b{color:var(--oxb);font-family:Fraunces,Georgia,serif;font-size:15px}
+.mode{display:inline-block;background:var(--oxb);color:var(--cream);font:700 13px Nunito,sans-serif;border-radius:3px;padding:1px 12px}
+#task{margin:10px 0 12px;font-weight:700}
+#chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font:700 15px "JetBrains Mono",monospace;background:#ead9a6;color:var(--ink);border:1.5px solid var(--ink);border-radius:4px;padding:3px 14px;box-shadow:0 2px 3px rgba(31,42,68,.35);cursor:grab;transition:transform .15s}
+.chip:nth-child(odd){transform:rotate(-1.5deg)}
+.chip:nth-child(even){transform:rotate(1deg)}
+.chip:hover{transform:translateY(-3px) rotate(0)}
+.chip.sel{outline:3px solid var(--oxb)}
+#code{background:var(--code);border:2px solid var(--ink);border-radius:4px;overflow:hidden;counter-reset:n}
+#code:before{content:"● ● ●   my_code.py";display:block;background:#33426b;color:#d9d4c4;font:13px "JetBrains Mono",monospace;padding:6px 14px;letter-spacing:2px}
+.cl{font:15px/2.4 "JetBrains Mono",monospace;color:#fff;padding:0 14px;white-space:pre}
+.cl:before{counter-increment:n;content:counter(n);color:#8a96b8;margin-right:16px;display:inline-block;width:1ch}
+.slot{font:15px "JetBrains Mono",monospace;min-width:76px;border:2px dashed var(--glow);background:#33426b;color:#fff;border-radius:4px;padding:1px 10px;cursor:pointer;transition:background .2s}
+.slot:hover{background:#44558a}
+input.slot{width:120px;outline:none;border-style:solid;background:var(--cream);color:var(--ink)}
+.slot:focus-visible{outline:3px solid var(--glow)}
+textarea{width:100%;height:190px;background:transparent;color:#fff;border:0;padding:10px 14px;font:15px/1.6 "JetBrains Mono",monospace;resize:vertical}
+textarea:focus-visible{outline:3px solid var(--glow);outline-offset:-3px}
+.btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.b{font:700 16px Fraunces,Georgia,serif;padding:7px 20px;border-radius:6px;border:1.5px solid var(--ink);background:linear-gradient(#f8eed6,#e6d4a8);color:var(--ink);box-shadow:inset 0 1px 0 #fff9,0 2px 4px rgba(31,42,68,.35);cursor:pointer;transition:transform .12s}
+.b:hover{transform:translateY(-2px)}
+.b.go{background:linear-gradient(#a8424d,#7a2430);color:var(--cream)}
+.b:active{transform:translateY(1px)}
+.b:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+#next:not([hidden]){animation:pop .45s}
+#out{margin-top:14px;font:14px/1.5 "JetBrains Mono",monospace;background:var(--code);color:#a8e8c0;border-left:6px solid var(--moss);border-radius:4px;padding:8px 14px;white-space:pre-wrap;min-height:42px}
+#out.e{color:#f2b8b0;border-left-color:var(--oxb)}
+#msg{margin-top:14px;white-space:pre-wrap;display:none;padding:10px 14px;border-radius:4px;border:2px solid}
+#msg.s{display:block}
+#msg.ok{background:#dfe8cf;border-color:var(--moss);color:#2f4a2c}
+#msg.bad{background:#f2d4cf;border-color:var(--oxb);color:#6b1f28}
+#msg.h{background:#f6e7b8;border-color:var(--brass);color:#5c4210;font:14px "JetBrains Mono",monospace}
+#rid{margin-top:12px;background:var(--cream);border:1.5px solid #c9b184;border-left:6px solid var(--oxb);border-radius:3px;padding:8px 14px;font:italic 600 15px/1.45 Fraunces,Georgia,serif}
+#rid b{font-style:normal;color:var(--oxb)}
+.rd{margin-top:5px;padding-left:22px;position:relative}
+.rd:before{content:"";position:absolute;left:2px;top:.5em;width:10px;height:10px;border-radius:50%;background:var(--brass)}
+.rd.d{opacity:.55;text-decoration:line-through}
+.rd.d:before{background:var(--moss)}
+.lampbar{margin-top:12px}
+.lampbar+#note{margin-top:10px}
+.hs.x{animation:none;background:none;opacity:.45}
+.hs.x svg{filter:grayscale(1)}
+.hs.lit{animation:lit 1s ease-in-out infinite;background:radial-gradient(circle,rgba(255,240,150,.95),transparent 72%)}
+@keyframes lit{50%{transform:translate(-50%,-50%) scale(1.25)}}
+#lesson{background:#2f4a3c;border:4px solid #7a4a2a;border-radius:4px;color:#f1ecd8;padding:10px 14px;margin-bottom:14px;box-shadow:inset 0 0 18px rgba(0,0,0,.4)}
+#lesson b{display:block;font:700 15px Fraunces,Georgia,serif;color:#f2d98a}
+#lesson p{margin:4px 0 8px;font-size:15px;line-height:1.45}
+#lesson pre{margin:0;font:14px/1.6 "JetBrains Mono",monospace;background:rgba(0,0,0,.28);border-radius:3px;padding:6px 10px;overflow-x:auto}
+#lesson .s{color:#f2b8a0;font-style:normal}#lesson .k{color:#9fe0c0}#lesson .c{color:#9aa8a0;font-style:normal}
+#door{right:auto;left:10px}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="../dashboard.html" aria-label="Return to dashboard"><span class="brand-icon">📡</span><span><strong>Signal Decrypter</strong><small>Coding transmission lab</small></span></a>
-    <nav class="top-actions"><a class="dashboard-link" href="../dashboard.html">⌂ Dashboard</a><span class="stat-pill">⭐ <span id="starCount">0</span></span><span class="stat-pill">XP <span id="xpCount">0</span></span></nav>
-  </header>
-  <main data-game-root="signal_decrypter" class="game-layout">
-    <section class="monitor panel" aria-labelledby="monitorTitle">
-      <div class="panel-heading"><div><p class="eyebrow">DEEP SPACE AUDIO MONITOR</p><h1 id="monitorTitle">Transmission received</h1></div><span id="transmissionStatus" class="status-badge">READY</span></div>
-      <div class="waveform" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <div class="signal-card"><span class="signal-label">CORRUPTED SIGNAL</span><code id="signalInput">—</code></div>
-      <div class="decode-arrow" aria-hidden="true">↓</div>
-      <div class="signal-card decoded"><span class="signal-label">DECODED OUTPUT</span><code id="decodedOutput">LOCKED UNTIL RUN</code></div>
-      <div class="mission-monitor" aria-label="Mission status">
-        <div><span>TIME LEFT</span><strong id="timerValue">90s</strong></div>
-        <div><span>INTERFERENCE</span><strong id="interferenceValue">0 / 3</strong></div>
-      </div>
-      <div class="meter-track"><span id="interferenceBar"></span></div>
-      <div class="monitor-footer"><span id="sectionLabel">String basics</span><span id="levelIndicator">Level 1 of 15</span></div>
-    </section>
-    <section class="workspace panel" aria-labelledby="missionTitle">
-      <div class="progress-row"><span id="progressLabel">Level 1 of 15</span><div class="progress-track"><span id="progressBar"></span></div></div>
-      <div class="mission-copy"><p class="eyebrow">MISSION BRIEF</p><h2 id="missionTitle">World Capitals</h2><p id="questionText">What is the capital of France?</p><p id="objectiveText">Decode the answer using the available modules.</p></div>
-      <div class="mission-callout"><strong>Signal to inspect</strong><code id="missionSignal">—</code><span id="objectiveTag">Recover the transmission before interference reaches the limit.</span></div>
-      <div class="mode-heading"><div><p class="eyebrow">SIGNAL WORKSPACE</p><h3 id="modeTitle">Build the operation</h3></div><select id="levelPicker" aria-label="Choose unlocked level"></select></div>
-      <div id="blockWorkspace" class="block-workspace">
-        <p class="workspace-help">Drag decoder modules into the pipeline, then run the signal. You can also use the keyboard: focus a module and press Enter.</p>
-        <div id="programViewToggle" class="program-view-toggle" role="group" aria-label="Program view">
-          <button id="showBlocksView" class="program-view-button active" type="button" aria-pressed="true">Decoder</button>
-          <button id="showPythonView" class="program-view-button" type="button" aria-pressed="false">Python</button>
-        </div>
-        <div class="block-builder-layout">
-          <div id="blockBuilderMain" class="block-builder-main">
-            <div id="operationPalette" class="operation-palette" aria-label="Decoder modules"></div>
-            <div class="pipeline-heading"><span>DECODER PIPELINE</span><span id="pipelineCount">0 modules</span></div>
-            <div id="selectedOperations" class="selected-operations" aria-label="Decoder pipeline"><span class="empty-state">Drop a module here to start.</span></div>
-          </div>
-          <div id="pythonPreview" class="python-workspace python-preview" aria-label="Generated Python code">
-            <div class="python-window-bar"><span>PYTHON VIEW</span><span>GENERATED FROM DECODER</span></div>
-            <p class="workspace-help">Build with decoder modules and watch the equivalent Python update here.</p>
-            <pre id="pythonCodePreview" class="python-code-preview"><code># Add a decoder block to generate Python.</code></pre>
-          </div>
-        </div>
-        <div id="tracePanel" class="trace-panel" hidden><strong>Execution trace</strong><ol id="executionTrace"></ol></div>
-      </div>
-      <div id="pythonWorkspace" class="python-workspace" hidden><div class="python-window-bar"><span>PYTHON DECODER</span><span>LEVELS 11–15 REQUIRED</span></div><label for="pythonEditor">Write Python code to decode the answer</label><textarea id="pythonEditor" spellcheck="false" placeholder="signal[::-1]"></textarea><p id="pythonHint" class="editor-help">Only the string operations taught in this level are accepted.</p></div>
-      <div class="route-preview"><span>Mission status</span><code id="outputPreview">Build your pipeline</code></div>
-      <button id="executeButton" data-attempt-submit class="execute-button" type="button">Execute decryption <span>→</span></button>
-      <p id="feedbackText" class="feedback" aria-live="polite"></p>
-      <div id="answerReveal" class="answer-reveal" hidden><strong>Answer revealed after 5 incorrect attempts</strong><span id="revealedAnswer"></span></div>
-      <div class="hint-box"><strong>💡 Hint</strong><p id="hintText"></p></div>
-      <button id="hintButton" class="hint-button" type="button">Use hint <span id="hintCost">−8s</span></button>
-      <button id="nextButton" class="next-button" type="button" hidden>Continue to next level →</button>
-    </section>
-  </main>
-  <div id="diagnosticOverlay" class="diagnostic-overlay" hidden>
-    <section class="diagnostic-card" role="dialog" aria-modal="true" aria-labelledby="diagnosticTitle">
-      <p class="eyebrow">SIGNAL CHECK</p><h2 id="diagnosticTitle">Pause and review the idea</h2>
-      <p>Which clue will help you solve this transmission?</p>
-      <div id="diagnosticOptions" class="diagnostic-options"></div>
-      <p id="diagnosticFeedback" class="diagnostic-feedback" aria-live="polite"></p>
-      <button id="closeDiagnostic" class="next-button" type="button">Return to workspace</button>
-    </section>
-  </div>
-  <script src="game.js"></script>
+<div class="w">
+<header><h1>The Locked Academy</h1><a href="../dashboard.html">Dashboard</a><div id="stemAuth" class="stem-auth"></div><div id="total"></div></header>
+<nav id="map" aria-label="Levels"></nav>
+<main data-game-root="signal_decrypter">
+<section class="card">
+<h2 id="room"></h2>
+<div id="scene"><div class="wall"></div><div class="floor"></div><div class="mn"></div><div class="dr" aria-hidden="true"></div><div class="shf"></div><div class="dsk"></div><div class="rug"></div><div id="door"></div></div>
+<div id="rid"></div>
+<div class="lampbar"><button class="b" id="lamp">Light the lantern</button></div>
+<div id="note">Click objects in the room to search for clues.</div>
+<div id="nb"></div>
+</section>
+<section class="card">
+<div id="lesson"></div>
+<span class="mode" id="mode"></span>
+<p id="task"></p>
+<div id="chips"></div>
+<div id="code"></div>
+<div class="btns"><button class="b go" id="run">Try the lock</button><button class="b" id="hint">Hint</button><button class="b" id="reset">Reset</button><button class="b go" id="next" hidden>Next level</button></div>
+<div id="out"></div>
+<div id="msg" role="status"></div>
+</section>
+</main>
+</div>
+<script>
+var R=["Entrance Hall","Library","Study","Lab","Exit Gate"],BG=["#c99a8e","#c2a468","#98ab8a","#8b88ad","#8fadba"],
+OB=[["🖼️","16%","32%","painting"],["🕰️","50%","16%","clock"],["📖","85%","37%","old book"],["🗄️","24%","61%","drawer"],["🪴","66%","72%","plant pot"],["🧰","84%","78%","chest"]],
+FL=["Not this one. Read the riddles again.","Just dust. Does it match a riddle?","Empty. Think about what the riddle says.","Nothing here. Check the riddles!"];
+var L=[
+{r:0,m:"d",t:"Find the word hidden in the room, then drag blocks to print it.",tpl:["print(@)"],chips:['"moon"',"moon","7"],c:{0:"Scratched on the frame: the word moon."},exp:["moon"],h:"Text goes inside quotes. Drag the word with its quotes into print( ).",sol:'print("moon")'},
+{r:0,m:"d",t:"Find the number and print it. Numbers need no quotes.",tpl:["print(@)"],chips:["7",'"7"','"seven"'],c:{1:"The clock stopped at 7."},exp:["7"],must:[[/print\(\s*7\s*\)/,"Numbers go in print without quotes."]],h:"Numbers do not use quotes.",sol:"print(7)"},
+{r:0,m:"d",t:"Find a word and a number. Print the word first, then the number.",tpl:["print(@)","print(@)"],chips:['"star"',"12",'"12"',"star"],c:{2:"Inside the old book: the word star.",3:"Carved in the drawer: 12."},exp:["star","12"],h:"One print block per line.",sol:'print("star")\nprint(12)'},
+{r:1,m:"d",t:"Find the book title. Store it in book, then print book.",tpl:["book = @","print(@)"],chips:['"Python"',"Python","book",'"book"'],c:{4:"A card under the candle: Python."},exp:["Python"],must:[[/print\(\s*book\s*\)/,"Print the variable: print(book)."]],h:"Line 1 stores the title in quotes. Line 2 prints the variable name.",sol:'book = "Python"\nprint(book)'},
+{r:1,m:"f",t:"Find the author’s name. Type into the gaps.",tpl:["author = @","print(@)"],c:{2:"The scroll is signed: Ada."},exp:["Ada"],must:[[/author\s*=\s*["']Ada["']/,'Store the name in quotes: author = "Ada"'],[/print\(\s*author\s*\)/,"Print the variable author."]],h:"Text needs quotes. Then print the variable name.",sol:'author = "Ada"\nprint(author)'},
+{r:1,m:"f",t:"The code changed. Find the new code and replace the old one.",tpl:["code = 1234","code = @","print(@)"],c:{0:"Stuck to the globe: the code is now 5678."},exp:["5678"],must:[[/code\s*=\s*5678/,"Store the new code: code = 5678"]],h:"Put the new number in line 2, then print code.",sol:"code = 1234\ncode = 5678\nprint(code)"},
+{r:2,m:"f",t:"Names cannot have spaces. Find the title, store it in my_book, print it.",tpl:["my_book = @","print(@)"],c:{1:"On the clock face: Spells."},exp:["Spells"],must:[[/my_book\s*=\s*["']Spells["']/,'Use my_book = "Spells"']],h:"Quotes for the text, and print the variable name.",sol:'my_book = "Spells"\nprint(my_book)'},
+{r:2,m:"f",t:"Print what is inside key, not the word key.",tpl:["key = @","print(@)"],c:{4:"A tag on the plant: owl."},exp:["owl"],must:[[/print\(\s*key\s*\)/,"Print the variable with no quotes: print(key)"]],h:'print(key) shows the value. print("key") shows the word.',sol:'key = "owl"\nprint(key)'},
+{r:2,m:"t",t:"Find the code. Store it in a variable called code, then print it. Now you type it all!",c:{5:"Inside the chest: 4821."},exp:["4821"],must:[[/code\s*=\s*4821/,"Create code = 4821"],[/print\(\s*code\s*\)/,"Print the variable code."]],h:"code = (the number), then print(code).",sol:"code = 4821\nprint(code)"},
+{r:3,m:"t",t:"Find the age. Store it in age and print: Age: 36 (join with a comma).",c:{0:"Scratched on the mirror frame: 36."},exp:["Age: 36"],must:[[/age\s*=\s*36/,"Create age = 36"],[/print\([^)]*,/,"Use a comma inside print to join the label and the variable."]],h:'print("Age:", age)',sol:'age = 36\nprint("Age:", age)'},
+{r:3,m:"t",t:"Find two numbers, add them into total, and print total.",c:{2:"Taped to the telescope: 40.",4:"Hanging on the lamp: 25."},exp:["65"],must:[[/total\s*=\s*\w+\s*\+\s*\w+/,"Create total by adding two variables, like total = a + b"],[/print\(\s*total\s*\)/,"Print total."]],h:"Store each number in a variable (a and b), then total = a + b.",sol:"a = 40\nb = 25\ntotal = a + b\nprint(total)"},
+{r:3,m:"t",t:"Find the name and the lives. Print: Mia has 3 lives, using an f-string.",c:{0:"The nameplate on the mirror: Mia.",1:"A tally on the hourglass: 3 lives."},exp:["Mia has 3 lives"],must:[[/f["']/,'Start the text with f, like f"..."'],[/\{name\}/,"Use {name} in the sentence."],[/\{lives\}/,"Use {lives} in the sentence."]],h:'print(f"{name} has {lives} lives")',sol:'name = "Mia"\nlives = 3\nprint(f"{name} has {lives} lives")'},
+{r:4,m:"t",t:"Find three clues (name, lives, key). Store each in its own variable and print all three, one per line.",c:{0:"Nameplate: Mia.",1:"Clock tally: 3.",3:"Drawer number: 99."},exp:["Mia","3","99"],must:[[/name\s*=\s*["']Mia/,'Store name = "Mia"'],[/lives\s*=\s*3/,"Store lives = 3"],[/key\s*=\s*99/,"Store key = 99"]],h:"Three variables, then three prints.",sol:'name = "Mia"\nlives = 3\nkey = 99\nprint(name)\nprint(lives)\nprint(key)'},
+{r:4,m:"t",t:"Find the coins and the bonus. Add them into total, then print total.",c:{5:"Chest: 20 coins.",4:"Plant pot: a bonus of 5."},exp:["25"],must:[[/total\s*=\s*\w+\s*\+\s*\w+/,"total = coins + bonus"],[/print\(\s*total\s*\)/,"Print total."]],h:"coins = 20, bonus = 5, total = coins + bonus.",sol:"coins = 20\nbonus = 5\ntotal = coins + bonus\nprint(total)"},
+{r:4,m:"t",boss:1,t:"Final door! Find the name, coins and bonus. Print an f-string report with the name and the total. No hints are shown for the steps.",c:{0:"Nameplate: Mia.",5:"Chest: 20 coins.",4:"Plant pot: bonus 5."},h:'Use variables, one calculation, then print(f"...{name}...{total}...").',sol:'name = "Mia"\ncoins = 20\nbonus = 5\ntotal = coins + bonus\nprint(f"{name} escaped with {total} coins")'}
+];
+function Err(m){this.m=m}
+function tok(s){var t=[],i=0,c;while(i<s.length){c=s[i];if(c===" "||c==="\t"){i++;continue}if(c==="#")break;
+if(/[0-9]/.test(c)){var j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;t.push({k:"num",v:parseFloat(s.slice(i,j))});i=j;continue}
+var f=false,q=c;if((c==="f"||c==="F")&&(s[i+1]==='"'||s[i+1]==="'")){f=true;i++;q=s[i]}
+if(q==='"'||q==="'"){var e=i+1;while(e<s.length&&s[e]!==q)e++;if(e>=s.length)throw new Err("A text is missing its closing quote ("+q+").");t.push({k:"str",v:s.slice(i+1,e),f:f});i=e+1;continue}
+if(/[A-Za-z_]/.test(c)){var n=i;while(n<s.length&&/\w/.test(s[n]))n++;t.push({k:"name",v:s.slice(i,n)});i=n;continue}
+if("+-*/%(),=".indexOf(c)>=0){t.push({k:"op",v:c});i++;continue}
+throw new Err("I do not understand the symbol "+c)}return t}
+function P(t,v){this.t=t;this.p=0;this.v=v}
+P.prototype.op=function(){var x=this.t[this.p];return x&&x.k==="op"?x.v:null};
+P.prototype.expr=function(){var l=this.term(),o;while((o=this.op())==="+"||o==="-"){this.p++;var r=this.term();
+if(o==="+"){if(typeof l!==typeof r)throw new Err("You can not add text and a number with +. Use a comma in print, or an f-string.");l=l+r}
+else{if(typeof l!=="number"||typeof r!=="number")throw new Err("You can only subtract numbers.");l=l-r}}return l};
+P.prototype.term=function(){var l=this.un(),o;while((o=this.op())==="*"||o==="/"){this.p++;var r=this.un();
+if(typeof l!=="number"||typeof r!=="number")throw new Err("You can only multiply or divide numbers.");l=o==="*"?l*r:l/r}return l};
+P.prototype.un=function(){if(this.op()==="-"){this.p++;var x=this.un();if(typeof x!=="number")throw new Err("Only numbers can be negative.");return -x}return this.at()};
+P.prototype.at=function(){var x=this.t[this.p];if(!x)throw new Err("This line ends too early. Something is missing.");this.p++;
+if(x.k==="num")return x.v;
+if(x.k==="str")return x.f?fs(x.v,this.v):x.v;
+if(x.k==="name"){if(!(x.v in this.v))throw new Err("I do not know \""+x.v+"\" yet. Create it first with "+x.v+" = ...");return this.v[x.v]}
+if(x.v==="("){var r=this.expr();if(this.op()!==")")throw new Err("A bracket ( is missing its closing bracket ).");this.p++;return r}
+throw new Err("Unexpected "+x.v+" here.")};
+function fs(s,v){return s.replace(/\{([^}]*)\}/g,function(_,e){var p=new P(tok(e),v),r=p.expr();if(p.p<p.t.length)throw new Err("Something is wrong inside { }.");return String(r)})}
+function run(code){var out=[],vars={},lines=code.split("\n");
+for(var n=0;n<lines.length;n++){try{var t=tok(lines[n]);if(!t.length)continue;var p=new P(t,vars);
+if(t[0].k==="name"&&t[0].v!=="print"&&t[0].v.toLowerCase()==="print")throw new Err("Python is case-sensitive. Write print in small letters.");
+if(t[0].k==="name"&&t[0].v==="print"&&t[1]&&t[1].v==="("){p.p=2;var a=[];if(p.op()!==")"){for(;;){a.push(p.expr());if(p.op()===","){p.p++;continue}break}}
+if(p.op()!==")")throw new Err("print( is missing its closing bracket ).");p.p++;if(p.p<t.length)throw new Err("There is extra stuff after the closing bracket.");out.push(a.join(" "))}
+else if(t[0].k==="name"&&t[1]&&t[1].v==="="){p.p=2;var val=p.expr();if(p.p<t.length)throw new Err("There is extra stuff at the end of this line.");vars[t[0].v]=val}
+else throw new Err("I do not understand this line. Check spelling, quotes and brackets.")}
+catch(e){if(e instanceof Err)return{out:out,err:"Line "+(n+1)+": "+e.m};throw e}}
+return{out:out,err:null}}
+var $=function(i){return document.getElementById(i)},cur=0,hints=0,done=false,vals=[],sel=null,notes=[],ta=null,stars=[];
+for(var z=0;z<15;z++)stars.push(0);
+try{var sv=JSON.parse(localStorage.getItem("ar_stars")||"null");if(sv&&sv.length===15)stars=sv}catch(e){}
+function save(){try{localStorage.setItem("ar_stars",JSON.stringify(stars))}catch(e){}}
+function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+var miss=0,lan=0;
+var RD=[{"0": "I hang on the wall and show a picture. Look at my frame."}, {"1": "I tick and tock on the wall and I have hands. What time did I stop at?"}, {"2": "I am full of pages and stories. Open me up and find a word.", "3": "I am furniture that you pull open. Look at the carving on my wood."}, {"4": "I melt as I burn and give you light. A card is tucked under me."}, {"2": "I am rolled-up paper with a signature at the bottom."}, {"0": "I am round and I show the whole world. Spin me and read the note."}, {"1": "I tick and tock on the wall. Read the title on my face."}, {"4": "I am green and I grow in a pot. Look at the tag on me."}, {"5": "I am a box with a lock and treasure inside. Open me."}, {"0": "I show your face when you look at me. A number is scratched on my frame."}, {"2": "I help you see the stars far away. Look at what is taped to me.", "4": "I stand on the floor and light up the room. Something hangs on me."}, {"0": "I show your face. Look at the nameplate on my frame.", "1": "Sand runs through me to measure time. Count the tally on me."}, {"0": "I hang on the wall in a frame. Look at my nameplate.", "1": "I tick and tock on the wall. Count the tally on me.", "3": "I am a drawer you pull open. Read the number on me."}, {"5": "I am a locked box full of treasure. Check me for coins.", "4": "I am green and I live in a pot. A bonus is tucked inside."}, {"0": "The name: look at the frame on the wall.", "5": "The coins: look inside the locked box.", "4": "The bonus: look in the green pot."}];
+var LS=[["print() shows words on the screen. Words go inside quotes.", "print(\"sun\")"], ["Numbers do not need quotes. Just write the number.", "print(10)"], ["Python reads from the top line to the bottom line. Use one print for each thing.", "print(\"sky\")\nprint(5)"], ["A variable is a labelled box. The = sign puts something in the box. print(pet) shows what is inside.", "pet = \"cat\"\nprint(pet)"], ["Words stored in a variable still need quotes. The variable name never gets quotes.", "color = \"red\"\nprint(color)"], ["You can put a new value in the same box. The newest value wins.", "score = 1\nscore = 9\nprint(score)"], ["Variable names cannot have spaces. Use an underscore _ instead.", "my_pet = \"dog\"\nprint(my_pet)"], ["print(fruit) shows what is inside the box. print(\"fruit\") shows the word fruit.", "fruit = \"kiwi\"\nprint(fruit)  # shows kiwi\nprint(\"fruit\")  # shows fruit"], ["Now write all of it yourself: make a variable, then print it.", "lives = 3\nprint(lives)"], ["A comma in print joins things together with a space.", "score = 8\nprint(\"Score:\", score)"], ["Variables that hold numbers can be added together with +.", "x = 2\ny = 5\nanswer = x + y\nprint(answer)"], ["An f-string puts variables inside a sentence. Write f before the quotes and wrap each variable in { }.", "pet = \"Rex\"\nage = 4\nprint(f\"{pet} is {age} years old\")"], ["You can make as many variables as you need. Use one print for each one.", "city = \"Rome\"\nmiles = 5\nprint(city)\nprint(miles)"], ["Add two variables and save the answer in a third one.", "apples = 6\npears = 2\nfruit = apples + pears\nprint(fruit)"], ["Boss level: variables, one sum and an f-string. You know all of these now.", "hero = \"Zed\"\nwins = 4\nbonus = 1\nscore = wins + bonus\nprint(f\"{hero} scored {score}\")"]];
+var OVR={"1": {"0": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M14 43h20M24 37v6\" stroke=\"#1f2a44\" stroke-width=\"3\" stroke-linecap=\"round\"/><circle cx=\"24\" cy=\"21\" r=\"15\" fill=\"#4f93c9\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M14 14c4-3 8-1 8 3s-5 3-4 7-4 3-5-1-1-6 1-9z\" fill=\"#6b9a4a\" stroke=\"#1f2a44\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M28 21c4-1 7 2 6 6s-5 4-6 1 0-5 0-7z\" fill=\"#6b9a4a\" stroke=\"#1f2a44\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/><path d=\"M15 12a12 12 0 0 1 8-4\" stroke=\"#fff\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" opacity=\".7\"/><path d=\"M24 3a17 17 0 0 0 0 36\" fill=\"none\" stroke=\"#b8893b\" stroke-width=\"2.5\"/></svg>", "9%", "57%", "globe"], "2": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M11 12h26v25H11z\" fill=\"#f1e3b8\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><rect x=\"6\" y=\"7\" width=\"36\" height=\"7\" rx=\"3.5\" fill=\"#8a5a2f\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><rect x=\"6\" y=\"35\" width=\"36\" height=\"7\" rx=\"3.5\" fill=\"#8a5a2f\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M16 20h16M16 25h16M16 30h8\" stroke=\"#8c2f39\" stroke-width=\"2\" stroke-linecap=\"round\"/><circle cx=\"33\" cy=\"30\" r=\"3.5\" fill=\"#8c2f39\" stroke=\"#1f2a44\" stroke-width=\"1.5\"/></svg>", "85%", "37%", "scroll"], "4": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M24 5c4 5 5 8 0 12-5-4-4-7 0-12z\" fill=\"#f2b84b\" stroke=\"#1f2a44\" stroke-width=\"2\"/><rect x=\"17\" y=\"19\" width=\"14\" height=\"21\" rx=\"2\" fill=\"#f6ecd0\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M12 42h24\" stroke=\"#b8893b\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg>", "66%", "70%", "candle"]}, "3": {"0": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><ellipse cx=\"24\" cy=\"22\" rx=\"14\" ry=\"18\" fill=\"#b9d6e8\" stroke=\"#b8893b\" stroke-width=\"5\"/><path d=\"M16 14c3-3 6-4 9-4\" stroke=\"#fff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M20 40h8l3 4H17z\" fill=\"#7a4a2a\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/></svg>", "16%", "32%", "mirror"], "1": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M12 6h24M12 42h24\" stroke=\"#7a4a2a\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M15 9c0 10 9 11 9 15s-9 5-9 15h18c0-10-9-11-9-15s9-5 9-15z\" fill=\"#dfeef2\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M18 37h12c-2-5-6-5-6-8 0 3-4 3-6 8z\" fill=\"#f2b84b\"/></svg>", "50%", "16%", "hourglass"], "2": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M6 30l26-14 4 8-26 14z\" fill=\"#8c2f39\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M32 16l8-4 4 8-8 4z\" fill=\"#b8893b\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M20 36l-6 8M20 36l8 8\" stroke=\"#1f2a44\" stroke-width=\"3\" stroke-linecap=\"round\"/></svg>", "85%", "37%", "telescope"], "4": ["<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path d=\"M14 22l4-14h12l4 14z\" fill=\"#f2b84b\" stroke=\"#1f2a44\" stroke-width=\"2.5\" stroke-linejoin=\"round\"/><path d=\"M24 22v18M16 42h16\" stroke=\"#1f2a44\" stroke-width=\"3.5\" stroke-linecap=\"round\"/></svg>", "66%", "70%", "floor lamp"]}};
+function getO(k,r){var v=(OVR[r]||{})[k];return v?[0,v[1],v[2],v[3]]:OB[k]}
+function hl(c){c=c.replace(/&/g,"&amp;").replace(/</g,"&lt;");return c.replace(/("[^"]*")/g,"<i class=s>$1</i>").replace(/\bprint\b/g,"<i class=k>print</i>").replace(/(#.*$)/gm,"<i class=c>$1</i>")}
+function showLesson(){var e=LS[cur],d=$("lesson");d.innerHTML="<b>Python lesson</b><p></p><pre></pre>";d.querySelector("p").textContent=e[0];d.querySelector("pre").innerHTML=hl(e[1])}
+function showRid(){var r=$("rid"),R=RD[cur]||{},l=L[cur];r.innerHTML="";r.appendChild(mk("b","","Riddles: each one points to an object in the room"));Object.keys(R).forEach(function(k){r.appendChild(mk("div","rd"+(notes.indexOf(l.c[k])>=0?" d":""),R[k]))})}
+var IC=['<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="30" rx="2" fill="#7a4a2a" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><rect x="11" y="13" width="26" height="20" fill="#e9d8a6"/><path d="M11 30l8-9 6 6 4-4 8 7v3H11z" fill="#4f6b4a"/><circle cx="31" cy="19" r="3" fill="#f2b84b"/></svg>','<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="25" r="18" fill="#e9d8a6" stroke="#b8893b" stroke-width="4"/><path d="M24 25V13M24 25l8 5" stroke="#1f2a44" stroke-width="3" stroke-linecap="round" fill="none"/><circle cx="24" cy="25" r="2" fill="#8c2f39"/></svg>','<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 12c6-3 12-3 17 1 5-4 11-4 17-1v26c-6-3-12-3-17 1-5-4-11-4-17-1z" fill="#8c2f39" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 13v26" stroke="#1f2a44" stroke-width="2"/><path d="M12 18c3-1 6-1 8 0M28 18c3-1 6-1 8 0" stroke="#e9d8a6" stroke-width="2" fill="none"/></svg>','<svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="8" width="36" height="32" rx="2" fill="#9a6b3e" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><path d="M6 24h36" stroke="#1f2a44" stroke-width="2.5"/><rect x="19" y="14" width="10" height="4" rx="2" fill="#b8893b"/><rect x="19" y="30" width="10" height="4" rx="2" fill="#b8893b"/></svg>','<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 28h20l-3 14H17z" fill="#b5532f" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><path d="M24 28c0-8-2-13-8-17 0 8 3 13 8 17zM24 28c1-7 4-12 10-14-1 7-4 12-10 14z" fill="#4f6b4a" stroke="#1f2a44" stroke-width="2" stroke-linejoin="round"/></svg>','<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 22c0-8 8-13 18-13s18 5 18 13z" fill="#9a6b3e" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><rect x="6" y="22" width="36" height="17" rx="2" fill="#7a4a2a" stroke="#1f2a44" stroke-width="2.5" stroke-linejoin="round"/><rect x="20" y="19" width="8" height="10" rx="1.5" fill="#b8893b" stroke="#1f2a44" stroke-width="2"/></svg>'];
+function pop(e,c){c=c||"pop";e.classList.remove(c);void e.offsetWidth;e.classList.add(c)}
+function burst(n){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;var sc=$("scene"),cs=["#f2b84b","#e9d8a6","#b8893b","#8c2f39","#fff6c8"];for(var i=0;i<n;i++){var p=mk("i","cf");p.style.cssText="--x:"+(Math.random()*360-180)+"px;--y:"+(-60-Math.random()*200)+"px;--r:"+(Math.random()*720-360)+"deg;background:"+cs[i%5]+";left:50%;top:55%;animation-delay:"+Math.random()*.15+"s";sc.appendChild(p);setTimeout(function(q){return function(){q.remove()}}(p),1700)}}
+function drawMap(){var m=$("map");m.innerHTML="";L.forEach(function(_,i){var b=mk("button",(i===cur?"cur ":"")+(stars[i]?"done":""),i+1);b.disabled=!(i===0||stars[i-1]>0);b.setAttribute("aria-label","Level "+(i+1));b.onclick=function(){load(i)};m.appendChild(b)});
+$("total").textContent="★ "+stars.reduce(function(a,b){return a+b},0)+" / 45"}
+function showNb(){var n=$("nb");n.innerHTML="";n.appendChild(mk("b","","Notebook ("+notes.length+" of "+Object.keys(L[cur].c).length+" clues): "));n.appendChild(document.createTextNode(notes.length?notes.join("  |  "):"(empty)"));showRid()}
+function slotShow(b,k){b.textContent=vals[k]||" ? "}
+function load(i){cur=i;hints=0;done=false;vals=[];sel=null;notes=[];var l=L[i];
+$("room").textContent=R[l.r]+", level "+(i+1);var sc=$("scene");sc.dataset.d=["🏛️","📚","🕯️","🧪","🚪"][l.r];sc.style.backgroundColor=BG[l.r];
+[].slice.call(sc.querySelectorAll(".hs")).forEach(function(x){x.remove()});$("door").textContent="Door: locked";sc.classList.remove("open");
+OB.forEach(function(o0,k){var ov=(OVR[l.r]||{})[k],o=getO(k,l.r);var b=mk("button","hs");b.innerHTML=ov?ov[0]:IC[k];b.style.left=o[1];b.style.top=o[2];b.setAttribute("aria-label","Search the "+o[3]);b.dataset.n=o[3];
+b.onclick=function(){var c=l.c[k];$("note").textContent=o[3][0].toUpperCase()+o[3].slice(1)+": "+(c||FL[k%FL.length]);$("note").className=c?"clue":"";pop($("note"));if(c){b.classList.add("f");b.classList.remove("lit");if(notes.indexOf(c)<0){notes.push(c);lan=0;miss=0;showNb()}}else{if(!b.classList.contains("x"))miss++;b.classList.add("x");if(miss===3)$("note").textContent+=" Stuck? Light the lantern for a pointer."}};sc.appendChild(b)});
+miss=0;lan=0;$("note").textContent="Read the riddles, then search the object each one is talking about.";showNb();
+showLesson();$("task").textContent=l.t;$("mode").textContent={d:"Drag the blocks",f:"Fill the gaps",t:"Type the code"}[l.m];
+var ch=$("chips"),cd=$("code");ch.innerHTML="";cd.innerHTML="";ta=null;
+if(l.m==="t"){ta=mk("textarea");ta.spellcheck=false;ta.setAttribute("autocapitalize","off");ta.setAttribute("aria-label","Your code");cd.appendChild(ta)}
+else{if(l.m==="d")l.chips.forEach(function(c){var b=mk("button","chip",c);b.draggable=true;b.ondragstart=function(e){e.dataTransfer.setData("text",c);sel=c};
+b.onclick=function(){sel=sel===c?null:c;[].forEach.call(ch.children,function(x){x.classList.toggle("sel",x.textContent===sel)})};ch.appendChild(b)});
+l.tpl.forEach(function(line){var d=mk("div","cl"),ps=line.split("@");ps.forEach(function(p,pi){d.appendChild(document.createTextNode(p));if(pi<ps.length-1){var k=vals.length;vals.push("");var s;
+if(l.m==="f"){s=mk("input","slot");s.setAttribute("aria-label","Gap");s.oninput=function(){vals[k]=s.value}}
+else{s=mk("button","slot");slotShow(s,k);s.onclick=function(){vals[k]=sel||"";sel=null;[].forEach.call(ch.children,function(x){x.classList.remove("sel")});slotShow(s,k)};
+s.ondragover=function(e){e.preventDefault()};s.ondrop=function(e){e.preventDefault();vals[k]=e.dataTransfer.getData("text");slotShow(s,k)}}
+d.appendChild(s)}});cd.appendChild(d)})}
+$("out").textContent="";$("out").className="";$("msg").className="";$("next").hidden=true;pop($("scene"),"enter");drawMap()}
+function getCode(l){if(ta)return ta.value;var k=0;return l.tpl.map(function(line){return line.split("@").map(function(p,pi,a){return p+(pi<a.length-1?vals[k++]:"")}).join("")}).join("\n")}
+function msg(t,c){var m=$("msg");m.className="s "+c;pop(m);m.textContent=t}
+function check(l,code,r){if(r.err)return r.err;
+if(l.boss){var asg=(code.match(/^\s*[A-Za-z_]\w*\s*=/gm)||[]).length;if(asg<3)return"Make at least 3 variables. You have "+asg+".";
+if(!/^\s*[A-Za-z_]\w*\s*=.*[+\-*]/m.test(code))return"Do one calculation, like total = coins + bonus.";
+var pf=code.match(/print\(\s*f["'].*\)/);if(!pf)return'Print an f-string, like print(f"{name} ...").';
+if((pf[0].match(/\{\w+\}/g)||[]).length<2)return"Use at least 2 variables inside the { } of your f-string.";
+var o=r.out.join(" ");if(o.indexOf("Mia")<0||o.indexOf("25")<0)return"The report should include the name (Mia) and the total (25). It said:\n"+o;return null}
+for(var k=0;k<(l.must||[]).length;k++)if(!l.must[k][0].test(code))return l.must[k][1];
+if(r.out.join("\n")!==l.exp.join("\n"))return"The lock buzzed. Your code printed:\n"+(r.out.join("\n")||"(nothing)")+"\n\nThe lock wants:\n"+l.exp.join("\n");return null}
+$("run").onclick=function(){var l=L[cur];if(vals.indexOf("")>=0||(ta&&!ta.value.trim())){msg("Fill in every gap or write some code first.","bad");return}
+var code=getCode(l),r=run(code),o=$("out");o.className=r.err?"e":"";o.textContent=r.err||r.out.join("\n");var bad=check(l,code,r);
+if(bad){msg(bad,"bad");pop($("code"),"shake");return}
+var s=hints===0?3:hints===1?2:1;if(s>stars[cur])stars[cur]=s;save();done=true;drawMap();$("door").textContent="Door: open";$("scene").classList.add("open");burst(cur===14?60:28);
+msg((cur===14?"The exit gate swings open. You escaped the Locked Academy! Total: "+stars.reduce(function(a,b){return a+b},0)+" / 45 stars.":"Click! The lock opens. "+"★".repeat(s))+"\n\nIn real Python, "+(l.m==="d"?"your blocks look":"your code looks")+" like this:\n"+code,"ok");
+$("next").hidden=cur===14};
+$("next").onclick=function(){if(cur<14)load(cur+1)};
+$("reset").onclick=function(){load(cur)};
+$("lamp").onclick=function(){var l=L[cur],n=$("note"),t=null;for(var k=0;k<OB.length;k++){if(l.c[k]&&notes.indexOf(l.c[k])<0){t=k;break}}
+if(t===null){n.textContent="You found every clue in this room. Now write the code!";n.className="";pop(n);return}
+var o=getO(t,l.r),x=parseFloat(o[1]),y=parseFloat(o[2]),side=x<34?"left":x>66?"right":"middle",h=y<30?"high up":y>66?"down low":"about halfway up";lan++;
+if(lan===1)n.textContent="The lantern flickers toward the "+side+" of the room, "+h+".";
+else{n.textContent="The lantern shines on the "+o[3]+".";$("scene").querySelectorAll(".hs")[t].classList.add("lit")}
+n.className="";pop(n)};
+$("hint").onclick=function(){var l=L[cur];if(done){msg("You already opened this lock.","h");return}
+msg(hints===0?"Hint: "+l.h:"Answer:\n"+l.sol,"h");hints++};
+load(0);
+</script>
+<script src="locked-academy-integration.js"></script>
 </body>
 </html>
