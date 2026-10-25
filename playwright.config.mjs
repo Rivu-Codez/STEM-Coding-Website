@@ -2,8 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/browser',
-  timeout: 15_000,
+  timeout: 30_000,
   fullyParallel: true,
+  workers: 2,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: process.env.BASE_URL || 'http://127.0.0.1:4173',

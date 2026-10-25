@@ -11,7 +11,7 @@ export async function loadPublishedCreatorLevel(shareCode) {
 }
 
 export async function submitCreatorAttempt(creatorLevelId, program) {
-  const attemptId = window.crypto?.randomUUID?.();
+  const attemptId = window.StemGameAdapter?.createAttemptId?.();
   if (!attemptId) return { ok: false, error: 'Attempt ID unavailable.' };
   const result = await client().rpc('submit_creator_level_attempt', {
     p_creator_level_id: creatorLevelId,

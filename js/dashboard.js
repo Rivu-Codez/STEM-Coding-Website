@@ -84,18 +84,17 @@
     const signalGame = games.signal.definition();
     const submarineGame = games.submarine.definition();
     const chemistryGame = games.chemistry.definition();
-    const [physics, robo, signal, submarine, chemistry] = await Promise.all([
-      window.StemGameAuth.getDashboardStats(physicsGame.gameId),
-      window.StemGameAuth.getDashboardStats(roboGame.gameId),
-      window.StemGameAuth.getDashboardStats(signalGame.gameId),
-      window.StemGameAuth.getDashboardStats(submarineGame.gameId),
-      window.StemGameAuth.getDashboardStats(chemistryGame.gameId)
-    ]);
-    renderStats(games.physics.prefix, physics);
-    renderStats(games.robo.prefix, robo);
-    renderStats(games.signal.prefix, signal);
-    renderStats(games.submarine.prefix, submarine);
-    renderStats(games.chemistry.prefix, chemistry);
+    const summaries = await window.StemGameAuth.getDashboardSummaries();
+    const summaryByGame = new Map(summaries.map(summary => [summary.game_id, {
+      completedLevels: summary.completed_levels,
+      stars: summary.stars,
+      xp: summary.xp,
+      maxLevels: summary.level_count
+    }]));
+    for (const [key, game] of [["physics", physicsGame], ["robo", roboGame], ["signal", signalGame], ["submarine", submarineGame], ["chemistry", chemistryGame]]) {
+      const stats = summaryByGame.get(game.gameId) || { completedLevels: 0, stars: 0, xp: 0, maxLevels: game.levelCount };
+      renderStats(games[key].prefix, stats);
+    }
   }
 
   function bindEvents() {

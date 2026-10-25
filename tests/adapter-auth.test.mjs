@@ -7,19 +7,28 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-function loadAdapter(relativePath, globalName, auth, messages = []) {
+function loadAdapter(relativePath, globalName, auth, messages = [], storage = new Map()) {
+  let id = 0;
+  const platform = { showStatus: (message) => messages.push(message), getSession: () => ({ user: { id: 'student-1' } }) };
+  const sessionStorage = {
+    getItem(key) { return storage.get(key) ?? null; },
+    setItem(key, value) { storage.set(key, value); },
+    removeItem(key) { storage.delete(key); },
+  };
   const context = {
     StemGameAuth: auth,
-    StemGamePlatform: { showStatus: (message) => messages.push(message) },
     window: {
       StemGameAuth: auth,
-      StemGamePlatform: { showStatus: (message) => messages.push(message) },
+      StemGamePlatform: platform,
+      sessionStorage,
+      crypto: { randomUUID: () => `attempt-${++id}` },
     },
   };
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(path.join(root, 'js/game-adapter.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, relativePath), 'utf8'), context);
   context.adapter = vm.runInContext(globalName, context);
+  context.storage = storage;
   return context;
 }
 
@@ -67,5 +76,44 @@ for (const [name, file, globalName] of [
     assert.deepEqual(calls.map(([type, level]) => [type, level]), [
       ['checkpoint', 2], ['attempt', 2], ['mistake', 2], ['tutor', 2], ['achievement', 2],
     ]);
+  });
+
+  test(`${name} reuses the persisted attempt ID and payload after an ambiguous response`, async () => {
+    const calls = [];
+    const storage = new Map();
+    let response = { ok: false, error: 'network interrupted', retryable: true };
+    const auth = { recordAttempt(...args) { calls.push(args); return Promise.resolve(response); } };
+    const firstPage = loadAdapter(file, globalName, auth, [], storage);
+    const payload = { program: [{ type: 'FORWARD' }] };
+    await firstPage.adapter.submitAttempt(2, 'success', null, payload);
+    assert.equal(storage.size, 1);
+
+    response = { ok: true, data: { server_result: 'success' } };
+    const reloadedPage = loadAdapter(file, globalName, auth, [], storage);
+    await reloadedPage.adapter.submitAttempt(2, 'success', null, payload);
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0][4], calls[1][4]);
+    assert.equal(JSON.stringify(calls[0][3]), JSON.stringify(calls[1][3]));
+    assert.equal(storage.size, 0);
+  });
+
+  test(`${name} coalesces duplicate clicks while one attempt is in flight`, async () => {
+    const calls = [];
+    let resolveAttempt;
+    const auth = {
+      recordAttempt(...args) {
+        calls.push(args);
+        return new Promise(resolve => { resolveAttempt = resolve; });
+      },
+    };
+    const context = loadAdapter(file, globalName, auth);
+    const payload = { angle: 45, speed: 20 };
+    const first = context.adapter.submitAttempt(0, 'success', null, payload);
+    const second = context.adapter.submitAttempt(0, 'success', null, payload);
+    assert.equal(first, second);
+    await Promise.resolve();
+    assert.equal(calls.length, 1);
+    resolveAttempt({ ok: true, data: { server_result: 'success' } });
+    await Promise.all([first, second]);
   });
 }

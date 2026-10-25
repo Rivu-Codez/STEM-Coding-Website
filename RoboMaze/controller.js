@@ -278,7 +278,9 @@ import { loadLatestCreatorLevel, loadPublishedCreatorLevel, submitCreatorAttempt
           steps: studentProgram.length, program: studentProgram
         });
         if (!attempt?.ok || attempt.data?.server_result !== "success") {
-          triggerMessage('The server could not confirm this maze solution. Please try again.', 'error');
+          triggerMessage(attempt?.error || (attempt?.ok
+            ? 'The server checked this program but it did not reach the goal.'
+            : 'The server could not check this maze solution. Please retry.'), 'error');
           return;
         }
         const achievement = await recordAchievement(currentLevelIndex);

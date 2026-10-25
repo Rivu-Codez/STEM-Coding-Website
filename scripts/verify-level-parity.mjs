@@ -19,6 +19,10 @@ function loadFrontendLevels(relativePath) {
     vm.runInContext(source, context);
     return JSON.parse(JSON.stringify(context.window.SignalDecrypterLevels));
   }
+  if (relativePath === 'Chemistry/levels.js') {
+    vm.runInContext(source, context);
+    return JSON.parse(JSON.stringify(context.window.ChemistryLevels));
+  }
   vm.runInContext(`${source}\n;globalThis.__levels = LEVELS; globalThis.__allLevels = typeof ALL_LEVELS === 'undefined' ? LEVELS : ALL_LEVELS;`, context);
   return context.__allLevels;
 }
@@ -47,7 +51,7 @@ function normalizedFrontend(gameId, level, index) {
   if (gameId === 'submarine_math') {
     return { gameId, levelNumber: level.id, title: level.title,
       instruction: cleanInstruction(level.question), configuration: Object.fromEntries(Object.entries(level)
-        .filter(([key]) => !['correctAnswer', 'question', 'hint', 'lessonRule', 'lessonSteps'].includes(key))) };
+        .filter(([key]) => !['moves', 'numericVal', 'correctAnswer', 'question', 'hint', 'lessonRule', 'lessonSteps'].includes(key))) };
   }
   if (gameId === 'physics') {
     const { title, instruction, targetDistance, lockSpeed, lockDrag, fixedSpeed, wall, dragMode,
@@ -68,6 +72,11 @@ function normalizedFrontend(gameId, level, index) {
         timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost,
         ...(level.mode === 'blocks' ? { availableOperations } : {}) } };
   }
+  if (gameId === 'chemistry') {
+    return { gameId, levelNumber: level.id, title: level.title,
+      instruction: cleanInstruction(level.instruction),
+      configuration: { compound: level.compound, formula: level.formula, mode: level.mode, atoms: level.atoms } };
+  }
   const { title, instruction, grid, start, requiredBlock, maxBlocks } = level;
   return { gameId, levelNumber: index + 1, title, instruction: cleanInstruction(instruction),
     configuration: { grid, start, ...(requiredBlock === undefined ? {} : { requiredBlock }),
@@ -86,6 +95,7 @@ export function verifyLevelParity(repositoryRoot = root) {
     ['robo_maze', 'RoboMaze/levels.js'],
     ['submarine_math', 'SubmarineMath/levels.js'],
     ['signal_decrypter', 'SignalDecrypter/levels.js'],
+    ['chemistry', 'Chemistry/levels.js'],
   ];
   for (const [gameId, file] of games) {
     const frontend = loadFrontendLevels(file).map((level, index) => normalizedFrontend(gameId, level, index));

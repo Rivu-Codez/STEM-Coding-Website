@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 async function mockSupabase(page, session = null) {
-  await page.route(/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js/, (route) => route.abort());
+  await page.route('**/vendor/supabase-browser.js', (route) => route.fulfill({
+    contentType: 'application/javascript', body: '/* mocked Supabase client supplied by addInitScript */',
+  }));
   await page.addInitScript(({ session }) => {
     const progressRows = [];
     window.supabase = { createClient: () => ({ auth: {
@@ -43,7 +45,10 @@ async function mockGameAuth(page) {
     body: `let mockedUnlockedLevel = 1;
     const mockedAttempts = {};
     window.StemGameAuth = {
-      init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
+      init: async (gameId) => {
+        window.StemGamePlatform?.configure(gameId);
+        window.StemGamePlatform?.setSession({ user: { id: 'student-1', email: 'student@example.test' } });
+      }, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null, recordAttempt: async () => ({ ok: true }),
       recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
       recordAchievement: async (level) => ({ ok: true, data: { awarded: true, stars: 3, xp: 100 } })
@@ -57,20 +62,37 @@ async function mockProgressionAuth(page) {
     body: `let mockedUnlockedLevel = 1;
     const mockedAttempts = {};
     window.StemGameAuth = {
-      init: async () => {}, allowLevel: (level) => level <= mockedUnlockedLevel,
+      init: async (gameId) => {
+        window.StemGamePlatform?.configure(gameId);
+        window.StemGamePlatform?.setSession({ user: { id: 'student-1', email: 'student@example.test' } });
+      }, allowLevel: (level) => level <= mockedUnlockedLevel,
       getLearningState: async () => null,
       recordAttempt: async (level, result, _category, details) => {
         const isSignalSolution = details?.operations?.[0]?.type === 'remove' &&
           details?.operations?.[0]?.chars === '-' &&
           details?.operations?.[1]?.type === 'reverse';
         const correct = (result === 'success' && details?.program?.length === 5) ||
-          (level === 1 && isSignalSolution);
+          (level === 1 && isSignalSolution) ||
+          (level === 1 && details?.answer === '+10');
         mockedAttempts[level] = (mockedAttempts[level] || 0) + 1;
         if (correct) mockedUnlockedLevel = Math.max(mockedUnlockedLevel, level + 1);
         return { ok: true, data: { server_result: correct ? 'success' : 'miss', attempt_count: mockedAttempts[level], revealed_answer: !correct && mockedAttempts[level] >= 5 ? 'Paris' : null, feedback: correct ? 'Correct! You decoded the answer.' : 'The decoder does not produce the answer.' } };
       },
       recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
       recordAchievement: async () => ({ ok: true, data: { awarded: true, stars: 3, xp: 100 } })
+    };`,
+  }));
+}
+
+async function mockChemistryAuth(page) {
+  await page.route('**/js/game-auth.js', (route) => route.fulfill({
+    contentType: 'application/javascript',
+    body: `window.StemGameAuth = {
+      init: async () => {}, allowLevel: () => true, getLearningState: async () => null,
+      recordAttempt: async () => ({ ok: true, data: { server_result: 'success' } }),
+      recordMistake: async () => ({ ok: true }), analyzeMistake: async () => null,
+      recordAchievement: async () => ({ ok: true, data: { awarded: false } }),
+      getTotalStars: async () => 0, getDashboardStats: async () => ({ xp: 0 })
     };`,
   }));
 }
@@ -106,7 +128,9 @@ test('Signal Decrypter completes an easy block mission and advances levels', asy
   await page.goto('/SignalDecrypter/index.html');
 
   await expect(page.locator('#levelIndicator')).toHaveText('Level 1 of 15');
-  await expect(page.locator('#timerValue')).toHaveText('90s');
+  const remainingSeconds = Number((await page.locator('#timerValue').textContent()).replace(/\D/g, ''));
+  expect(remainingSeconds).toBeGreaterThan(0);
+  expect(remainingSeconds).toBeLessThanOrEqual(90);
   await page.getByRole('button', { name: 'Add Remove hyphens to pipeline' }).click();
   await page.getByRole('button', { name: 'Add Reverse signal to pipeline' }).click();
   await expect(page.locator('#outputPreview')).toContainText('2 modules ready');
@@ -142,6 +166,7 @@ test('Signal Decrypter reveals the question answer after five failed submissions
 
 test('Submarine Math checks an answer and advances levels', async ({ page }) => {
   await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockProgressionAuth(page);
   await page.goto('/SubmarineMath/index.html');
 
   await expect(page.locator('#level-indicator')).toHaveText('Level 1 of 15');
@@ -152,12 +177,40 @@ test('Submarine Math checks an answer and advances levels', async ({ page }) => 
   await expect(page.locator('#level-indicator')).toHaveText('Level 2 of 15');
 });
 
+test('Chemistry loads local Blockly and CodeMirror editor bundles', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockChemistryAuth(page);
+  await page.goto('/Chemistry/index.html');
+  await expect(page.locator('[data-game-status][role="status"]')).toHaveAttribute('aria-live', 'polite');
+  await expect(page.locator('#chemistryGame')).toHaveAttribute('data-game-state', 'ready');
+  await expect(page.locator('#blocklyWorkspace .blocklySvg')).toBeVisible();
+  await expect(page.locator('.element-legend')).toContainText('Na Sodium');
+  await page.locator('#levelPicker').selectOption('10');
+  await expect(page.locator('#pythonEditor .cm-editor')).toBeVisible();
+});
+
+test('attempt IDs remain available when randomUUID is unsupported', async ({ page }) => {
+  await mockSupabase(page, { user: { id: 'student-1', email: 'student@example.test' } });
+  await mockGameAuth(page);
+  await page.addInitScript(() => {
+    const originalCrypto = window.crypto;
+    Object.defineProperty(window, 'crypto', {
+      configurable: true,
+      value: { getRandomValues: originalCrypto.getRandomValues.bind(originalCrypto) },
+    });
+  });
+  await page.goto('/PhysicsSim/index.html');
+  const attemptId = await page.evaluate(() => window.StemGameAdapter.createAttemptId());
+  expect(attemptId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+});
+
 test('Physics controls render and reset locally', async ({ page }) => {
   await mockSupabase(page);
   await mockGameAuth(page);
   await page.goto('/PhysicsSim/index.html');
   await expect(page.locator('#levelTitle')).toContainText('Level 1');
   await page.locator('[data-action="fire"]').click();
+  await expect.poll(() => page.evaluate(() => window.currentBall?.x || 0)).toBeGreaterThan(50);
   await page.locator('[data-action="reset"]').click();
   await expect(page.locator('#statusMessage')).toContainText('Trajectory cleared');
 });

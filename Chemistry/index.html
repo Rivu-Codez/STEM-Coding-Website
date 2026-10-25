@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://esm.sh; worker-src 'self' blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; worker-src 'self' blob:;">
   <title>Chemistry Lab | RoboLogic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/blockly@12.3.1/blockly.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../vendor/blockly.min.js" defer></script>
+  <script src="../vendor/supabase-browser.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/game-registry.js"></script>
   <script src="../js/game-platform.js"></script>
@@ -21,17 +21,19 @@
   <script src="../js/mistake-api.js"></script>
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/game-shell.js" defer></script>
   <script src="../js/game-adapter.js"></script>
   <script src="../js/game-module.js"></script>
   <script src="levels.js"></script>
   <script type="module" src="chemistry-module.js"></script>
+  <link rel="stylesheet" href="../css/game-shell.css">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="../dashboard.html"><span class="brand-icon">⚗</span><span><strong>Chemistry Lab</strong><small>Molecular reactor · Python synthesis</small></span></a>
     <nav class="top-actions"><a class="dashboard-link" href="../dashboard.html">⌂ Dashboard</a><span class="stat-pill">⭐ <span id="starCount">0</span></span><span class="stat-pill">XP <span id="xpCount">0</span></span></nav>
   </header>
-  <main class="lab-layout" id="chemistryGame">
+  <main data-game-root="chemistry" class="lab-layout" id="chemistryGame">
     <section class="reactor panel" aria-labelledby="levelTitle">
       <div class="reactor-head">
         <div><p class="eyebrow">MOLECULAR REACTOR</p><h1 id="levelTitle">Chemistry Lab</h1><p id="goalText" class="goal-text">Choose atoms and assemble the target compound.</p></div>
@@ -44,7 +46,7 @@
       </aside>
       <div class="canvas-frame"><canvas id="moleculeCanvas" aria-label="Molecular reactor canvas"></canvas><div id="canvasEmpty" class="canvas-empty">Add atom blocks to begin a molecule</div></div>
       <div class="formula-readout"><span>MOLECULE FORMULA</span><strong id="formulaReadout">—</strong><span id="moleculeCount">0 molecules</span></div>
-      <div class="reactor-actions"><button id="synthesizeButton" class="synthesize" type="button">▶ INITIATE SYNTHESIS</button><button id="resetButton" class="reset" type="button">↻ RESET WORKSPACE</button></div>
+      <div class="reactor-actions"><button id="synthesizeButton" data-attempt-submit class="synthesize" type="button">▶ INITIATE SYNTHESIS</button><button id="resetButton" class="reset" type="button">↻ RESET WORKSPACE</button></div>
       <p id="feedbackText" class="feedback" aria-live="polite"></p>
       <div class="audio-monitor"><span class="audio-dot"></span><span>REACTION MONITOR</span><span id="reactionMessage">Awaiting atom sequence</span></div>
     </section>

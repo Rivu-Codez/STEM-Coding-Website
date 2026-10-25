@@ -185,7 +185,11 @@ const CURRICULUM = window.SubmarineMathLevels;
 
         const LESSONS = Object.fromEntries(CURRICULUM.map(level => [level.id, {
             rule: level.lessonRule,
-            steps: level.lessonSteps,
+            steps: level.lessonSteps || [
+                `Start at ${level.startDepth}m.`,
+                ...(level.checkpoints || []).map((depth, index) => `Calculate the signed change to checkpoint ${index + 1} at ${depth}m.`),
+                `Finish at the target depth of ${level.targetDepth}m.`,
+            ],
             traps: {}
         }]));
 
@@ -262,7 +266,7 @@ const CURRICULUM = window.SubmarineMathLevels;
         }
         function showGameOver() {
             const level = CURRICULUM[currentLevelIdx];
-            document.getElementById('gameover-answer').innerText = `Mission route: ${level.moves.map(value => `${value > 0 ? '+' : ''}${value}`).join(',')}`;
+            document.getElementById('gameover-answer').innerText = `Mission route: ${(level.checkpoints || []).map((depth, index, stops) => { const from = index === 0 ? level.startDepth : stops[index - 1]; const move = depth - from; return `${move > 0 ? '+' : ''}${move}`; }).join(',')}`;
             const m = document.getElementById('gameover-modal');
             m.classList.remove('hidden'); m.classList.add('flex');
         }
@@ -717,7 +721,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             if (parsed.ok) {
                 parsed.moves.forEach(move => { depth += move; routePositions.push(depth); });
                 preview.innerText = `Route preview: ${parsed.normalized} → ${depth}m`;
-                status.innerText = `${parsed.moves.length}/${level.moves.length} moves added`;
+                status.innerText = `${parsed.moves.length}/${(level.checkpoints || []).length} moves added`;
             } else {
                 preview.innerText = nativeInput.value.trim() ? `Route preview: ${parsed.message}` : 'Route preview: waiting for your first move';
                 status.innerText = 'Add signed moves in order';
@@ -837,7 +841,7 @@ const CURRICULUM = window.SubmarineMathLevels;
 
             const attempt = await SubmarineProgress.submitAttempt(currentLevelIdx, userStr);
             if (!attempt.ok) {
-                showFeedback(false, "Your answer could not be saved. Check your connection and try again.");
+                showFeedback(false, attempt.error || "Your answer could not be checked. Check your connection and try again.");
                 return;
             }
             attempts = attempt.data.attempt_count || attempts + 1;

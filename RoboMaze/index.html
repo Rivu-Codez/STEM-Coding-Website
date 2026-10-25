@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
   <title>RoboLogic: STEM Coding Maze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -325,7 +325,7 @@
       .controls { grid-template-columns: 1fr; }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="../vendor/supabase-browser.js"></script>
   <script src="../js/supabase-config.js"></script>
   <script src="../js/game-registry.js"></script>
   <script src="../js/game-platform.js"></script>
@@ -335,6 +335,7 @@
   <script src="../js/mistake-api.js"></script>
   <script src="../js/tutor-api.js"></script>
   <script src="../js/game-auth.js"></script>
+  <script src="../js/game-shell.js" defer></script>
   <script src="../js/game-adapter.js"></script>
   <script src="../js/game-module.js"></script>
   <script src="../js/tutor-hints.js"></script>
@@ -344,6 +345,7 @@
   <script src="ui.js"></script>
   <link rel="stylesheet" href="../css/aimora-theme.css">
   <link rel="stylesheet" href="../css/redesign.css">
+  <link rel="stylesheet" href="../css/game-shell.css">
 </head>
 <body>
 
@@ -362,7 +364,7 @@
     </div>
   </header>
 
-  <main>
+  <main data-game-root="robo_maze">
     <!-- Left Column: Game Canvas & Level Info -->
     <div class="panel">
       <div class="level-header">
@@ -453,7 +455,7 @@
 
       <!-- Stepper Controls (Run, Step, Reset) -->
       <div class="controls">
-        <button class="btn-action btn-run" id="btnRun" data-action="run">▶️ Run</button>
+        <button class="btn-action btn-run" id="btnRun" data-attempt-submit data-action="run">▶️ Run</button>
         <button class="btn-action btn-step" id="btnStep" data-action="step">⏯️ Step</button>
         <button class="btn-action btn-reset" id="btnReset" data-action="reset">🔄 Reset</button>
       </div>
