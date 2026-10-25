@@ -1,7 +1,7 @@
 body.locked-academy-page {
   min-height: 100vh;
   color: var(--rl-ink, #17233d);
-  background: linear-gradient(135deg, #edf2ff 0%, #f7f4ff 48%, #e8f8fb 100%);
+  background: var(--rl-page, #f3f6ff);
   background-attachment: fixed;
   font-family: Manrope, Nunito, sans-serif;
 }
