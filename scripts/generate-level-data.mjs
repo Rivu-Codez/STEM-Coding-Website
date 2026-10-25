@@ -46,11 +46,8 @@ function normalizedRow(gameId, level, index) {
     return { number: level.id, title: level.title, instruction: cleanInstruction(question), config: configuration };
   }
   if (gameId === 'signal_decrypter') {
-    const availableOperations = level.operations.map(operation => operation.type);
     return { number: level.id, title: level.title, instruction: cleanInstruction(level.question), config: {
-      id: level.id, question: level.question, signal: level.signal, mode: level.mode, timeLimit: level.timeLimit,
-      interferenceLimit: level.interferenceLimit, hintCost: level.hintCost,
-      ...(level.mode === 'blocks' ? { availableOperations } : {}),
+      id: level.id, room: level.room, mode: level.mode,
     } };
   }
   return { number: level.id, title: level.title, instruction: cleanInstruction(level.instruction), config: {

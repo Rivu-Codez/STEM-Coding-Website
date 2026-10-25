@@ -22,13 +22,13 @@
     },
     {
       gameId: "signal_decrypter",
-      displayName: "Signal Decrypter",
-      description: "Clean corrupted transmissions and practise strings, indexing, slicing, and methods.",
+      displayName: "The Locked Academy",
+      description: "Explore a clue-filled academy while learning Python print statements, variables, and basic arithmetic.",
       route: "SignalDecrypter/index.html",
       enabled: true,
       levelCount: 15,
       validator: "signal_decrypter",
-      icon: "📡"
+      icon: "🔐"
     },
     {
       gameId: "submarine_math",

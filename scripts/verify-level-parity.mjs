@@ -65,12 +65,9 @@ function normalizedFrontend(gameId, level, index) {
         ...(debugSetup === undefined ? {} : { debugSetup }) } };
   }
   if (gameId === 'signal_decrypter') {
-    const availableOperations = level.operations.map(operation => operation.type);
     return { gameId, levelNumber: level.id, title: level.title,
       instruction: cleanInstruction(level.question),
-      configuration: { id: level.id, question: level.question, signal: level.signal, mode: level.mode,
-        timeLimit: level.timeLimit, interferenceLimit: level.interferenceLimit, hintCost: level.hintCost,
-        ...(level.mode === 'blocks' ? { availableOperations } : {}) } };
+      configuration: { id: level.id, room: level.room, mode: level.mode } };
   }
   if (gameId === 'chemistry') {
     return { gameId, levelNumber: level.id, title: level.title,

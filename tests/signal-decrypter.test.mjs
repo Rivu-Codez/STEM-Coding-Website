@@ -15,12 +15,12 @@ function loadSignalTools() {
   return context.window;
 }
 
-test('Signal Decrypter contains fifteen question-driven missions', () => {
+test('The Locked Academy contains fifteen print-and-variables missions', () => {
   const { SignalDecrypterLevels } = loadSignalTools();
   assert.equal(SignalDecrypterLevels.length, 15);
-  assert.ok(SignalDecrypterLevels.every(level => level.question && level.signal && level.timeLimit > 0));
-  assert.equal(SignalDecrypterLevels.filter(level => level.mode === 'blocks').length, 10);
-  assert.equal(SignalDecrypterLevels.filter(level => level.mode === 'python').length, 5);
+  assert.ok(SignalDecrypterLevels.every(level => level.question && Number.isInteger(level.room)));
+  assert.deepEqual([...new Set(SignalDecrypterLevels.map(level => level.mode))].sort(), ['blocks', 'fill', 'type']);
+  assert.equal(SignalDecrypterLevels.at(-1).title, 'The Exit Report');
 });
 
 test('public level data does not expose expected answers or canonical solutions', () => {
