@@ -17,6 +17,7 @@
 <script src="../js/mistake-api.js"></script>
 <script src="../js/tutor-api.js"></script>
 <script src="../js/game-auth.js"></script>
+<script src="../js/game-shell.js" defer></script>
 <script src="../js/game-adapter.js"></script>
 <style>
 :root{color-scheme:light;--ink:#1f2a44;--paper:#f3e7cf;--cream:#fbf3dd;--oxb:#8c2f39;--brass:#b8893b;--moss:#4f6b4a;--glow:#f2b84b;--wood:#7a4a2a;--code:#1f2a44;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -153,7 +154,7 @@ textarea:focus-visible{outline:3px solid var(--glow);outline-offset:-3px}
 <p id="task"></p>
 <div id="chips"></div>
 <div id="code"></div>
-<div class="btns"><button class="b go" id="run">Try the lock</button><button class="b" id="hint">Hint</button><button class="b" id="reset">Reset</button><button class="b go" id="next" hidden>Next level</button></div>
+<div class="btns"><button class="b go" id="run" data-attempt-submit>Try the lock</button><button class="b" id="hint">Hint</button><button class="b" id="reset">Reset</button><button class="b go" id="next" hidden>Next level</button></div>
 <div id="out"></div>
 <div id="msg" role="status"></div>
 </section>

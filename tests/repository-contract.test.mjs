@@ -208,7 +208,7 @@ test('The Locked Academy replaces Signal Decrypter while keeping its progress co
   assert.match(dashboard, /id="signalGameButton"/);
   assert.match(dashboardScript, /signal_decrypter/);
   assert.match(page, /The Locked Academy/);
-  assert.match(module, /gameId: "signal_decrypter"/);
+  assert.match(module, /const gameId = "signal_decrypter"/);
   assert.match(migration, /signal_decrypter_answer_keys/);
   assert.match(migration, /create or replace function public\.submit_signal_decrypter_attempt/);
   assert.match(migration, /game_id = 'signal_decrypter'/);
