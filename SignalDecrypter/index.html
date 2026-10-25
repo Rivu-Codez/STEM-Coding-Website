@@ -136,10 +136,15 @@ textarea:focus-visible{outline:3px solid var(--glow);outline-offset:-3px}
 #door{right:auto;left:10px}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 </style>
+<link rel="stylesheet" href="../css/redesign.css">
+<link rel="stylesheet" href="academy-theme.css">
 </head>
-<body>
+<body class="locked-academy-page">
 <div class="w">
-<header><h1>The Locked Academy</h1><a href="../dashboard.html">Dashboard</a><div id="stemAuth" class="stem-auth"></div><div id="total"></div></header>
+<header class="academy-header">
+  <div class="academy-heading"><span class="academy-mark" aria-hidden="true">🔐</span><div><h1>The Locked Academy</h1><p>Python coding adventure</p></div></div>
+  <div class="academy-actions"><a class="academy-dashboard-link" href="../dashboard.html">← Dashboard</a><div id="stemAuth" class="stem-auth"></div><div id="total"></div></div>
+</header>
 <nav id="map" aria-label="Levels"></nav>
 <main data-game-root="signal_decrypter">
 <section class="card">

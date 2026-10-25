@@ -1,0 +1,255 @@
+body.locked-academy-page {
+  min-height: 100vh;
+  color: var(--rl-ink, #17233d);
+  background: linear-gradient(135deg, #edf2ff 0%, #f7f4ff 48%, #e8f8fb 100%);
+  background-attachment: fixed;
+  font-family: Manrope, Nunito, sans-serif;
+}
+
+.locked-academy-page .w {
+  width: min(1320px, 100%);
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px clamp(16px, 3vw, 32px) 48px;
+}
+
+.locked-academy-page .academy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 18px clamp(20px, 3vw, 34px);
+  border: 0;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(120deg, #263b75, #5964e8 65%, #7654df);
+  box-shadow: 0 14px 32px rgba(31, 53, 89, .18);
+}
+
+.locked-academy-page .academy-heading,
+.locked-academy-page .academy-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.locked-academy-page .academy-mark {
+  display: grid;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 15px;
+  background: rgba(255,255,255,.16);
+  font-size: 1.5rem;
+}
+
+.locked-academy-page .academy-header h1 {
+  margin: 0;
+  color: #fff;
+  font: 800 clamp(1.5rem, 3vw, 2.15rem)/1.12 Manrope, sans-serif;
+  letter-spacing: -.045em;
+}
+
+.locked-academy-page .academy-heading p {
+  margin: 5px 0 0;
+  color: #e2e9ff;
+  font-size: .88rem;
+  font-weight: 600;
+}
+
+.locked-academy-page .academy-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.locked-academy-page .academy-dashboard-link {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 15px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(20, 32, 80, .22);
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.locked-academy-page .academy-dashboard-link:hover,
+.locked-academy-page .academy-dashboard-link:focus-visible {
+  color: #fff;
+  background: rgba(255,255,255,.18);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.locked-academy-page .stem-auth {
+  gap: 8px;
+}
+
+.locked-academy-page .stem-auth small {
+  max-width: 220px;
+  color: #eef2ff;
+  overflow-wrap: anywhere;
+}
+
+.locked-academy-page .stem-auth button {
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 11px;
+  background: #3157d9;
+}
+
+.locked-academy-page #total {
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(20, 32, 80, .28);
+  font: 800 .95rem Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.locked-academy-page #map {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--rl-line, #dce4f0);
+  border-radius: 18px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 8px 24px rgba(31,53,89,.07);
+}
+
+.locked-academy-page #map button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #dce4f0;
+  border-radius: 13px;
+  color: #385077;
+  background: #eef2ff;
+  box-shadow: none;
+  font: 800 .9rem Manrope, sans-serif;
+}
+
+.locked-academy-page #map button:nth-child(3n) { margin-right: 0; }
+.locked-academy-page #map button.cur { color: #fff; background: linear-gradient(135deg, #3157d9, #7654df); box-shadow: 0 0 0 3px rgba(89,100,232,.2); animation: none; }
+.locked-academy-page #map button.done { border-color: #b7e5d3; color: #126b50; background: #e8f8f1; }
+.locked-academy-page #map button:disabled { opacity: .52; filter: none; }
+
+.locked-academy-page main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.locked-academy-page main > .card,
+.locked-academy-page main .card:first-child,
+.locked-academy-page main .card + .card {
+  min-width: 0;
+  padding: clamp(18px, 2.2vw, 28px);
+  border: 1px solid var(--rl-line, #dce4f0);
+  border-radius: 22px;
+  color: var(--rl-ink, #17233d);
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--rl-shadow, 0 18px 50px rgba(31,53,89,.13));
+}
+
+.locked-academy-page main .card:first-child h2,
+.locked-academy-page main .card h2 {
+  color: var(--rl-ink, #17233d);
+  font: 800 1.2rem/1.35 Manrope, sans-serif;
+  letter-spacing: -.025em;
+}
+
+.locked-academy-page #scene {
+  height: clamp(270px, 31vw, 390px);
+  border: 2px solid #cbd6e8;
+  border-radius: 17px;
+  box-shadow: inset 0 0 40px rgba(31,42,68,.22);
+}
+
+.locked-academy-page #rid,
+.locked-academy-page #note,
+.locked-academy-page #nb {
+  border-radius: 13px;
+  box-shadow: none;
+}
+
+.locked-academy-page #rid {
+  border: 1px solid #dce4f0;
+  border-left: 4px solid #7654df;
+  color: #33415e;
+  background: #f5f7ff;
+}
+
+.locked-academy-page #rid b,
+.locked-academy-page #nb b { color: #3157d9; }
+.locked-academy-page .rd:before { background: #7654df; }
+
+.locked-academy-page #note {
+  border: 1px solid #dce4f0;
+  border-left: 4px solid #0793b5;
+  color: #33415e;
+  background: #f3f6ff;
+}
+
+.locked-academy-page #nb {
+  border: 1px dashed #aab8d0;
+  color: #33415e;
+  background: #f8faff;
+}
+
+.locked-academy-page #lesson {
+  border: 1px solid #354c83;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #172b50, #263b75);
+  box-shadow: 0 10px 24px rgba(31,53,89,.14);
+}
+
+.locked-academy-page .mode { border-radius: 8px; background: #3157d9; }
+.locked-academy-page .chip { border-color: #c6d2e5; border-radius: 10px; background: #eef2ff; box-shadow: none; }
+.locked-academy-page #code { border: 1px solid #526489; border-radius: 14px; }
+
+.locked-academy-page .btns { gap: 10px; }
+.locked-academy-page .b {
+  min-height: 44px;
+  border: 1px solid #c8d3e5;
+  border-radius: 12px;
+  font: 800 .95rem Manrope, sans-serif;
+  box-shadow: 0 4px 12px rgba(31,53,89,.1);
+}
+
+.locked-academy-page .b.go { border-color: transparent; background: linear-gradient(135deg, #3157d9, #5964e8); color: #fff; }
+.locked-academy-page .b.next { min-height: 48px; padding-inline: 20px; border-color: transparent; background: linear-gradient(135deg, #159570, #08785c); color: #fff; font-size: 1rem; }
+.locked-academy-page .b:focus-visible { outline: 3px solid rgba(49,87,217,.3); outline-offset: 2px; }
+.locked-academy-page #out { border-radius: 12px; }
+.locked-academy-page #msg { border-radius: 12px; }
+
+@media (max-width: 900px) {
+  .locked-academy-page main { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  .locked-academy-page .w { padding: 14px 12px 36px; }
+  .locked-academy-page .academy-header { align-items: flex-start; border-radius: 18px; padding: 18px; }
+  .locked-academy-page .academy-actions { width: 100%; justify-content: flex-start; gap: 8px; }
+  .locked-academy-page .stem-auth { justify-content: flex-start; }
+  .locked-academy-page .stem-auth small { max-width: 150px; }
+  .locked-academy-page #map { gap: 7px; padding: 12px; }
+  .locked-academy-page #map button { width: 38px; height: 38px; }
+  .locked-academy-page #scene { height: 290px; }
+}
