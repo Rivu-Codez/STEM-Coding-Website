@@ -3,6 +3,18 @@
   const adapter = window.StemGameAdapter.create(gameId);
   const $ = id => document.getElementById(id);
   const originalLoad = window.load;
+  let completedLevels = new Set();
+
+  function showCompletedLevel(index) {
+    done = true;
+    $("door").textContent = "Door: open";
+    $("scene").classList.add("open");
+    $("run").hidden = true;
+    $("hint").hidden = true;
+    $("reset").hidden = true;
+    $("next").textContent = "Next level →";
+    $("next").hidden = index >= L.length - 1;
+  }
 
   function updateMap() {
     const map = $("map");
@@ -31,6 +43,10 @@
     originalLoad(index);
     $("run").disabled = false;
     $("next").hidden = true;
+    $("run").hidden = false;
+    $("hint").hidden = false;
+    $("reset").hidden = false;
+    if (completedLevels.has(index + 1)) showCompletedLevel(index);
     updateMap();
   };
 
@@ -74,12 +90,12 @@
     }
 
     done = true;
-    $("run").disabled = true;
+    completedLevels.add(cur + 1);
     $("door").textContent = "Door: open";
     $("scene").classList.add("open");
     burst(cur === 14 ? 60 : 28);
     $("out").textContent = execution.out.join("\n");
-    $("next").hidden = cur === L.length - 1;
+    showCompletedLevel(cur);
     updateMap();
     const reward = await adapter.recordAchievement(cur);
     if (reward.ok && reward.data) stars[cur] = Number(reward.data.stars) || 0;
@@ -100,6 +116,9 @@
     const progress = await window.StemGameAuth.getGameProgress(gameId);
     if (!progress.ok) return;
     stars = Array(L.length).fill(0);
+    completedLevels = new Set((progress.levels || [])
+      .filter(item => item.status === "completed")
+      .map(item => Number(item.level_number)));
     (progress.achievements || []).forEach(item => {
       const index = Number(item.level_number) - 1;
       if (index >= 0 && index < stars.length) stars[index] = Number(item.stars) || 0;
