@@ -29,6 +29,8 @@
       return;
     }
     originalLoad(index);
+    $("run").disabled = false;
+    $("next").hidden = true;
     updateMap();
   };
 
@@ -72,10 +74,13 @@
     }
 
     done = true;
+    $("run").disabled = true;
     $("door").textContent = "Door: open";
     $("scene").classList.add("open");
     burst(cur === 14 ? 60 : 28);
-    setText("out", execution.out.join("\n"));
+    $("out").textContent = execution.out.join("\n");
+    $("next").hidden = cur === L.length - 1;
+    updateMap();
     const reward = await adapter.recordAchievement(cur);
     if (reward.ok && reward.data) stars[cur] = Number(reward.data.stars) || 0;
     updateMap();
@@ -83,7 +88,6 @@
       ? `The exit gate swings open. You escaped the Locked Academy! Total: ${stars.reduce((sum, value) => sum + value, 0)} / 45 stars.`
       : `Click! The lock opens. ${"★".repeat(stars[cur] || 1)}`) +
       `\n\nIn Python, your solution looks like this:\n${code}`, "ok");
-    $("next").hidden = cur === 14;
   };
 
   $("next").onclick = () => {
