@@ -196,7 +196,7 @@ const CURRICULUM = window.SubmarineMathLevels;
         // --- GAME STATE ---
         const MISSILE_SECONDS = { 1: 25, 2: 25, 3: 25, 4: 25, 5: 20, 6: 18 }; // slow early, faster in sections 5 and 6
         let hull = 3, gameOver = false;
-        let missile = { state: 'none', start: 0, duration: 0, pausedAt: null, aimDepth: 0, x: 0, y: 0 };
+        let missile = { state: 'none', start: 0, duration: 0, pausedAt: null, rearmAt: null, rearmRemaining: 0, aimDepth: 0, x: 0, y: 0 };
         let explosion = { active: false, frame: 0 };
         let currentLevelIdx = 0;
         let score = 0;
@@ -229,18 +229,34 @@ const CURRICULUM = window.SubmarineMathLevels;
             if (gameOver || levelSolved) { missile.state = 'none'; return; }
             const level = CURRICULUM[currentLevelIdx];
             missile.state = 'flying';
+            missile.rearmAt = null;
+            missile.rearmRemaining = 0;
             missile.start = performance.now();
             missile.pausedAt = null;
             missile.duration = (MISSILE_SECONDS[level.section] || 30) * 1000;
             missile.aimDepth = subDepth;
             sfx.playPing();
         }
-        function pauseMissile() { if (missile.state === 'flying' && missile.pausedAt === null) missile.pausedAt = performance.now(); }
+        function pauseMissile() {
+            if (missile.state === 'flying' && missile.pausedAt === null) missile.pausedAt = performance.now();
+            else if (missile.state === 'rearming' && missile.rearmAt !== null) {
+                missile.rearmRemaining = Math.max(0, missile.rearmAt - performance.now());
+                missile.rearmAt = null;
+            }
+        }
         function resumeMissile() {
             if (missile.state === 'flying' && missile.pausedAt !== null) {
                 missile.start += performance.now() - missile.pausedAt;
                 missile.pausedAt = null;
+            } else if (missile.state === 'rearming' && missile.rearmAt === null) {
+                missile.rearmAt = performance.now() + missile.rearmRemaining;
             }
+        }
+        function scheduleMissileRearm(delay = 1800) {
+            if (gameOver || levelSolved) return;
+            missile.state = 'rearming';
+            missile.rearmRemaining = delay;
+            missile.rearmAt = performance.now() + delay;
         }
         function updateHull() {
             const el = document.getElementById('hud-hull');
@@ -252,11 +268,18 @@ const CURRICULUM = window.SubmarineMathLevels;
         }
         function hitByMissile() {
             missile.state = 'none';
+            missile.rearmAt = null;
+            missile.rearmRemaining = 0;
             explosion = { active: true, frame: 0 };
             sfx.playSplash(); sfx.playError();
             const ov = document.getElementById('hit-overlay');
             ov.style.opacity = '1';
-            setTimeout(() => { ov.style.opacity = '0'; }, 400);
+            setTimeout(() => { ov.style.opacity = '0'; }, 650);
+            const stage = document.getElementById('gameCanvas').parentElement;
+            stage.classList.remove('missile-hit-shake');
+            void stage.offsetWidth;
+            stage.classList.add('missile-hit-shake');
+            setTimeout(() => stage.classList.remove('missile-hit-shake'), 600);
             hull = Math.max(0, hull - 1);
             updateHull();
             if (hull === 0) {
@@ -282,6 +305,9 @@ const CURRICULUM = window.SubmarineMathLevels;
 
         function drawMissileAndFx(width, height, metersToY) {
             const subX = width * 0.5;
+            if (missile.state === 'rearming' && missile.rearmAt !== null && performance.now() >= missile.rearmAt) {
+                launchMissile();
+            }
             // update + draw missile
             if (missile.state === 'flying') {
                 const p = missileProgress();
@@ -293,8 +319,8 @@ const CURRICULUM = window.SubmarineMathLevels;
                     attempts++;
                     hitByMissile();
                     if (!gameOver) {
-                        missile.state = 'armed';
-                        showFeedback(false, `Time ran out! The missile hit the hull (${hull} left). Missile re-arms when you start typing.`);
+                        scheduleMissileRearm();
+                        showFeedback(false, `Time ran out! The missile hit the hull (${hull} left). Another missile launches shortly; start typing to launch it sooner.`);
                         showMistakeLesson(level);
                     }
                 }
@@ -730,7 +756,7 @@ const CURRICULUM = window.SubmarineMathLevels;
 
         nativeInput.addEventListener('input', () => {
             sfx.playKeyTap();
-            if (missile.state === 'armed') launchMissile();
+            if (missile.state === 'armed' || missile.state === 'rearming') launchMissile();
             updateRoutePreview();
         });
 
@@ -738,7 +764,7 @@ const CURRICULUM = window.SubmarineMathLevels;
             const current = nativeInput.value.trim();
             nativeInput.value = current ? `${current},${move}` : move;
             nativeInput.focus();
-            if (missile.state === 'armed') launchMissile();
+            if (missile.state === 'armed' || missile.state === 'rearming') launchMissile();
             updateRoutePreview();
             sfx.playKeyTap();
         }
@@ -847,13 +873,23 @@ const CURRICULUM = window.SubmarineMathLevels;
             attempts = attempt.data.attempt_count || attempts + 1;
             const isCorrect = attempt.data.server_result === 'success';
 
+            if (!isCorrect && window.SubmarineMissionEngine.validateRoute(level, userStr).ok) {
+                showFeedback(false, "Your route reaches the target, but the game server has outdated mission data and could not save it. Refresh the game; if this continues, ask your teacher to update the Submarine Math data.");
+                return;
+            }
+
             if (isCorrect) {
                 sfx.playSuccess();
 
                 const targetDepthToAnimate = level.targetDepth;
 
                 const hadMissile = missile.state === 'flying';
-                if (hadMissile) missile.state = 'evaded'; else if (missile.state === 'armed') missile.state = 'none';
+                if (hadMissile) missile.state = 'evaded';
+                else {
+                    missile.state = 'none';
+                    missile.rearmAt = null;
+                    missile.rearmRemaining = 0;
+                }
                 animateSubmarineTo(targetDepthToAnimate);
 
                 levelSolved = true;
@@ -877,8 +913,8 @@ const CURRICULUM = window.SubmarineMathLevels;
                 {
                     hitByMissile();
                     if (gameOver) { showFeedback(false, 'Direct hit! The hull is breached.'); return; }
-                    missile.state = 'armed';
-                    msg = `Direct hit! Hull: ${hull} left. ` + msg + ' Missile re-arms when you start typing.';
+                    scheduleMissileRearm();
+                    msg = `Direct hit! Hull: ${hull} left. ` + msg + ' Another missile launches shortly; start typing to launch it sooner.';
                 }
                 showFeedback(false, msg);
                 showMistakeLesson(level);
@@ -974,6 +1010,8 @@ const CURRICULUM = window.SubmarineMathLevels;
             hideLesson();
             explosion.active = false;
             missile.state = 'none';
+            missile.rearmAt = null;
+            missile.rearmRemaining = 0;
             updateHull();
             if (!gameOver) {
                 if (armedStart) { missile.state = 'armed'; }

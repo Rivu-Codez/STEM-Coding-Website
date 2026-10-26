@@ -43,6 +43,13 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(56, 189, 248, 0.15);
         }
+        @keyframes missile-hit-shake {
+            0%, 100% { transform: translateX(0); }
+            18%, 54% { transform: translateX(-6px); }
+            36%, 72% { transform: translateX(6px); }
+        }
+        .missile-hit-shake { animation: missile-hit-shake 0.55s ease-in-out; }
+        @media (prefers-reduced-motion: reduce) { .missile-hit-shake { animation: none; } }
     input{-webkit-user-select:text;user-select:text}
     button:focus-visible{outline:2px solid #22d3ee;outline-offset:2px}
         @media (prefers-reduced-motion: reduce){*{transition:none!important}}
